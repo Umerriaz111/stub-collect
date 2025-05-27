@@ -21,6 +21,8 @@ venv/
 .installed.cfg
 *.egg
 MANIFET.in
+.env
+my_env/
 
 # IDE / Editor
 .idea/
