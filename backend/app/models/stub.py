@@ -3,6 +3,8 @@ from app import db
 from flask_login import UserMixin
 import os
 
+SUPPORTED_CURRENCIES = ['USD', 'EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'CHF', 'CNH', 'HKD', 'NZD']
+
 class Stub(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -18,6 +20,7 @@ class Stub(db.Model):
     event_date = db.Column(db.DateTime)
     venue_name = db.Column(db.String(255))
     ticket_price = db.Column(db.Float)
+    currency = db.Column(db.String(3), default='USD')
     seat_info = db.Column(db.String(100))
     
     # Meta information
@@ -55,6 +58,7 @@ class Stub(db.Model):
             'event_date': self.event_date.isoformat() if self.event_date else None,
             'venue_name': self.venue_name,
             'ticket_price': float(self.ticket_price) if self.ticket_price is not None else None,
+            'currency': self.currency,
             'seat_info': self.seat_info,
             'status': self.status,
             'created_at': self.created_at.isoformat(),

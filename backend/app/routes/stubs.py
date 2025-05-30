@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
 import os
 from app import db
-from app.models.stub import Stub
+from app.models.stub import Stub, SUPPORTED_CURRENCIES
 from app.services.stub_service import StubProcessor
 from datetime import datetime
 from flask_limiter import Limiter
@@ -83,6 +83,7 @@ def upload_stub():
             event_date=Stub.parse_date(parsed_data.get('event_date')),
             venue_name=parsed_data.get('venue_name'),
             ticket_price=parsed_data.get('ticket_price'),
+            currency=parsed_data.get('currency', 'USD'),
             seat_info=parsed_data.get('seat_info'),
             status='processed'
         )
@@ -135,6 +136,13 @@ def update_stub(stub_id):
             stub.venue_name = data['venue_name']
         if 'ticket_price' in data:
             stub.ticket_price = float(data['ticket_price']) if data['ticket_price'] else None
+        if 'currency' in data:
+            if data['currency'] not in SUPPORTED_CURRENCIES:
+                return jsonify({
+                    'status': 'error',
+                    'message': f'Invalid currency. Supported currencies: {", ".join(SUPPORTED_CURRENCIES)}'
+                }), 400
+            stub.currency = data['currency']
         if 'seat_info' in data:
             stub.seat_info = data['seat_info']
 

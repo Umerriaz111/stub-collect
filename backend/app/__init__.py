@@ -2,11 +2,13 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_cors import CORS
+from flask_migrate import Migrate
 from config import Config
 import os
 
 # Initialize extensions
 db = SQLAlchemy()
+migrate = Migrate()
 login_manager = LoginManager()
 
 def create_app(config_class=Config):
@@ -35,6 +37,7 @@ def create_app(config_class=Config):
 
     # Initialize extensions with app
     db.init_app(app)
+    migrate.init_app(app, db)  # Initialize Flask-Migrate
     login_manager.init_app(app)
 
     # Import and register blueprints

@@ -5,9 +5,10 @@ from werkzeug.utils import secure_filename
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Literal
 import base64
 import dotenv
+from app.models.stub import SUPPORTED_CURRENCIES
 
 dotenv.load_dotenv()
 
@@ -21,7 +22,11 @@ class StubData(BaseModel):
     event_name: Optional[str] = Field(None, description="The name of the event.")
     event_date: Optional[str] = Field(None, description="The date of the event in a clear format (e.g., YYYY-MM-DD).")
     venue_name: Optional[str] = Field(None, description="The name of the venue where the event took place.")
-    ticket_price: Optional[float] = Field(None, description="The price of the ticket")
+    ticket_price: Optional[float] = Field(None, description="The numeric price value without currency symbol")
+    currency: Optional[Literal['USD', 'EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'CHF', 'CNH', 'HKD', 'NZD']] = Field(
+        'USD',
+        description="The currency of the ticket price (USD, EUR, JPY, etc.)"
+    )
     seat_info: Optional[str] = Field(None, description="Detailed seat information (e.g., Row, Section, Seat Number).")
 
 class StubProcessor:
@@ -104,17 +109,23 @@ class StubProcessor:
             message_content = [
                 {
                     "type": "text",
-                    "text": """
+                    "text": f"""
                     You are an expert at extracting information from ticket stubs.
                     Analyze the provided image of a ticket stub and extract the following information:
                     - Event Name
                     - Event Date (format as YYYY-MM-DD)
                     - Venue Name
-                    - Ticket Price (extract only the numeric value)
+                    - Ticket Price (extract only the numeric value without currency symbol)
+                    - Currency (identify the currency from these options: {', '.join(SUPPORTED_CURRENCIES)})
                     - Seat Information (e.g., Row, Section, Seat Number, Gate)
 
+                    For the ticket price:
+                    - Extract only the numeric value (e.g., for "$50.00" just return 50.00)
+                    - Look for currency symbols (€, £, ¥, etc.) to determine the currency
+                    - Default to USD if no currency symbol is found
+                    - For JPY prices, convert any sen (1/100 yen) to full yen
+
                     If a piece of information is not clearly visible or found, return None for that field.
-                    For the ticket price, return only the numeric value without currency symbols.
                     Prioritize accuracy over completeness.
                     """
                 },
