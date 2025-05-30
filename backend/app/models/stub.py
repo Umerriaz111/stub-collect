@@ -9,6 +9,9 @@ class Stub(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
+    # Title for the stub
+    title = db.Column(db.String(255), nullable=False)
+    
     # Image information
     image_path = db.Column(db.String(255), nullable=False)
     
@@ -53,6 +56,7 @@ class Stub(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
+            'title': self.title,
             'image_path': self.image_path,
             'event_name': self.event_name,
             'event_date': self.event_date.isoformat() if self.event_date else None,

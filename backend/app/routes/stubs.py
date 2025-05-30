@@ -36,6 +36,14 @@ def upload_stub():
             'message': 'No image file provided'
         }), 400
 
+    # Get the title from form data
+    title = request.form.get('title')
+    if not title:
+        return jsonify({
+            'status': 'error',
+            'message': 'Title is required'
+        }), 400
+
     image_file = request.files['image']
     if image_file.filename == '':
         return jsonify({
@@ -77,6 +85,7 @@ def upload_stub():
         parsed_data = result['parsed_data']
         stub = Stub(
             user_id=current_user.id,
+            title=title,
             image_path=image_path,
             raw_text=result['raw_text'],
             event_name=parsed_data.get('event_name'),
@@ -122,6 +131,13 @@ def update_stub(stub_id):
     
     try:
         # Update fields if provided
+        if 'title' in data:
+            if not data['title']:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Title cannot be empty'
+                }), 400
+            stub.title = data['title']
         if 'event_name' in data:
             stub.event_name = data['event_name']
         if 'event_date' in data:
