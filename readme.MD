@@ -5,18 +5,21 @@ This project consists of a Flask backend API and a frontend application (to be i
 ## Backend
 
 ### Prerequisites
+
 - Python 3.12 or higher (Recommended 3.12.10)
 - pip (Python package installer)
 
 ### Setup Instructions
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd backend
    ```
 
 2. **Create and activate virtual environment**
+
    ```bash
    # Create virtual environment
    python -m venv my_env
@@ -29,6 +32,7 @@ This project consists of a Flask backend API and a frontend application (to be i
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -60,8 +64,8 @@ If you encounter any issues:
 1. Make sure your virtual environment is activated
 2. Verify all dependencies are installed correctly
 3. Check if the SQLite database file is created in the `instance` folder
-4. Ensure you're running the application from the `backend` directory 
-
+4. Ensure you're running the application from the `backend` directory
 
 ## Frontend
-*To be implemented*
+
+_To be implemented_
