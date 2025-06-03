@@ -12,7 +12,7 @@ function AuthPageRightSide() {
       item
       container
       xs={12}
-      sm={6}
+      sm={5}
       minHeight={"10vh"}
       sx={{
         backgroundImage: `url(${authRightBg})`,
@@ -21,14 +21,14 @@ function AuthPageRightSide() {
       }}
     >
       <Typography
-        variant={isMobile ? "h5" : isTab ? "h3" : "h1"}
+        variant={isMobile ? "h6" : isTab ? "h4" : "h2"}
         fontWeight={500}
         m={"auto"}
         sx={{ color: "white" }}
       >
         STUB
         <Typography
-          variant={isMobile ? "h5" : isTab ? "h3" : "h1"}
+          variant={isMobile ? "h6" : isTab ? "h4" : "h2"}
           fontWeight={150}
           component={"span"}
           px={1}

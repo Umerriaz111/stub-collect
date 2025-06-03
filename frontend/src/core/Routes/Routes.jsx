@@ -12,6 +12,7 @@ import Feed from "../../views/Pages/feed/Feed.jsx";
 import Signup from "../../views/Pages/auth/Signup.jsx";
 import ForgetPassword from "../../views/Pages/auth/ForgetPassword.jsx";
 import NewPassword from "../../views/Pages/auth/NewPassword.jsx";
+import Dashboard from "../../views/Pages/dashboard/Dashboard.jsx";
 // ********************* Protected PAGES**********
 
 // ********** EXPORT ROUTES *********
@@ -62,7 +63,7 @@ export const routes = [
 
   {
     path: "/",
-    page: <div>main page</div>,
+    page: <Dashboard />,
     aside: null,
   },
 
