@@ -1,37 +1,57 @@
-import { Typography } from "@mui/material";
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { SET_HEADING } from "../../../core/store/App/appSlice";
-import { useEffect } from "react";
-import { Button } from "@mui/material";
-import { Box } from "@mui/material";
+import { Typography, Grid } from "@mui/material";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MainHeader from "../../components/Headers/MainHeader";
+import { Box } from "@mui/material";
+import StubCard from "../../components/Cards/StubCard";
+import { getAllListing } from "../../../core/api/marketplace";
+import config from "../../../core/services/configService";
 
 function Dashboard() {
-  // const dispatch = useDispatch()
-  // useEffect(() => {
-  //     dispatch(SET_HEADING({ heading: 'Main', subHeading: 'Dashboard' }))
-  // }, [])
   const navigate = useNavigate();
+  const [listings, setListings] = useState([]);
+  const [error, setError] = useState("");
 
-  const username = useSelector((state) => state.auth.user);
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const response = await getAllListing();
+        setListings(response.data.data);
+      } catch (err) {
+        setError("Failed to fetch listings");
+        console.error("Error fetching listings:", err);
+      }
+    };
+    fetchListings();
+  }, []);
 
   return (
-    <Box display={"flex"} p={2}>
+    <Box sx={{ p: 3 }}>
       <MainHeader />
-      {/* <Box>
-        <Button variant="contained" onClick={() => navigate("/add-new-stub")}>
-          {" "}
-          Upload New Stub
-        </Button>
-      </Box>
-      <Box sx={{ ml: "auto" }}>
-        <Button variant="contained" onClick={() => navigate("/login")}>
-          Login
-        </Button>
-        <Button onClick={() => navigate("/signup")}>Sigup</Button>
-      </Box> */}
+
+      <Typography variant="h4" sx={{ mb: 3 }}>
+        Available Stubs
+      </Typography>
+
+      {error && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
+
+      <Grid container>
+        {listings.map((listing) => (
+          <Grid item xs={12} sm={4} md={3} lg={3} key={listing.id}>
+            <StubCard
+              image={`${config.VITE_APP_API_BASE_URL}/${listing.stub.image_url}`}
+              title={listing.stub.title}
+              price={listing.asking_price}
+              currency={listing.currency}
+              onClick={() => navigate(`/marketplace/listings/${listing.id}`)}
+            />
+          </Grid>
+        ))}
+      </Grid>
     </Box>
   );
 }

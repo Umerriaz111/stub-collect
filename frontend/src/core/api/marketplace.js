@@ -11,3 +11,7 @@ const api = axios.create({
 export const createListing = async (data) => {
   return await api.post("/api/marketplace/list", data);
 };
+
+export const getAllListing = async () => {
+  return await api.get("/api/marketplace/listings");
+};

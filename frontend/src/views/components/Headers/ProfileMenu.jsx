@@ -148,12 +148,12 @@ export default function ProfileMenu() {
           My Stubs
         </MenuItem>
 
-        <MenuItem>
+        {/* <MenuItem>
           <ListItemIcon>
             <Settings fontSize="small" color="primary" />
           </ListItemIcon>
           Settings
-        </MenuItem>
+        </MenuItem> */}
 
         <Divider sx={{ my: 1 }} />
 
