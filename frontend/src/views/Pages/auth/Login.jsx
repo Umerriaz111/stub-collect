@@ -45,22 +45,23 @@ export default function Login() {
     initialValues: {
       email: "",
       password: "",
-      // keepLoggedIn: false,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       setLoading(true);
-      console.log("values", values);
       try {
         const response = await loginApi(values);
-        // const cookies = response.headers["set-cookie"];
         if (response?.data?.status === "success") {
+          dispatch(LOGIN(response.data)); // Store auth state
+          const redirectURL = localStorage.getItem("redirectURL") || "/";
+          localStorage.removeItem("redirectURL");
+          // navigate(redirectURL);
           navigate("/");
-          notyf.success(`login successful!`);
+          notyf.success("Login successful!");
         }
       } catch (error) {
-        console.log("Error Occurred", error);
-        notyf.error(error.data.detail);
+        console.error("Login failed:", error);
+        notyf.error(error?.message || "Login failed. Please try again.");
       } finally {
         setLoading(false);
       }

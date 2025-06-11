@@ -7,6 +7,7 @@ import {
   TextField,
   Typography,
   styled,
+  Alert,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { uploadStub } from "../../../core/api/stub";
@@ -24,37 +25,61 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 const AddNewStub = () => {
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        setError("File size too large. Maximum size is 5MB");
+        return;
+      }
+
+      // Check file type
+      const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+      if (!validTypes.includes(file.type)) {
+        setError("Invalid file type. Allowed types: PNG, JPG, JPEG");
+        return;
+      }
+
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
+      setError("");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log({ description, image: previewImage });
+    setError("");
+    setSuccess("");
 
-    const uploadData = {
-      image: previewImage, // Your File object from input
-      title: description,
-    };
+    if (!title || !selectedFile) {
+      setError("Please provide both title and image");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+    formData.append("title", title);
 
     try {
-      const response = await uploadStub(uploadData);
-      console.log("Upload successful:", response.data);
-      // Handle success (e.g., show success message, redirect, etc.)
+      const response = await uploadStub(formData);
+      setSuccess("Stub uploaded successfully!");
+      // Reset form
+      setTitle("");
+      setSelectedFile(null);
+      setPreviewImage(null);
     } catch (error) {
-      console.error("Upload failed:", error);
-      // Handle error (e.g., show error message)
+      setError(error.response?.data?.message || "Failed to upload stub");
     }
   };
 
@@ -64,6 +89,18 @@ const AddNewStub = () => {
         <Typography variant="h5" component="h1" gutterBottom>
           Add New Stub
         </Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        {success && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {success}
+          </Alert>
+        )}
 
         <Box component="form" onSubmit={handleSubmit}>
           {/* Image Upload Section */}
@@ -114,21 +151,20 @@ const AddNewStub = () => {
               Upload Image
               <VisuallyHiddenInput
                 type="file"
-                accept="image/*"
+                accept="image/png,image/jpeg,image/jpg"
                 onChange={handleImageUpload}
               />
             </Button>
           </Box>
 
-          {/* Description Field */}
+          {/* Title Field */}
           <TextField
-            label="Description"
-            multiline
-            rows={4}
+            label="Title"
             fullWidth
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             sx={{ mb: 3 }}
+            required
           />
 
           {/* Submit Button */}
@@ -138,7 +174,7 @@ const AddNewStub = () => {
             color="primary"
             fullWidth
             size="large"
-            disabled={!description || !previewImage}
+            disabled={!title || !selectedFile}
           >
             Create Stub
           </Button>

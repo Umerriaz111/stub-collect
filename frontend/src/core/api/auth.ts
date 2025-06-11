@@ -1,27 +1,20 @@
-import ApiService from "../services/apiService";
-import config from "../services/configService";
 import axios from "axios";
+import config from "../services/configService";
+
+// Create axios instance with default config
+const api = axios.create({
+  baseURL: config.VITE_APP_API_BASE_URL || "http://localhost:5000",
+  withCredentials: true, // Important for sending cookies
+});
 
 export const registerUserApi = (registerData: any) => {
-  return axios.post(
-    `${config.VITE_APP_API_BASE_URL}/auth/register`,
-    registerData
-  );
-};
-
-// export const loginApi = async (loginData: any) => {
-//     return axios.post(`${config.VITE_APP_AUTH_API_BASE_URL}/auth/login`, loginData)
-// }
-
-export const logoutApi = () => {
-  return new Promise((resolve, reject) => {
-    resolve({ status: "success", message: "logout successful" });
-    reject({});
-  });
+  return api.post("/auth/register", registerData);
 };
 
 export const loginApi = (loginData: any) => {
-  return axios.post(`${config.VITE_APP_API_BASE_URL}/auth/login`, loginData, {
-    withCredentials: true,
-  });
+  return api.post("/auth/login", loginData);
+};
+
+export const logoutApi = () => {
+  return api.post("/auth/logout");
 };
