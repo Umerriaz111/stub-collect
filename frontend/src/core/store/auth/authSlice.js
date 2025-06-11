@@ -40,7 +40,6 @@ const authSlice = createSlice({
       // If not a valid SJComputers user, set printing preference
       if (!isUserSJComputers) {
         state.printByNativeApp = true;
-        savePrintingPreference(true);
       }
     },
     LOGOUT: (state) => {
@@ -48,7 +47,6 @@ const authSlice = createSlice({
       state.user = null;
       state.isUserSJComputers = false;
       state.printByNativeApp = false;
-      savePrintingPreference(false);
       saveUser(null);
       ApiService.setHeader("Authorization", "");
       destroyToken();
@@ -62,17 +60,7 @@ const authSlice = createSlice({
     SET_TOKEN_EXPIRED: (state, action) => {
       state.tokenExpired = action.payload;
     },
-    SET_PRINTING_PREFERENCE: (state, action) => {
-      state.printByNativeApp = action.payload;
-      savePrintingPreference(action.payload); // Save updated preference to localStorage
-    },
   },
 });
-export const {
-  LOGIN,
-  LOGOUT,
-  REGISTER,
-  SET_TOKEN_EXPIRED,
-  SET_PRINTING_PREFERENCE,
-} = authSlice.actions;
+export const { LOGIN, LOGOUT, REGISTER, SET_TOKEN_EXPIRED } = authSlice.actions;
 export default authSlice.reducer;

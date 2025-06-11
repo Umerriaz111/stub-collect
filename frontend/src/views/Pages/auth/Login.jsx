@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   Grid,
+  Paper,
   Box,
   Typography,
   Divider,
@@ -69,164 +70,138 @@ export default function Login() {
   });
 
   return (
-    <Grid container minHeight={"100vh"}>
-      {/* right grid item */}
-      <AuthPageRightSide /> {/* :: This component is grid item */}
-      {/* left grid item */}
+    <Grid container minHeight={"100vh"} sx={{ backgroundColor: "#f5f5f5" }}>
+      <AuthPageRightSide />
       <Grid
         item
         xs={12}
         sm={7}
         container
-        px={4}
-        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: { xs: 2, sm: 4 },
+        }}
       >
-        <Grid
-          item
-          xs={10}
-          md={7}
-          component={"form"}
-          onSubmit={formik.handleSubmit}
-          container
-          rowGap={2}
-          py={3}
+        <Paper
+          elevation={3}
+          sx={{
+            width: "100%",
+            maxWidth: "500px",
+            p: 4,
+            borderRadius: 2,
+          }}
         >
-          <Grid item xs={12} textAlign={"center"}>
-            <Typography variant="h5" fontWeight={700}>
-              Welcome Back!
-            </Typography>
-            <Typography variant="body3" color={"text.light"}>
-              Enter your email and password to sign in!
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="body3" fontWeight={"500"}>
-              Email
-              <Typography component={"span"} sx={{ color: "text.secondary" }}>
-                *
-              </Typography>
-            </Typography>
-            <FormField
-              sx={{ mt: "5px" }}
-              placeholder="john@example.com"
-              type={"email"}
-              id={"email"}
-              value={formik?.values?.email}
-              handleChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              isTouched={formik.touched.email}
-              error={formik.errors?.email}
-              // required
-            />
-            <Typography variant="body3" color={"text.light"}>
-              You can use letters, numbers & symbols
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="body3" fontWeight={"500"}>
-              Password
-              <Typography component={"span"} sx={{ color: "text.secondary" }}>
-                *
-              </Typography>
-            </Typography>
-            <FormField
-              sx={{ my: "5px" }}
-              type={showPassword ? "text" : "password"}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      size="small"
-                      onClick={handleTogglePasswordVisibility}
-                      edge="end"
-                    >
-                      {showPassword ? (
-                        <VisibilityOffIcon fontSize="12px" />
-                      ) : (
-                        <VisibilityIcon fontSize="12px" />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              placeholder="********"
-              id={"password"}
-              value={formik?.values?.password}
-              handleChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              isTouched={formik.touched.password}
-              error={formik.errors?.password}
-              // required
-            />
-            <Typography variant="body3" color={"text.light"}>
-              You use 8 or more characters with a mix of letters, numbers &
-              symbols
-            </Typography>
-          </Grid>
           <Grid
             item
             xs={12}
-            mt={-1}
-            sx={{ display: "flex", alignItems: "center" }}
+            component={"form"}
+            onSubmit={formik.handleSubmit}
+            container
+            spacing={3}
           >
-            {/* <Typography variant="body3">
-              <IOSSwitch
-                id="keepLoggedIn"
-                value={formik?.values?.keepLoggedIn}
-                onChange={formik?.handleChange}
-                sx={{ mx: 1 }}
-              />{" "}
-              Remember me
-            </Typography> */}
-            {/* <Checkbox
-                  value={formik?.values?.keepLoggedIn}
-                  id="keepLoggedIn"
-                  onChange={formik?.handleChange}
-                  size="small"
-                  type="checkbox"
-                /> */}
-            {/* <Typography variant="body3">Keep me logged in</Typography> */}
-            {/* <Typography
-                            variant="body3"
-                            component={Link}
-                            to={'/forget-password'}
-                            sx={{ textDecoration: 'none' }}
-                            color={'text.secondary'}
-                            ml={'auto'}
-                            fontWeight={'500'}
-                            pl={1}
-                        >
-                            Forget password?
-                        </Typography> */}
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              type="submit"
-              fullWidth
-              sx={{ borderRadius: "16px", py: 2 }}
-              disabled={loading}
-            >
-              <Typography variant="body3" display={"flex"}>
-                SIGN IN
-                {loading && <CircularProgress />}{" "}
+            <Grid item xs={12} textAlign={"center"}>
+              <Typography variant="h5" fontWeight={700} color="primary">
+                Welcome Back!
               </Typography>
-            </Button>
+              <Typography variant="body2" color={"text.secondary"} mt={1}>
+                Enter your credentials to access your account
+              </Typography>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="subtitle2" fontWeight={600} mb={1}>
+                Email
+                <Typography component={"span"} color="error">
+                  *
+                </Typography>
+              </Typography>
+              <FormField
+                fullWidth
+                placeholder="john@example.com"
+                type={"email"}
+                id={"email"}
+                value={formik?.values?.email}
+                handleChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                isTouched={formik.touched.email}
+                error={formik.errors?.email}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="subtitle2" fontWeight={600} mb={1}>
+                Password
+                <Typography component={"span"} color="error">
+                  *
+                </Typography>
+              </Typography>
+              <FormField
+                fullWidth
+                type={showPassword ? "text" : "password"}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleTogglePasswordVisibility}
+                        edge="end"
+                      >
+                        {showPassword ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                placeholder="Enter your password"
+                id={"password"}
+                value={formik?.values?.password}
+                handleChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                isTouched={formik.touched.password}
+                error={formik.errors?.password}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                type="submit"
+                fullWidth
+                size="large"
+                sx={{
+                  borderRadius: 2,
+                }}
+                disabled={loading}
+              >
+                {loading ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+            </Grid>
+
+            <Grid item xs={12} display={"flex"} justifyContent={"center"}>
+              <Typography variant="body3" color="text.secondary">
+                Not registered yet?{" "}
+                <Link
+                  to={"/signup"}
+                  style={{
+                    textDecoration: "none",
+                    color: "primary.main",
+                    fontWeight: 600,
+                  }}
+                >
+                  Create an Account
+                </Link>
+              </Typography>
+            </Grid>
           </Grid>
-          <Grid item xs={12} display={"flex"}>
-            <Typography variant="body3">Not registered yet?</Typography>
-            <Typography
-              variant="body3"
-              component={Link}
-              to={"/signup"}
-              px={"2px"}
-              sx={{ textDecoration: "none" }}
-              color={"text.secondary"}
-            >
-              Create Account
-            </Typography>
-          </Grid>
-        </Grid>
+        </Paper>
       </Grid>
     </Grid>
   );
