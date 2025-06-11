@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { uploadStub } from "../../../core/api/stub";
+import { useNavigate } from "react-router-dom";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -30,6 +31,8 @@ const AddNewStub = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const navigate = useNavigate();
 
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
@@ -74,10 +77,8 @@ const AddNewStub = () => {
     try {
       const response = await uploadStub(formData);
       setSuccess("Stub uploaded successfully!");
-      // Reset form
-      setTitle("");
-      setSelectedFile(null);
-      setPreviewImage(null);
+      // Navigate to preview page
+      navigate(`/stub-preview/${response.data.data.id}`);
     } catch (error) {
       setError(error.response?.data?.message || "Failed to upload stub");
     }

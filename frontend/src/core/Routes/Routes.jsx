@@ -14,6 +14,7 @@ import ForgetPassword from "../../views/Pages/auth/ForgetPassword.jsx";
 import NewPassword from "../../views/Pages/auth/NewPassword.jsx";
 import Dashboard from "../../views/Pages/dashboard/Dashboard.jsx";
 import AddNewStub from "../../views/Pages/addNewStub/AddNewStub.jsx";
+import StubPreview from "../../views/Pages/stubPreview/StubPreview.jsx";
 // ********************* Protected PAGES**********
 
 // ********** EXPORT ROUTES *********
@@ -100,6 +101,11 @@ export const routes = [
       // </PageWrapper>
     ),
     header: null,
+    aside: null,
+  },
+  {
+    path: "/stub-preview/:stubId",
+    page: <StubPreview />,
     aside: null,
   },
 ];
