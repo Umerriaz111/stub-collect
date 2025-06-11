@@ -3,8 +3,11 @@ import config from "../services/configService";
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: config.VITE_APP_API_BASE_URL || "http://localhost:5000",
-  withCredentials: true, // Important for sending cookies
+  baseURL: "http://localhost:5000",
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 // Request interceptor to handle content type for FormData
@@ -25,7 +28,6 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized access
       window.location.href = "/login";
       return Promise.reject({ message: "Please login to continue" });
     }
@@ -33,9 +35,9 @@ api.interceptors.response.use(
   }
 );
 
-// Stub data upload function
-export const uploadStub = (formData) => {
-  return api.post("/api/stubs/upload", formData);
+// Stub data upload function - Simplified version
+export const uploadStub = async (formData) => {
+  return await api.post("/api/stubs/upload", formData);
 };
 
 // Get user's stubs
