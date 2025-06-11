@@ -53,14 +53,13 @@ export default function Login() {
       console.log("values", values);
       try {
         const response = await loginApi(values);
+        // const cookies = response.headers["set-cookie"];
         if (response?.data?.status === "success") {
-          // console.log(response?.data?.status, "status");
-          //   dispatch(LOGIN(response));
           navigate("/");
           notyf.success(`login successful!`);
         }
       } catch (error) {
-        console.log("Error Occured", error);
+        console.log("Error Occurred", error);
         notyf.error(error.data.detail);
       } finally {
         setLoading(false);

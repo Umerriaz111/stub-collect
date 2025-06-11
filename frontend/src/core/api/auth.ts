@@ -21,5 +21,7 @@ export const logoutApi = () => {
 };
 
 export const loginApi = (loginData: any) => {
-  return axios.post(`${config.VITE_APP_API_BASE_URL}/auth/login`, loginData);
+  return axios.post(`${config.VITE_APP_API_BASE_URL}/auth/login`, loginData, {
+    withCredentials: true,
+  });
 };

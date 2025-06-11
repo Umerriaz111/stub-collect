@@ -15,11 +15,14 @@ function Dashboard() {
   const navigate = useNavigate();
 
   return (
-    <Box display={"flex"}>
-      <Box p={4}>
-        <Typography variant="body1">Listings </Typography>
+    <Box display={"flex"} p={2}>
+      <Box>
+        <Button variant="contained" onClick={() => navigate("/add-new-stub")}>
+          {" "}
+          Upload New Stub
+        </Button>
       </Box>
-      <Box sx={{ ml: "auto", p: 1, mr: 4 }}>
+      <Box sx={{ ml: "auto" }}>
         <Button variant="contained" onClick={() => navigate("/login")}>
           Login
         </Button>

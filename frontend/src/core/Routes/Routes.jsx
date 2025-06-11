@@ -13,6 +13,7 @@ import Signup from "../../views/Pages/auth/Signup.jsx";
 import ForgetPassword from "../../views/Pages/auth/ForgetPassword.jsx";
 import NewPassword from "../../views/Pages/auth/NewPassword.jsx";
 import Dashboard from "../../views/Pages/dashboard/Dashboard.jsx";
+import AddNewStub from "../../views/Pages/addNewStub/AddNewStub.jsx";
 // ********************* Protected PAGES**********
 
 // ********** EXPORT ROUTES *********
@@ -64,6 +65,16 @@ export const routes = [
   {
     path: "/",
     page: <Dashboard />,
+    aside: null,
+  },
+
+  {
+    path: "/add-new-stub",
+    page: (
+      // <ProtectedRoute>
+      <AddNewStub />
+      // </ProtectedRoute>
+    ),
     aside: null,
   },
 
