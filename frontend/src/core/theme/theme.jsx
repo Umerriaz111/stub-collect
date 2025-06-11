@@ -19,7 +19,7 @@ export const lightTheme = {
     },
     primary: {
       lightIcon: "#B4A3FF",
-      main: "#4318FF",
+      main: "#1A237E",
       lightBG: "#F4F7FE",
       lightBGgray: "#EBEDF6",
       Highlight: "#FBFBFB",

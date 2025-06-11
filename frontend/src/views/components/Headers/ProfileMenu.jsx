@@ -7,27 +7,27 @@ import {
   Divider,
   Typography,
   Box,
+  ListItemIcon,
+  Tooltip,
+  Badge,
 } from "@mui/material";
-import { Logout, AccountCircleRounded } from "@mui/icons-material";
-import CustomizedSwitches from "./Switch";
+import {
+  Logout,
+  AccountCircleRounded,
+  CollectionsBookmark,
+  Settings,
+} from "@mui/icons-material";
 import LogoutHandler from "./LogoutHandler";
 import { TOGGLE_THEME } from "../../../core/store/App/appSlice";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import BrowserUpdatedIcon from "@mui/icons-material/BrowserUpdated";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 
 export default function ProfileMenu() {
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
-
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-
   const themeMode = useSelector((state) => state?.app?.themeMode);
-  const [isSwitchOn, setIsSwitchOn] = React.useState(
-    themeMode === "dark" ? true : false
-  );
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -37,65 +37,80 @@ export default function ProfileMenu() {
     setAnchorEl(null);
   };
 
-  const handleDownloadClick = () => {
-    window.open(
-      "https://ninetyninetechnologies-my.sharepoint.com/:u:/g/personal/muhammad_ahmed_99technologies_com/EVujmvHYCExMq_uMd8gzqpEBfsQrZkb-tGuVz_QXewCzCw?e=Ahw7hM",
-      "_blank",
-      "noopener,noreferrer"
-    );
-  };
-
   return (
     <>
-      <IconButton
-        data-testid="profile-menu-btn"
-        onClick={handleClick}
-        size="small"
-        aria-controls={open ? "account-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-        sx={{
-          padding: "0",
-          marginX: "12px",
-          backgroundColor: user ? "primary.lightIcon" : "",
-          borderRadius: "8px",
-          px: 1,
-          my: "5px",
-        }}
-      >
-        {user ? (
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <AccountCircleRounded />
-            <Typography fontSize={"12px"} fontWeight={700} p={"4px"}>
-              {user}
-            </Typography>
-          </Box>
-        ) : (
-          <Avatar
-            alt="login-user"
-            src="Avatar.png"
-            sx={{ width: 40, height: 40 }}
-          />
-        )}
-      </IconButton>
+      <Tooltip title="Account settings" arrow>
+        <IconButton
+          data-testid="profile-menu-btn"
+          onClick={handleClick}
+          size="small"
+          aria-controls={open ? "account-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? "true" : undefined}
+          sx={{
+            transition: "all 0.2s ease-in-out",
+            backgroundColor: user ? "primary.main" : "transparent",
+
+            "&:hover": {
+              backgroundColor: user ? "primary.dark" : "rgba(0, 0, 0, 0.04)",
+            },
+          }}
+        >
+          {user ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Badge
+                overlap="circular"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                variant="dot"
+                color="success"
+              >
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    bgcolor: "transparent",
+                    color: "white",
+                  }}
+                >
+                  {user.charAt(0).toUpperCase()}
+                </Avatar>
+              </Badge>
+            </Box>
+          ) : (
+            <Avatar
+              alt="login-user"
+              src="Avatar.png"
+              sx={{ width: 40, height: 40 }}
+            />
+          )}
+        </IconButton>
+      </Tooltip>
 
       <Menu
         id="account-menu"
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
+        onClick={handleClose}
         slotProps={{
           paper: {
-            elevation: 0,
+            elevation: 3,
             sx: {
+              width: 250,
               overflow: "visible",
-              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.15))",
               mt: 1.5,
-              "& .MuiAvatar-root": {
-                width: 32,
-                height: 32,
-                ml: -0.5,
-                mr: 1,
+              borderRadius: 2,
+              "& .MuiMenuItem-root": {
+                px: 2,
+                py: 1.5,
+                borderRadius: 1,
+                mx: 1,
+                my: 0.5,
+                transition: "all 0.2s",
+                "&:hover": {
+                  backgroundColor: "primary.lighter",
+                },
               },
               "&::before": {
                 content: '""',
@@ -115,38 +130,42 @@ export default function ProfileMenu() {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem>
-          <Link
-            style={{ textDecoration: "none", color: "black" }}
-            to={"/my-stubs"}
-          >
-            My Stubs
-          </Link>
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Typography variant="subtitle1" fontWeight="600">
+            Welcome back,
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {user || "Guest User"}
+          </Typography>
+        </Box>
+
+        <Divider sx={{ my: 1 }} />
+
+        <MenuItem component={Link} to="/my-stubs">
+          <ListItemIcon>
+            <CollectionsBookmark fontSize="small" color="primary" />
+          </ListItemIcon>
+          My Stubs
         </MenuItem>
 
-        <Divider />
+        <MenuItem>
+          <ListItemIcon>
+            <Settings fontSize="small" color="primary" />
+          </ListItemIcon>
+          Settings
+        </MenuItem>
+
+        <Divider sx={{ my: 1 }} />
 
         <LogoutHandler>
-          <MenuItem
-            data-testid="logout-btn"
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              color: "black",
-            }}
-          >
-            Logout
-            <IconButton>
-              <Logout sx={{ color: "primary.lightIcon", fontSize: 24 }} />
-            </IconButton>
+          <MenuItem data-testid="logout-btn">
+            <ListItemIcon>
+              <Logout fontSize="small" color="error" />
+            </ListItemIcon>
+            <Typography color="error">Logout</Typography>
           </MenuItem>
         </LogoutHandler>
       </Menu>
     </>
   );
 }
-const IconBtnStyle = {
-  padding: "0",
-  marginX: "12px",
-};

@@ -6,98 +6,90 @@ import {
   Typography,
   useMediaQuery,
   Tooltip,
+  AppBar,
+  Toolbar,
+  Container,
 } from "@mui/material";
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Box, Stack } from "@mui/system";
-import { useSelector } from "react-redux";
-import { ArrowBackIos } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Box } from "@mui/system";
+import { useSelector, useDispatch } from "react-redux";
+import { ArrowBackIos, CloudUpload } from "@mui/icons-material";
 import { TOGGLE_SIDEBAR } from "../../../core/store/App/appSlice";
-import BrowserUpdatedIcon from "@mui/icons-material/BrowserUpdated";
-import { Menu as MenuIcon } from "@mui/icons-material";
 import ProfileMenu from "./ProfileMenu";
 
 export default function MainHeader() {
-  const { heading, subHeading, backButton } = useSelector((state) => state.app);
+  const { heading } = useSelector((state) => state.app);
   const location = useLocation();
-  // const isSubPage = location.pathname.split('/').length > 2
   const dispatch = useDispatch();
-  // console.log('location.pathname', location.pathname.split('/').length > 2)
+  const navigate = useNavigate();
+  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+
   const handleToggle = () => {
     dispatch(TOGGLE_SIDEBAR());
   };
-  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
-
-  // const handleThemeToggle = () => {
-  //     dispatch(TOGGLE_THEME())
-  // }
 
   return (
-    <Grid container spacing={2} display={"flex"} alignItems={"center"}>
-      {/* First Column for desktop, but it will be rendered second on mobile */}
-      <Grid item xs={12} md={6} order={{ xs: 2, md: 1 }}>
-        <Typography
-          color={"palette.text.secondary"}
-          sx={{}}
-          display={"flex"}
-          alignItems={"end"}
-        >
-          {heading}Logo
-          {/* {heading || location.pathname === '/' ? 'Main' : location.pathname.split('/')} */}
-        </Typography>
-        {backButton && (
-          <Button sx={{ color: "text.light" }} onClick={() => history.back()}>
-            <ArrowBackIos sx={{ fontSize: "12px" }} /> Back
-          </Button>
-        )}
-      </Grid>
-
-      {/* Second Column for desktop, but it will appear first on mobile */}
-      <Grid
-        item
-        xs={12}
-        md={6}
-        order={{ xs: 1, md: 2 }}
-        display={isSmallScreen ? "block" : "flex"}
-        justifyContent={"end"}
-      >
-        <Paper
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            borderRadius: "30px",
-            padding: "5px 0px",
-          }}
-        >
-          {/* <Stack direction={'row'} alignItems={'center'}> */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              paddingX: 2,
-            }}
-          >
-            <Button
-              variant={"contained"}
-              size="small"
-              onClick={() => navigate("/add-new-stub")}
+    <AppBar color="default" elevation={1}>
+      <Container maxWidth="xl">
+        <Toolbar disableGutters sx={{ minHeight: { xs: 64, md: 70 } }}>
+          <Grid container spacing={2} alignItems="center">
+            {/* Left section with logo and upload button */}
+            <Grid
+              item
+              xs={12}
+              md={7}
               sx={{
-                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
               }}
             >
-              {" "}
-              Upload New Stub
-            </Button>
-          </Box>
-          <Box>
-            <ProfileMenu />
-          </Box>
-          {/* </Stack> */}
-        </Paper>
-      </Grid>
-    </Grid>
+              <Button
+                variant="contained"
+                startIcon={<CloudUpload />}
+                onClick={() => navigate("/add-new-stub")}
+                sx={{
+                  borderRadius: "8px",
+                  textTransform: "none",
+                  ml: { xs: "auto", md: 2 },
+                }}
+              >
+                Upload Stub
+              </Button>
+
+              <Typography
+                variant="h6"
+                component="div"
+                sx={{
+                  flexGrow: 0,
+                  fontWeight: 600,
+                  color: "text.primary",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}
+              >
+                Stub Collector
+              </Typography>
+            </Grid>
+
+            {/* Right section with profile menu */}
+            <Grid
+              item
+              xs={12}
+              md={5}
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                order: { xs: -1, md: 0 },
+              }}
+            >
+              <ProfileMenu />
+            </Grid>
+          </Grid>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }
 const IconBtnStyle = {
