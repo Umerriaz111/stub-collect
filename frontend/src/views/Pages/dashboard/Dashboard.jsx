@@ -26,7 +26,7 @@ function Dashboard() {
   }, []);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, pt: 12 }}>
       <MainHeader />
 
       <Typography variant="h4" sx={{ mb: 3 }}>

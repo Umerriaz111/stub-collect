@@ -23,13 +23,13 @@ def create_app(config_class=Config):
             "allow_headers": ["Content-Type"],
             "supports_credentials": True  # Important for session cookies
         },
-        r"/stubs/*": {  # Add CORS for stub endpoints
+        r"/api/stubs/*": {  # Add CORS for stub endpoints
             "origins": ["http://localhost:3000"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type"],
             "supports_credentials": True
         },
-        r"/marketplace/*": {  # Add CORS for marketplace endpoints
+        r"/api/marketplace/*": {  # Add CORS for marketplace endpoints
             "origins": ["http://localhost:3000"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type"],
