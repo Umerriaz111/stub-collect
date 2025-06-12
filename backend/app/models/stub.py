@@ -54,6 +54,20 @@ class Stub(db.Model):
         return f"/static/uploads/stubs/{self.user_id}/{os.path.basename(self.image_path)}"
 
     def to_dict(self):
+        listing_status = "unlisted"
+        listing_id = None
+
+        # Check for an active listing first
+        active_listing = next((l for l in self.listings if l.status == 'active'), None)
+        
+        if active_listing:
+            listing_status = "listed"
+            listing_id = active_listing.id
+        else:
+            # If no active listing, check if it has ever been sold
+            if any(l.status == 'sold' for l in self.listings):
+                listing_status = "sold"
+
         return {
             'id': self.id,
             'title': self.title,
@@ -65,6 +79,8 @@ class Stub(db.Model):
             'currency': self.currency,
             'seat_info': self.seat_info,
             'status': self.status,
+            'listing_status': listing_status,
+            'listing_id': listing_id,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
             'image_url': self.get_image_url(),

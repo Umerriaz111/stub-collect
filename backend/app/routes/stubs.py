@@ -7,6 +7,7 @@ from app.services.stub_service import StubProcessor
 from datetime import datetime
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from sqlalchemy.orm import joinedload
 
 bp = Blueprint('stubs', __name__)
 
@@ -180,7 +181,7 @@ def update_stub(stub_id):
 @login_required
 def get_stubs():
     """Get all stubs for the current user"""
-    stubs = Stub.query.filter_by(user_id=current_user.id).order_by(Stub.created_at.desc()).all()
+    stubs = Stub.query.options(joinedload('listings')).filter_by(user_id=current_user.id).order_by(Stub.created_at.desc()).all()
     return jsonify({
         'status': 'success',
         'data': [stub.to_dict() for stub in stubs]
@@ -190,7 +191,7 @@ def get_stubs():
 @login_required
 def get_stub(stub_id):
     """Get a specific stub"""
-    stub = Stub.query.filter_by(id=stub_id, user_id=current_user.id).first()
+    stub = Stub.query.options(joinedload('listings')).filter_by(id=stub_id, user_id=current_user.id).first()
     
     if not stub:
         return jsonify({
