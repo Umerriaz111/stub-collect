@@ -82,14 +82,13 @@ export const routes = [
   {
     path: "/feed",
     page: (
-      <ProtectedRoute>
-        <PageWrapper>
-          <Feed />
-        </PageWrapper>
-      </ProtectedRoute>
+      // <ProtectedRoute>
+      // <PageWrapper>
+      <Feed />
+      // </PageWrapper>
+      // </ProtectedRoute>
     ),
-    // header: <MainHeader />,
-    aside: <SideDrawer />,
+    aside: null,
   },
 
   /* Page Not Found 404 */
@@ -129,7 +128,7 @@ export function AuthRoute({ children }) {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const themeMode = useSelector((state) => state?.app?.themeMode);
-  let redirectRoute = "/shipments";
+  let redirectRoute = "/";
 
   if (themeMode === "dark") {
     dispatch(SET_THEME_LIGHT());

@@ -60,13 +60,15 @@ export default function MainHeader() {
 
               <Typography
                 variant="h6"
-                component="div"
+                component={Link}
+                to={"/"}
                 sx={{
                   flexGrow: 0,
                   fontWeight: 600,
                   color: "text.primary",
                   textTransform: "uppercase",
                   letterSpacing: 1,
+                  textDecoration: "none",
                 }}
               >
                 Stub Collector

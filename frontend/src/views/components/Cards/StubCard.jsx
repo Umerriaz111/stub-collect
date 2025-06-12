@@ -20,11 +20,17 @@ const StubCard = ({ image, title, price, currency, onClick }) => {
           sx={{ objectFit: "contain" }}
         />
         <CardContent>
-          <Typography gutterBottom variant="h6" component="div" noWrap>
+          <Typography
+            gutterBottom
+            variant="body1"
+            fontWeight={"bold"}
+            component="div"
+            noWrap
+          >
             {title}
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-            <Typography variant="h6" color="primary">
+            <Typography variant="body2" color="success">
               {currency} {price}
             </Typography>
           </Box>

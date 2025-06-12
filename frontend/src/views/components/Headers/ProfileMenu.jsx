@@ -141,7 +141,7 @@ export default function ProfileMenu() {
 
         <Divider sx={{ my: 1 }} />
 
-        <MenuItem component={Link} to="/my-stubs">
+        <MenuItem component={Link} to="/feed">
           <ListItemIcon>
             <CollectionsBookmark fontSize="small" color="primary" />
           </ListItemIcon>
