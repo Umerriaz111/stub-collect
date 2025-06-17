@@ -16,5 +16,25 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def to_public_profile(self):
+        """Return public profile information (safe for public viewing)"""
+        from app.models.stub_listing import StubListing
+        
+        # Calculate seller statistics
+        total_listings = StubListing.query.filter_by(seller_id=self.id).count()
+        active_listings = StubListing.query.filter_by(seller_id=self.id, status='active').count()
+        sold_listings = StubListing.query.filter_by(seller_id=self.id, status='sold').count()
+        
+        return {
+            'id': self.id,
+            'username': self.username,
+            'member_since': self.created_at.isoformat(),
+            'stats': {
+                'total_listings': total_listings,
+                'active_listings': active_listings,
+                'completed_sales': sold_listings
+            }
+        }
+
     def __repr__(self):
         return f'<User {self.username}>' 

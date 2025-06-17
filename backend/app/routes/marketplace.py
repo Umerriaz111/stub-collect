@@ -3,7 +3,9 @@ from flask_login import login_required, current_user
 from app import db
 from app.models.stub import Stub, SUPPORTED_CURRENCIES
 from app.models.stub_listing import StubListing
+from app.models.user import User
 from datetime import datetime
+from sqlalchemy.orm import joinedload
 
 bp = Blueprint('marketplace', __name__)
 
@@ -213,5 +215,125 @@ def cancel_listing(listing_id):
         return jsonify({
             'status': 'error',
             'message': 'An error occurred while cancelling the listing',
+            'error': str(e)
+        }), 500
+
+# Seller Profile Routes
+
+@bp.route('/marketplace/sellers/<int:seller_id>', methods=['GET'])
+def get_seller_profile(seller_id):
+    """Get public profile information for a specific seller"""
+    seller = User.query.get(seller_id)
+    
+    if not seller:
+        return jsonify({
+            'status': 'error',
+            'message': 'Seller not found'
+        }), 404
+    
+    return jsonify({
+        'status': 'success',
+        'data': seller.to_public_profile()
+    })
+
+@bp.route('/marketplace/sellers/<int:seller_id>/listings', methods=['GET'])
+def get_seller_listings(seller_id):
+    """Get all active listings from a specific seller"""
+    # Verify seller exists
+    seller = User.query.get(seller_id)
+    if not seller:
+        return jsonify({
+            'status': 'error',
+            'message': 'Seller not found'
+        }), 404
+    
+    try:
+        # Get query parameters
+        status = request.args.get('status', 'active')
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        
+        # Ensure per_page is reasonable
+        per_page = min(per_page, 50)  # Max 50 items per page
+        
+        # Query seller's listings with pagination
+        listings_query = StubListing.query.filter_by(
+            seller_id=seller_id, 
+            status=status
+        ).order_by(StubListing.listed_at.desc())
+        
+        listings_paginated = listings_query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+        
+        return jsonify({
+            'status': 'success',
+            'data': {
+                'seller': seller.to_public_profile(),
+                'listings': [listing.to_dict() for listing in listings_paginated.items],
+                'pagination': {
+                    'page': page,
+                    'per_page': per_page,
+                    'total': listings_paginated.total,
+                    'pages': listings_paginated.pages,
+                    'has_next': listings_paginated.has_next,
+                    'has_prev': listings_paginated.has_prev
+                }
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': 'An error occurred while fetching seller listings',
+            'error': str(e)
+        }), 500
+
+@bp.route('/marketplace/sellers/<int:seller_id>/stubs', methods=['GET'])
+def get_seller_stubs_summary(seller_id):
+    """Get a summary of seller's stub collection (public view)"""
+    # Verify seller exists
+    seller = User.query.get(seller_id)
+    if not seller:
+        return jsonify({
+            'status': 'error',
+            'message': 'Seller not found'
+        }), 404
+    
+    try:
+        # Get only stubs that have active listings (public stubs)
+        public_stubs = db.session.query(Stub).join(StubListing).filter(
+            Stub.user_id == seller_id,
+            StubListing.status == 'active'
+        ).options(joinedload('listings')).all()
+        
+        # Group by event types or venues for summary
+        venues = {}
+        events = {}
+        
+        for stub in public_stubs:
+            if stub.venue_name:
+                venues[stub.venue_name] = venues.get(stub.venue_name, 0) + 1
+            if stub.event_name:
+                events[stub.event_name] = events.get(stub.event_name, 0) + 1
+        
+        return jsonify({
+            'status': 'success',
+            'data': {
+                'seller': seller.to_public_profile(),
+                'collection_summary': {
+                    'total_public_stubs': len(public_stubs),
+                    'top_venues': sorted(venues.items(), key=lambda x: x[1], reverse=True)[:5],
+                    'top_events': sorted(events.items(), key=lambda x: x[1], reverse=True)[:5]
+                }
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': 'An error occurred while fetching seller stub summary',
             'error': str(e)
         }), 500 
