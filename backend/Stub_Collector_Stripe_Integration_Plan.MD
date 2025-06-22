@@ -454,8 +454,8 @@ class DirectChargesService:
             db.session.add(order)
             db.session.flush()  # Get order ID
             
-                    # Set seller payout schedule
-        order.set_seller_payout_schedule(self.PAYOUT_HOLD_DAYS)
+            # Set seller payout schedule
+            order.set_seller_payout_schedule(self.PAYOUT_HOLD_DAYS)
             
             # Get seller info
             seller = User.query.get(listing.seller_id)
@@ -679,7 +679,7 @@ class DirectChargesService:
                 return {'success': False, 'error': 'Order not found'}
             
             payment = order.payment
-            if not payment or payment.payment_status not in ['held', 'completed']:
+            if not payment or payment.payment_status != 'completed':
                 return {'success': False, 'error': 'Payment not eligible for refund'}
             
             # Create refund with application fee refund and transfer reversal
