@@ -12,6 +12,7 @@ import {
   Select,
   MenuItem,
   Alert,
+  Grid,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { getStub } from "../../../core/api/stub";
@@ -26,6 +27,13 @@ const StubPreview = () => {
     asking_price: "",
     currency: "USD",
   });
+  const [stubDetails, setStubDetails] = useState({
+    event_name: "",
+    venue_name: "",
+    event_date: "",
+    seat_info: "",
+    ticket_price: "",
+  });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -34,12 +42,29 @@ const StubPreview = () => {
       try {
         const response = await getStub(stubId);
         setStub(response.data.data);
+        setStubDetails({
+          event_name: response.data.data.event_name || "",
+          venue_name: response.data.data.venue_name || "",
+          event_date: response.data.data.event_date
+            ? response.data.data.event_date.split("T")[0]
+            : "",
+          seat_info: response.data.data.seat_info || "",
+          ticket_price: response.data.data.ticket_price || "",
+        });
       } catch (error) {
         setError("Failed to load stub details");
       }
     };
     fetchStub();
   }, [stubId]);
+
+  const handleStubDetailChange = (e) => {
+    const { name, value } = e.target;
+    setStubDetails({
+      ...stubDetails,
+      [name]: value,
+    });
+  };
 
   const handleListingSubmit = async () => {
     try {
@@ -80,7 +105,6 @@ const StubPreview = () => {
           component="img"
           height="400"
           image={`${config.VITE_APP_API_BASE_URL}/${stub.image_url}`}
-          // src={stub.image_path}
           alt={stub.title}
           sx={{ objectFit: "contain" }}
         />
@@ -101,6 +125,72 @@ const StubPreview = () => {
             </Alert>
           )}
 
+          {/* Stub Details Section */}
+          <Box sx={{ mt: 3, mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Stub Details
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Event Name"
+                  name="event_name"
+                  value={stubDetails.event_name}
+                  onChange={handleStubDetailChange}
+                  sx={{ mb: 2 }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Venue Name"
+                  name="venue_name"
+                  value={stubDetails.venue_name}
+                  onChange={handleStubDetailChange}
+                  sx={{ mb: 2 }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Event Date"
+                  type="date"
+                  name="event_date"
+                  value={stubDetails.event_date}
+                  onChange={handleStubDetailChange}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ mb: 2 }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Seat Info"
+                  name="seat_info"
+                  value={stubDetails.seat_info}
+                  onChange={handleStubDetailChange}
+                  sx={{ mb: 2 }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Original Ticket Price"
+                  type="number"
+                  name="ticket_price"
+                  value={stubDetails.ticket_price}
+                  onChange={handleStubDetailChange}
+                  sx={{ mb: 2 }}
+                  InputProps={{
+                    startAdornment: <Typography sx={{ mr: 1 }}>$</Typography>,
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+
+          {/* Marketplace Listing Section */}
           <Box sx={{ mt: 3 }}>
             <Typography variant="h6" gutterBottom>
               List in Marketplace

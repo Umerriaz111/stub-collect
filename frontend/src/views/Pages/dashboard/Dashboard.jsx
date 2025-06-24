@@ -41,7 +41,20 @@ function Dashboard() {
 
       <Grid container>
         {listings.map((listing) => (
-          <Grid item xs={12} sm={4} md={3} lg={3} key={listing.id}>
+          <Grid
+            item
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mb: 1,
+            }}
+            xs={12}
+            sm={4}
+            md={3}
+            lg={3}
+            key={listing.id}
+          >
             <StubCard
               image={`${config.VITE_APP_API_BASE_URL}/${listing.stub.image_url}`}
               title={listing.stub.title}

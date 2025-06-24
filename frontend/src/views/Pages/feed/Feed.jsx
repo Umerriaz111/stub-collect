@@ -68,7 +68,8 @@ function Feed() {
                 image={`${config.VITE_APP_API_BASE_URL}/${stub.image_url}`}
                 title={stub.title}
                 currency={stub.currency}
-                price={stub.ticket_price}
+                link={`/stub-preview/${stub.id}`}
+                ticketPrice={stub.ticket_price}
               />
             </Grid>
           ))
