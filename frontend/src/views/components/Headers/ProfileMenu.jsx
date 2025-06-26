@@ -20,11 +20,14 @@ import {
 import LogoutHandler from "./LogoutHandler";
 import { TOGGLE_THEME } from "../../../core/store/App/appSlice";
 import { useSelector, useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import notyf from "../NotificationMessage/notyfInstance";
+import { logoutApi } from "../../../core/api/auth";
 
 export default function ProfileMenu() {
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const themeMode = useSelector((state) => state?.app?.themeMode);
@@ -35,6 +38,19 @@ export default function ProfileMenu() {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await logoutApi();
+      if (response?.data?.status === "success") {
+        navigate("/login");
+        notyf.success("Logout successful");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+      notyf.error("Logout failed. Please try again.");
+    }
   };
 
   return (
@@ -157,14 +173,14 @@ export default function ProfileMenu() {
 
         <Divider sx={{ my: 1 }} />
 
-        <LogoutHandler>
-          <MenuItem data-testid="logout-btn">
-            <ListItemIcon>
-              <Logout fontSize="small" color="error" />
-            </ListItemIcon>
-            <Typography color="error">Logout</Typography>
-          </MenuItem>
-        </LogoutHandler>
+        {/* <LogoutHandler> */}
+        <MenuItem data-testid="logout-btn" onClick={() => handleLogout()}>
+          <ListItemIcon>
+            <Logout fontSize="small" color="error" />
+          </ListItemIcon>
+          <Typography color="error">Logout</Typography>
+        </MenuItem>
+        {/* </LogoutHandler> */}
       </Menu>
     </>
   );
