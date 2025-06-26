@@ -34,12 +34,6 @@ def create_app(config_class=Config):
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type"],
             "supports_credentials": True
-        },
-        r"/api/purchases/*": {  # Add CORS for purchase endpoints
-            "origins": ["http://localhost:3000"],
-            "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Stripe-Signature"],
-            "supports_credentials": True
         }
     })
 
@@ -53,11 +47,10 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
 
     # Import and register blueprints
-    from app.routes import auth, stubs, marketplace, purchases
+    from app.routes import auth, stubs, marketplace
     app.register_blueprint(auth.bp, url_prefix='/auth')
     app.register_blueprint(stubs.bp, url_prefix='/api')
     app.register_blueprint(marketplace.bp, url_prefix='/api')
-    app.register_blueprint(purchases.purchases)  # Purchase routes are already prefixed with /api
 
     # Setup login manager
     @login_manager.user_loader
