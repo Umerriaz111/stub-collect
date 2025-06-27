@@ -27,6 +27,7 @@ class StubListing(db.Model):
             'id': self.id,
             'stub_id': self.stub_id,
             'seller_id': self.seller_id,
+            'seller_name': self.seller.username if self.seller else None,
             'asking_price': float(self.asking_price),
             'currency': self.currency,
             'description': self.description,

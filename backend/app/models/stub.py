@@ -3,7 +3,7 @@ from app import db
 from flask_login import UserMixin
 import os
 
-SUPPORTED_CURRENCIES = ['USD', 'EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'CHF', 'CNH', 'HKD', 'NZD']
+SUPPORTED_CURRENCIES = ['USD']
 
 class Stub(db.Model):
     id = db.Column(db.Integer, primary_key=True)

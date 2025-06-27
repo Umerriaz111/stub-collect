@@ -90,8 +90,8 @@ def get_listings():
         # Get query parameters for filtering
         status = request.args.get('status', 'active')
         
-        # Query listings
-        listings = StubListing.query.filter_by(status=status).order_by(StubListing.listed_at.desc()).all()
+        # Query listings WITH seller information loaded (prevents N+1 queries)
+        listings = StubListing.query.options(joinedload(StubListing.seller)).filter_by(status=status).order_by(StubListing.listed_at.desc()).all()
         
         return jsonify({
             'status': 'success',
@@ -307,7 +307,7 @@ def get_seller_stubs_summary(seller_id):
         public_stubs = db.session.query(Stub).join(StubListing).filter(
             Stub.user_id == seller_id,
             StubListing.status == 'active'
-        ).options(joinedload('listings')).all()
+        ).options(joinedload(Stub.listings)).all()
         
         # Group by event types or venues for summary
         venues = {}
