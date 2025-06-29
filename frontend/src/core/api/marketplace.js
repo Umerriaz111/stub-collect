@@ -15,3 +15,7 @@ export const createListing = async (data) => {
 export const getAllListing = async () => {
   return await api.get("/api/marketplace/listings");
 };
+
+export const getListingBySeller = async (sellerId) => {
+  return await api.get(`/api/marketplace/sellers/${sellerId}/listings`);
+};

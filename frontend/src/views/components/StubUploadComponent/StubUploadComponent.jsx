@@ -4,9 +4,11 @@ import CampaignIcon from "@mui/icons-material/Campaign";
 import CameraAltOutlinedIcon from "@mui/icons-material/CameraAltOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
+import { useNavigate } from "react-router-dom";
 
 const StubUploadComponent = () => {
   const boxBorderRadius = "10px";
+  const navigate = useNavigate();
 
   return (
     <Grid
@@ -64,6 +66,7 @@ const StubUploadComponent = () => {
             border: "2px solid black",
             color: "black",
           }}
+          onClick={() => navigate("/add-new-stub")}
         >
           Upload
         </Button>

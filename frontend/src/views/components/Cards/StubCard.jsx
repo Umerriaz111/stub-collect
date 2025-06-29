@@ -7,11 +7,30 @@ import {
   Box,
   CardActionArea,
   useTheme,
+  Avatar,
+  Switch,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-const StubCard = ({ image, title, price, currency, onClick, link, date }) => {
+const StubCard = ({
+  image,
+  title,
+  price,
+  currency,
+  onClick,
+  link,
+  date,
+  sellerName,
+  showSeller,
+  sellerId,
+  listingStatus,
+}) => {
   const theme = useTheme();
+  const navigate = useNavigate();
+
+  const handleChange = (event) => {
+    setChecked(event.target.checked);
+  };
 
   return (
     <Card
@@ -45,8 +64,6 @@ const StubCard = ({ image, title, price, currency, onClick, link, date }) => {
           opacity: 0.7,
         },
       }}
-      component={Link}
-      to={link || "#"}
     >
       <Box onClick={onClick} sx={{ height: "100%", padding: "0px" }}>
         <Box
@@ -87,6 +104,45 @@ const StubCard = ({ image, title, price, currency, onClick, link, date }) => {
             },
           }}
         >
+          {/* seller section */}
+          {showSeller && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                my: 1,
+                width: "fit-content",
+                "&:hover": {
+                  textDecoration: "underline",
+                },
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/seller-profile/${sellerId}`);
+              }}
+            >
+              <Avatar
+                sx={{
+                  width: 32,
+                  height: 32,
+                  bgcolor: "red",
+                  color: "white",
+                  border: "1px solid",
+                  borderColor: "rgb(249, 194, 100)",
+                  mr: 1,
+                }}
+              >
+                {sellerName?.charAt(0).toUpperCase()}
+              </Avatar>
+              <Typography
+                variant="body2"
+                fontWeight={"bold"}
+                sx={{ color: "black" }}
+              >
+                {sellerName}
+              </Typography>
+            </Box>
+          )}
           <Typography
             gutterBottom
             component="div"
@@ -125,19 +181,19 @@ const StubCard = ({ image, title, price, currency, onClick, link, date }) => {
             </Typography>
           )}
 
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              mt: 2,
-              p: 1,
-              backgroundColor: "#000",
-              borderRadius: "8px",
-              color: "#fff",
-            }}
-          >
-            {price && (
+          {price && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mt: 2,
+                p: 1,
+                backgroundColor: "#000",
+                borderRadius: "8px",
+                color: "#fff",
+              }}
+            >
               <Typography
                 variant="h6"
                 sx={{
@@ -149,8 +205,19 @@ const StubCard = ({ image, title, price, currency, onClick, link, date }) => {
               >
                 {currency} {price}
               </Typography>
-            )}
-          </Box>
+            </Box>
+          )}
+
+          {listingStatus && (
+            <Box>
+              {listingStatus}
+              <Switch
+                checked={listingStatus === "listed"}
+                disabled={listingStatus === "listed"}
+                onChange={handleChange}
+              />
+            </Box>
+          )}
         </CardContent>
       </Box>
     </Card>

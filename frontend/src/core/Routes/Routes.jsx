@@ -15,6 +15,7 @@ import NewPassword from "../../views/Pages/auth/NewPassword.jsx";
 import Dashboard from "../../views/Pages/dashboard/Dashboard.jsx";
 import AddNewStub from "../../views/Pages/addNewStub/AddNewStub.jsx";
 import StubPreview from "../../views/Pages/stubPreview/StubPreview.jsx";
+import SellerProfile from "../../views/Pages/sellerProfile/sellerProfile.jsx";
 // ********************* Protected PAGES**********
 
 // ********** EXPORT ROUTES *********
@@ -85,6 +86,18 @@ export const routes = [
       // <ProtectedRoute>
       // <PageWrapper>
       <Feed />
+      // </PageWrapper>
+      // </ProtectedRoute>
+    ),
+    aside: null,
+  },
+
+  {
+    path: "/seller-profile/:sellerId",
+    page: (
+      // <ProtectedRoute>
+      // <PageWrapper>
+      <SellerProfile />
       // </PageWrapper>
       // </ProtectedRoute>
     ),

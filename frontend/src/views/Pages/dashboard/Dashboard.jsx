@@ -99,6 +99,9 @@ function Dashboard() {
               currency={listing.currency}
               date={listing.stub.date} // Assuming you have a date field
               onClick={() => navigate(`/marketplace/listings/${listing.id}`)}
+              showSeller={true}
+              sellerName={listing?.seller_name}
+              sellerId={listing?.seller_id}
             />
           </Grid>
         ))}

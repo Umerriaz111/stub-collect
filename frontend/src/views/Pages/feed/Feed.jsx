@@ -115,6 +115,7 @@ function Feed() {
                 currency={stub.currency}
                 link={`/stub-preview/${stub.id}`}
                 ticketPrice={stub.ticket_price}
+                listingStatus={stub.listing_status}
               />
             </Grid>
           ))
