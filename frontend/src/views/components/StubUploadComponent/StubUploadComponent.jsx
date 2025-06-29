@@ -1,129 +1,243 @@
 import React from "react";
-import { Box, Typography, Button, Paper } from "@mui/material";
+import { Box, Typography, Button, Paper, Grid } from "@mui/material";
+import CampaignIcon from "@mui/icons-material/Campaign";
+import CameraAltOutlinedIcon from "@mui/icons-material/CameraAltOutlined";
+import SearchIcon from "@mui/icons-material/Search";
+import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 
 const StubUploadComponent = () => {
+  const boxBorderRadius = "10px";
+
   return (
-    <Box
-      sx={{
-        width: "80%",
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 2,
-        p: 4,
-      }}
+    <Grid
+      container
+      sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
     >
-      <Box display={"flex"} gap={10}>
-        <Box>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Upload
-          </Typography>
+      {/* Heading , Button & Card */}
 
-          <Typography variant="h5" component="h2" gutterBottom>
-            Your Ticket Stub
-          </Typography>
-
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            sx={{ mt: 2, mb: 2 }}
-          >
-            Upload
-          </Button>
-        </Box>
-        <Box>
-          <Typography variant="subtitle1" gutterBottom>
-            StubCollect
-          </Typography>
-
-          <Typography variant="body1" gutterBottom>
-            January 31, 2010
-          </Typography>
-
-          <Typography variant="h6" gutterBottom>
-            52nd GRAMMY Awards
-          </Typography>
-        </Box>
-      </Box>
-      <Box
+      <Grid xs={0} md={2.5}></Grid>
+      <Grid
+        item
+        xs={12}
+        md={4}
+        p={2}
         sx={{
-          width: "100%",
           display: "flex",
-          justifyContent: "space-between",
-          mt: 4,
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          minHeight: "60vh",
         }}
+      >
+        <Typography
+          variant="h1"
+          sx={{
+            mb: 5,
+            color: "rgb(255, 215, 170)",
+            textAlign: "center",
+            fontWeight: 800,
+            fontSize: "80px",
+            //   textShadow: "2px 2px 0px rgba(0, 0, 0, 0.82)",
+            outline: "black",
+            textShadow:
+              "-1px -1px 0 black, 1px -1px 0 black, -3px 3px 0 black, 1px 1px 0 black",
+            letterSpacing: "0px",
+          }}
+          gutterBottom
+        >
+          Upload Your Ticket Stub
+        </Typography>
+
+        <Button
+          variant="outlined"
+          color="primary"
+          size="large"
+          sx={{
+            mt: 2,
+            mb: 2,
+            backgroundColor: "rgb(250, 185, 71)",
+            fontWeight: "bold",
+            fontSize: "24px",
+            borderRadius: "30px",
+            width: "50%",
+            p: "0px",
+            border: "2px solid black",
+            color: "black",
+          }}
+        >
+          Upload
+        </Button>
+      </Grid>
+      <Grid
+        item
+        xs={6}
+        md={3}
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
       >
         <Box
           sx={{
-            textAlign: "center",
-            backgroundColor: "red",
-            borderRadius: "50%",
-            height: "100px",
-            width: "100px",
+            width: "250px",
+            backgroundColor: "black",
+            p: "4px",
+            borderRadius: boxBorderRadius,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            transform: "rotate(10deg)",
           }}
         >
-          <Typography variant="h6" gutterBottom>
+          <Box
+            sx={{
+              backgroundColor: "rgb(28, 69, 183)",
+              //   backgroundImage:
+              //     "url(https://plus.unsplash.com/premium_photo-1675725088473-ea045a9e2e3a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)",
+              borderRadius: boxBorderRadius,
+              height: "300px",
+              width: "100%",
+              p: 2,
+            }}
+          >
+            <Box
+              sx={{
+                height: "100%",
+                backgroundColor: "black",
+                borderRadius: boxBorderRadius,
+                padding: "2px",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Box
+                sx={{
+                  backgroundColor: "red",
+                  borderRadius: "10px 10px 0px 0px",
+                  p: 1,
+                  fontWeight: "bolder",
+                  textAlign: "center",
+                  fontSize: "24px",
+                }}
+              >
+                Stub Collect
+              </Box>
+              <Box
+                sx={{
+                  backgroundColor: "rgb(250, 185, 71)",
+                  borderRadius: "0px 0px 10px 10px",
+                  flexGrow: 1,
+                  p: 1,
+                  fontSize: "20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                }}
+              >
+                <Typography variant="body1">January 31 , 2010</Typography>
+
+                <Typography variant="h5" fontWeight={800} my={1}>
+                  52nd{" "}
+                </Typography>
+                <Typography variant="h5" fontWeight={800}>
+                  GRAMMY{" "}
+                </Typography>
+                <Typography variant="h5" fontWeight={800}>
+                  {" "}
+                  Awards{" "}
+                </Typography>
+                <Typography>
+                  <CampaignIcon sx={{ fontSize: "70px" }} />{" "}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Grid>
+      <Grid xs={0} md={2.5}></Grid>
+
+      {/* another section */}
+      <Grid item xs={12}>
+        <Box sx={{ width: "500px", m: "auto" }}>
+          <Typography
+            variant="h5"
+            fontWeight={800}
+            sx={{ letterSpacing: "-0.5px" }}
+          >
             How It Works
           </Typography>
+          <Box sx={{ display: "flex" }}>
+            <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
+              <Box
+                sx={{
+                  border: "2px solid black",
+                  p: 1,
+                  borderRadius: "50px",
+                  mr: 1,
+                }}
+              >
+                <CameraAltOutlinedIcon />
+              </Box>
+              <Typography
+                variant="body1"
+                fontWeight={800}
+                sx={{
+                  letterSpacing: "-0.5px",
+                  p: 1,
+                  lineHeight: "1.3rem",
+                }}
+              >
+                Upload a Stub
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
+              <Box
+                sx={{
+                  border: "2px solid black",
+                  p: 1,
+                  borderRadius: "50px",
+                  mr: 1,
+                }}
+              >
+                <SearchIcon />
+              </Box>
+              <Typography
+                variant="body1"
+                fontWeight={800}
+                sx={{
+                  letterSpacing: "-0.5px",
+                  p: 1,
+                  lineHeight: "1.3rem",
+                }}
+              >
+                Identify the Event
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
+              <Box
+                sx={{
+                  border: "2px solid black",
+                  p: 1,
+                  borderRadius: "50px",
+                  mr: 1,
+                }}
+              >
+                <SellOutlinedIcon />
+              </Box>
+              <Typography
+                variant="body1"
+                fontWeight={800}
+                sx={{
+                  letterSpacing: "-0.5px",
+                  p: 1,
+                  lineHeight: "1.3rem",
+                }}
+              >
+                Sell or Browse
+              </Typography>
+            </Box>
+          </Box>
         </Box>
-
-        <Box
-          sx={{
-            textAlign: "center",
-            backgroundColor: "red",
-            borderRadius: "50%",
-            height: "100px",
-            width: "100px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Typography variant="h6" gutterBottom>
-            Upload a Stub
-          </Typography>
-        </Box>
-
-        <Box
-          sx={{
-            textAlign: "center",
-            backgroundColor: "red",
-            borderRadius: "50%",
-            height: "100px",
-            width: "100px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Typography variant="h6" gutterBottom>
-            Identify the Event
-          </Typography>
-        </Box>
-
-        <Box
-          sx={{
-            textAlign: "center",
-            backgroundColor: "red",
-            borderRadius: "50%",
-            height: "100px",
-            width: "100px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Typography variant="h6" gutterBottom>
-            Sell or Browse
-          </Typography>
-        </Box>
-      </Box>
-    </Box>
+      </Grid>
+    </Grid>
   );
 };
 

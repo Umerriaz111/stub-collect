@@ -30,28 +30,30 @@ function Dashboard() {
     <Box
       sx={{
         p: 3,
-        pt: 12,
-        background: "linear-gradient(135deg, #f5f7fa 0%, #ffe8f2 100%)",
         minHeight: "100vh",
         backgroundImage:
-          "url(https://images.unsplash.com/photo-1608555307638-992062b31329?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHJldHJvJTIwY29taWMlMjBvcmFuZ2UlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww)",
+          " url('https://img.freepik.com/premium-vector/music-notes-seamless-pattern-background_559319-558.jpg') , url(https://images.unsplash.com/photo-1608555307638-992062b31329?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHJldHJvJTIwY29taWMlMjBvcmFuZ2UlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww)",
         backgroundSize: "cover",
         backgroundPosition: "center",
+        backgroundBlendMode: "multiply",
       }}
     >
-      <MainHeader />
+      {/* <MainHeader /> */}
 
       <StubUploadComponent />
 
       <Typography
-        variant="h3"
+        variant="h5"
         sx={{
-          mb: 5,
+          mt: 8,
+          mb: 4,
           textAlign: "center",
           fontWeight: 800,
           color: "Black",
-          textShadow: "2px 2px 0px rgba(241, 240, 177, 0.82)",
-          letterSpacing: "1px",
+          // textShadow: "2px 2px 0px rgba(241, 240, 177, 0.82)",
+          letterSpacing: "-0.5px",
+          textShadow:
+            "-1px -1px 0 orange, 1px -1px 0 orange, -1px 1px 0 orange, 1px 1px 0 orange",
         }}
       >
         Browse Famous Event Stubs
