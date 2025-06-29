@@ -27,7 +27,7 @@ const StubCard = ({ image, title, price, currency, onClick, link, date }) => {
           "url(https://images.unsplash.com/photo-1746639643018-e600b8c194b8?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHJldHJvJTIwY29taWMlMjBibHVlJTIwYmFja2dyb3VuZHxlbnwwfHwwfHx8MA%3D%3D)",
         border: "2px solid #000",
         position: "relative",
-        overflow: "visible",
+        overflow: "hidden",
         "&:hover": {
           transform: "translateY(-8px) scale(1.02)",
           boxShadow: "0 12px 24px rgba(0,0,0,0.3)",
@@ -37,10 +37,10 @@ const StubCard = ({ image, title, price, currency, onClick, link, date }) => {
           position: "absolute",
           top: -4,
           left: -4,
-          right: -4,
-          bottom: -4,
+          right: 4,
+          bottom: 4,
           border: "2px dashed #ff4081",
-          borderRadius: "16px",
+          // borderRadius: "16px",
           zIndex: -1,
           opacity: 0.7,
         },
@@ -48,10 +48,9 @@ const StubCard = ({ image, title, price, currency, onClick, link, date }) => {
       component={Link}
       to={link || "#"}
     >
-      <CardActionArea onClick={onClick} sx={{ height: "100%" }}>
+      <Box onClick={onClick} sx={{ height: "100%", padding: "0px" }}>
         <Box
           sx={{
-            p: 1,
             backgroundColor: "transparent",
             display: "flex",
             justifyContent: "center",
@@ -60,20 +59,25 @@ const StubCard = ({ image, title, price, currency, onClick, link, date }) => {
             borderBottom: "2px dashed #000",
             // background:
             //   "linear-gradient(to right, rgba(5, 0, 0, 0.5), rgba(0, 0, 0, 0.5))",
+            backgroundImage: `url(${image})`,
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            // borderRadius: "12px 12px 0px 0px",
           }}
         >
-          <CardMedia
+          {/* <CardMedia
             component="img"
             height="100%"
             image={image}
             alt={title}
             sx={{
-              objectFit: "contain",
+              objectFit: "cover",
               maxHeight: "100%",
               maxWidth: "100%",
               filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.3))",
             }}
-          />
+          /> */}
         </Box>
         <CardContent
           sx={{
@@ -148,7 +152,7 @@ const StubCard = ({ image, title, price, currency, onClick, link, date }) => {
             )}
           </Box>
         </CardContent>
-      </CardActionArea>
+      </Box>
     </Card>
   );
 };
