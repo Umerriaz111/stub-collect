@@ -6,6 +6,7 @@ import { Box } from "@mui/material";
 import StubCard from "../../components/Cards/StubCard";
 import { getAllListing } from "../../../core/api/marketplace";
 import config from "../../../core/services/configService";
+import StubUploadComponent from "../../components/StubUploadComponent/StubUploadComponent";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -26,11 +27,34 @@ function Dashboard() {
   }, []);
 
   return (
-    <Box sx={{ p: 3, pt: 12 }}>
+    <Box
+      sx={{
+        p: 3,
+        pt: 12,
+        background: "linear-gradient(135deg, #f5f7fa 0%, #ffe8f2 100%)",
+        minHeight: "100vh",
+        backgroundImage:
+          "url(https://images.unsplash.com/photo-1608555307638-992062b31329?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHJldHJvJTIwY29taWMlMjBvcmFuZ2UlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <MainHeader />
 
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        Available Stubs
+      <StubUploadComponent />
+
+      <Typography
+        variant="h3"
+        sx={{
+          mb: 5,
+          textAlign: "center",
+          fontWeight: 800,
+          color: "Black",
+          textShadow: "2px 2px 0px rgba(241, 240, 177, 0.82)",
+          letterSpacing: "1px",
+        }}
+      >
+        Browse Famous Event Stubs
       </Typography>
 
       {error && (
@@ -39,7 +63,7 @@ function Dashboard() {
         </Typography>
       )}
 
-      <Grid container>
+      <Grid container spacing={4} justifyContent="center">
         {listings.map((listing) => (
           <Grid
             item
@@ -47,11 +71,10 @@ function Dashboard() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              mb: 1,
             }}
             xs={12}
-            sm={4}
-            md={3}
+            sm={6}
+            md={4}
             lg={3}
             key={listing.id}
           >
@@ -60,6 +83,7 @@ function Dashboard() {
               title={listing.stub.title}
               price={listing.asking_price}
               currency={listing.currency}
+              date={listing.stub.date} // Assuming you have a date field
               onClick={() => navigate(`/marketplace/listings/${listing.id}`)}
             />
           </Grid>
