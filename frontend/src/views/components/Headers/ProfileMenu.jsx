@@ -113,6 +113,9 @@ export default function ProfileMenu() {
             elevation: 3,
             sx: {
               width: 250,
+              backgroundColor: "rgba(251, 167, 57, 0.55)",
+              border: "2px solid",
+              borderColor: "rgb(251, 167, 57)",
               overflow: "visible",
               filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.15))",
               mt: 1.5,

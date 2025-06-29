@@ -7,6 +7,7 @@ import StubCard from "../../components/Cards/StubCard";
 import { getAllListing } from "../../../core/api/marketplace";
 import config from "../../../core/services/configService";
 import StubUploadComponent from "../../components/StubUploadComponent/StubUploadComponent";
+import ProfileMenu from "../../components/Headers/ProfileMenu";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -39,6 +40,17 @@ function Dashboard() {
       }}
     >
       {/* <MainHeader /> */}
+      <Box sx={{ position: "relative", width: "100%" }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: 15,
+            right: 15,
+          }}
+        >
+          <ProfileMenu />
+        </Box>
+      </Box>
 
       <StubUploadComponent />
 

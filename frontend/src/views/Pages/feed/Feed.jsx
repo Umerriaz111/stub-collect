@@ -1,4 +1,4 @@
-import { Typography, Grid } from "@mui/material";
+import { Typography, Grid, IconButton } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { SET_HEADING } from "../../../core/store/App/appSlice";
@@ -8,6 +8,8 @@ import { Box } from "@mui/system";
 import config from "../../../core/services/configService";
 import { Link } from "react-router-dom";
 import MainHeader from "../../components/Headers/MainHeader";
+import ProfileMenu from "../../components/Headers/ProfileMenu";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 function Feed() {
   const dispatch = useDispatch();
@@ -35,8 +37,51 @@ function Feed() {
   if (error) return <Typography color="error">{error}</Typography>;
 
   return (
-    <Box p={3} pt={12}>
-      <MainHeader />
+    <Box
+      sx={{
+        p: 3,
+        minHeight: "100vh",
+        backgroundImage:
+          " url('https://img.freepik.com/premium-vector/music-notes-seamless-pattern-background_559319-558.jpg') , url(https://images.unsplash.com/photo-1608555307638-992062b31329?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHJldHJvJTIwY29taWMlMjBvcmFuZ2UlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundBlendMode: "multiply",
+      }}
+    >
+      {/* <MainHeader /> */}
+      <Box sx={{ position: "relative", width: "100%" }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: 15,
+            right: 15,
+          }}
+        >
+          <ProfileMenu />
+        </Box>
+      </Box>
+
+      <Box
+        my={2}
+        fontSize={20}
+        component={Link}
+        to={"/"}
+        sx={{
+          border: "2px solid",
+          borderColor: "rgb(249, 194, 100)",
+          display: "inline-block",
+          borderRadius: 4,
+          pr: 2,
+          cursor: "pointer",
+          textDecoration: "none",
+          color: "black",
+        }}
+      >
+        <IconButton>
+          <ArrowBackIcon />
+        </IconButton>{" "}
+        Back to Main Screen
+      </Box>
 
       <Typography variant="h4" sx={{ mb: 3 }}>
         My Stubs
