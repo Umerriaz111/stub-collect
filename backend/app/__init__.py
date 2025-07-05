@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from config import Config
 import os
 
@@ -10,6 +12,13 @@ import os
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
+
+# FIXED: Consolidated rate limiter configuration
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"  # Use Redis in production: "redis://localhost:6379"
+)
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -23,13 +32,7 @@ def create_app(config_class=Config):
             "allow_headers": ["Content-Type"],
             "supports_credentials": True  # Important for session cookies
         },
-        r"/stubs/*": {  # Add CORS for stub endpoints
-            "origins": ["http://localhost:3000"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type"],
-            "supports_credentials": True
-        },
-        r"/marketplace/*": {  # Add CORS for marketplace endpoints
+        r"/api/*": {  # FIXED: Covers both stubs and payments
             "origins": ["http://localhost:3000"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type"],
@@ -45,6 +48,12 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)  # Initialize Flask-Migrate
     login_manager.init_app(app)
+    
+    # FIXED: Initialize rate limiter
+    limiter.init_app(app)
+
+    # FIXED: Import all models for Flask-Migrate to detect them
+    from app import models
 
     # Import and register blueprints
     from app.routes import auth, stubs, marketplace

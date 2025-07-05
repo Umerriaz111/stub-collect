@@ -1,22 +1,15 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
 import os
-from app import db
+from app import db, limiter
 from app.models.stub import Stub, SUPPORTED_CURRENCIES
 from app.services.stub_service import StubProcessor
 from datetime import datetime
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from sqlalchemy.orm import joinedload
 
 bp = Blueprint('stubs', __name__)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-
-limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]
-)
 
 def get_stub_processor():
     """Get or create StubProcessor instance"""
@@ -27,7 +20,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @bp.route('/stubs/upload', methods=['POST'])
-@limiter.limit("10 per minute")  # Adjust as needed
+@limiter.limit("10 per minute")
 @login_required
 def upload_stub():
     """Upload and process a new stub image"""
