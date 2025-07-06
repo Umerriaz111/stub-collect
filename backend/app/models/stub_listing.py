@@ -37,6 +37,16 @@ class StubListing(db.Model):
         if not self.payment_required:
             return False, "Payment not enabled for this listing"
         
+        # Add defensive check for seller relationship
+        if not self.seller:
+            # Try to load the seller if relationship is not loaded
+            from app.models.user import User
+            self.seller = User.query.get(self.seller_id)
+            
+            # If still no seller found, return error
+            if not self.seller:
+                return False, "Seller not found"
+        
         if not self.seller.can_accept_payments():
             return False, "Seller cannot accept payments yet"
         

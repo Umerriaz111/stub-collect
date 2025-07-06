@@ -89,6 +89,17 @@ class StubOrder(db.Model):
     
     def sync_with_listing_status(self):
         """FIXED: Synchronize order status with listing status"""
+        # Add defensive check for stub_listing relationship
+        if not self.stub_listing:
+            # Try to load the listing if relationship is not loaded
+            from app.models.stub_listing import StubListing
+            self.stub_listing = StubListing.query.get(self.stub_listing_id)
+            
+            # If still no listing found, log warning and return
+            if not self.stub_listing:
+                print(f"Warning: Cannot sync order {self.id} - listing {self.stub_listing_id} not found")
+                return
+        
         if self.order_status == 'payment_completed' and self.stub_listing.status == 'payment_pending':
             self.stub_listing.mark_as_sold(self.payment_confirmed_at)
         elif self.order_status == 'cancelled' and self.stub_listing.status == 'payment_pending':
@@ -112,8 +123,8 @@ class StubOrder(db.Model):
             'liability_shifted_to_seller': self.liability_shifted_to_seller,
             'seller_payout_schedule_days': self.seller_payout_schedule_days,
             'expected_payout_date': self.get_expected_payout_date()[0].isoformat() if self.get_expected_payout_date()[0] else None,
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat(),
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'payment_confirmed_at': self.payment_confirmed_at.isoformat() if self.payment_confirmed_at else None,
             'completed_at': self.completed_at.isoformat() if self.completed_at else None,
         } 

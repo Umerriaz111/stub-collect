@@ -619,69 +619,69 @@ class DirectChargesService:
             try:
                 with db.session.begin():
                     # Create order (this also reserves the listing)
-                    order = StubOrder.from_listing(listing, buyer_id, self.PLATFORM_FEE_PERCENTAGE)
-                    db.session.add(order)
-                    db.session.flush()  # Get order ID
-                    
-                    # Set seller payout schedule
-                    order.set_seller_payout_schedule(self.PAYOUT_HOLD_DAYS)
-                    
-                    # Get seller info
-                    seller = User.query.get(listing.seller_id)
-                    
-                    # Create PaymentIntent with Direct Charges configuration
-                    intent_params = {
-                        'amount': order.total_amount_cents,
+            order = StubOrder.from_listing(listing, buyer_id, self.PLATFORM_FEE_PERCENTAGE)
+            db.session.add(order)
+            db.session.flush()  # Get order ID
+            
+            # Set seller payout schedule
+            order.set_seller_payout_schedule(self.PAYOUT_HOLD_DAYS)
+            
+            # Get seller info
+            seller = User.query.get(listing.seller_id)
+            
+            # Create PaymentIntent with Direct Charges configuration
+            intent_params = {
+                'amount': order.total_amount_cents,
                         'currency': self.SUPPORTED_CURRENCY.lower(),  # FIXED: USD only
-                        'payment_method_types': ['card'],
-                        'capture_method': 'automatic',
-                        'metadata': {
-                            'order_id': order.id,
-                            'listing_id': listing.id,
-                            'buyer_id': buyer_id,
-                            'seller_id': listing.seller_id,
-                            'type': 'direct_charge_stub_purchase',
-                            'platform_fee_cents': order.platform_fee_cents,
-                            'liability_shift_enabled': str(self.ENABLE_LIABILITY_SHIFT).lower()
-                        }
-                    }
-                    
+                'payment_method_types': ['card'],
+                'capture_method': 'automatic',
+                'metadata': {
+                    'order_id': order.id,
+                    'listing_id': listing.id,
+                    'buyer_id': buyer_id,
+                    'seller_id': listing.seller_id,
+                    'type': 'direct_charge_stub_purchase',
+                    'platform_fee_cents': order.platform_fee_cents,
+                    'liability_shift_enabled': str(self.ENABLE_LIABILITY_SHIFT).lower()
+                }
+            }
+            
                     # Add liability shift parameters if enabled
-                    if self.ENABLE_LIABILITY_SHIFT and seller_eligible:
-                        intent_params.update({
+            if self.ENABLE_LIABILITY_SHIFT and seller_eligible:
+                intent_params.update({
                             'on_behalf_of': seller.stripe_account_id,
                             'application_fee_amount': order.platform_fee_cents,
                             'transfer_group': f'order_{order.id}',
-                        })
-                    
-                    # Create the PaymentIntent
-                    intent = stripe.PaymentIntent.create(**intent_params)
-                    
-                    # Create payment record
-                    payment = StubPayment(
-                        order_id=order.id,
-                        payment_intent_id=intent.id,
-                        amount_total_cents=order.total_amount_cents,
-                        platform_fee_cents=order.platform_fee_cents,
+                })
+            
+            # Create the PaymentIntent
+            intent = stripe.PaymentIntent.create(**intent_params)
+            
+            # Create payment record
+            payment = StubPayment(
+                order_id=order.id,
+                payment_intent_id=intent.id,
+                amount_total_cents=order.total_amount_cents,
+                platform_fee_cents=order.platform_fee_cents,
                         currency=self.SUPPORTED_CURRENCY,  # FIXED: USD only
-                        payment_status='pending',
-                        liability_shift_status='shifted_to_seller' if self.ENABLE_LIABILITY_SHIFT and seller_eligible else 'platform_liable',
-                        hold_reason='buyer_protection'
-                    )
-                    
-                    db.session.add(payment)
+                payment_status='pending',
+                liability_shift_status='shifted_to_seller' if self.ENABLE_LIABILITY_SHIFT and seller_eligible else 'platform_liable',
+                hold_reason='buyer_protection'
+            )
+            
+            db.session.add(payment)
                     # Transaction commits automatically if no exception
-                    
-                    return {
-                        'success': True,
-                        'client_secret': intent.client_secret,
-                        'payment_intent_id': intent.id,
-                        'order_id': order.id,
-                        'liability_shifted': self.ENABLE_LIABILITY_SHIFT and seller_eligible,
-                        'seller_account_id': seller.stripe_account_id,
-                        'payout_schedule_days': self.PAYOUT_HOLD_DAYS,
-                        'expected_payout_date': order.get_expected_payout_date()[0].isoformat() if order.get_expected_payout_date()[0] else None
-                    }
+            
+            return {
+                'success': True,
+                'client_secret': intent.client_secret,
+                'payment_intent_id': intent.id,
+                'order_id': order.id,
+                'liability_shifted': self.ENABLE_LIABILITY_SHIFT and seller_eligible,
+                'seller_account_id': seller.stripe_account_id,
+                'payout_schedule_days': self.PAYOUT_HOLD_DAYS,
+                'expected_payout_date': order.get_expected_payout_date()[0].isoformat() if order.get_expected_payout_date()[0] else None
+            }
                     
             except Exception as e:
                 # Transaction automatically rolled back
@@ -696,13 +696,13 @@ class DirectChargesService:
         """FIXED: Handle successful payment with proper listing status sync"""
         try:
             with db.session.begin():  # Use transaction for consistency
-                payment = StubPayment.query.filter_by(
-                    payment_intent_id=payment_intent_id
-                ).first()
-                
-                if not payment:
-                    return {'success': False, 'error': 'Payment record not found'}
-                
+            payment = StubPayment.query.filter_by(
+                payment_intent_id=payment_intent_id
+            ).first()
+            
+            if not payment:
+                return {'success': False, 'error': 'Payment record not found'}
+            
                 # Check for duplicate processing (idempotency)
                 if payment.payment_status == 'completed':
                     return {
@@ -719,34 +719,34 @@ class DirectChargesService:
                 
                 if intent.status == 'succeeded':
                     # Update payment record
-                    payment.payment_status = 'completed'
-                    payment.processed_at = datetime.utcnow()
-                    payment.charge_id = intent.latest_charge.id if intent.latest_charge else None
-                    
-                    # Record Stripe processing fee
+                payment.payment_status = 'completed'
+                payment.processed_at = datetime.utcnow()
+                payment.charge_id = intent.latest_charge.id if intent.latest_charge else None
+                
+                # Record Stripe processing fee
                     if intent.latest_charge and hasattr(intent.latest_charge, 'balance_transaction'):
                         payment.stripe_processing_fee_cents = intent.latest_charge.balance_transaction.fee
-                    
+                
                     # Update order
-                    order = payment.order
-                    order.order_status = 'payment_completed'
-                    order.payment_confirmed_at = datetime.utcnow()
-                    
+                order = payment.order
+                order.order_status = 'payment_completed'
+                order.payment_confirmed_at = datetime.utcnow()
+                
                     # FIXED: Sync listing status properly
                     order.sync_with_listing_status()
-                    
+                
                     # Transaction commits automatically
-                    
-                    return {
-                        'success': True,
-                        'payment_status': 'completed',
-                        'order_status': order.order_status,
-                        'liability_shifted': payment.liability_shift_status == 'shifted_to_seller',
-                        'payout_note': f'Funds in seller Stripe balance, will payout in {self.PAYOUT_HOLD_DAYS} days'
-                    }
                 
-                return {'success': False, 'error': f'Payment status is {intent.status}, not succeeded'}
-                
+                return {
+                    'success': True,
+                    'payment_status': 'completed',
+                    'order_status': order.order_status,
+                    'liability_shifted': payment.liability_shift_status == 'shifted_to_seller',
+                    'payout_note': f'Funds in seller Stripe balance, will payout in {self.PAYOUT_HOLD_DAYS} days'
+                }
+            
+            return {'success': False, 'error': f'Payment status is {intent.status}, not succeeded'}
+            
         except stripe.error.StripeError as e:
             return {'success': False, 'error': f'Stripe error: {str(e)}'}
         except Exception as e:
@@ -800,52 +800,52 @@ class DirectChargesService:
         """FIXED: Process refund with proper listing status restoration"""
         try:
             with db.session.begin():  # Use transaction
-                order = StubOrder.query.get(order_id)
-                if not order:
-                    return {'success': False, 'error': 'Order not found'}
-                
-                payment = order.payment
-                if not payment or payment.payment_status != 'completed':
-                    return {'success': False, 'error': 'Payment not eligible for refund'}
-                
+            order = StubOrder.query.get(order_id)
+            if not order:
+                return {'success': False, 'error': 'Order not found'}
+            
+            payment = order.payment
+            if not payment or payment.payment_status != 'completed':
+                return {'success': False, 'error': 'Payment not eligible for refund'}
+            
                 # Create refund
-                refund_params = {
-                    'payment_intent': payment.payment_intent_id,
-                    'amount': payment.amount_total_cents,
-                    'reason': refund_reason,
-                    'metadata': {
-                        'order_id': order.id,
-                        'refund_reason': refund_reason
-                    }
+            refund_params = {
+                'payment_intent': payment.payment_intent_id,
+                'amount': payment.amount_total_cents,
+                'reason': refund_reason,
+                'metadata': {
+                    'order_id': order.id,
+                    'refund_reason': refund_reason
                 }
-                
+            }
+            
                 # For Direct Charges with liability shift
-                if payment.liability_shift_status == 'shifted_to_seller':
-                    refund_params.update({
+            if payment.liability_shift_status == 'shifted_to_seller':
+                refund_params.update({
                         'refund_application_fee': True,
                         'reverse_transfer': True
-                    })
-                
-                refund = stripe.Refund.create(**refund_params)
-                
-                # Update payment record
-                payment.refund_id = refund.id
-                payment.payment_status = 'refunded'
-                payment.refunded_at = datetime.utcnow()
-                
-                # Update order
-                order.order_status = 'refunded'
-                
+                })
+            
+            refund = stripe.Refund.create(**refund_params)
+            
+            # Update payment record
+            payment.refund_id = refund.id
+            payment.payment_status = 'refunded'
+            payment.refunded_at = datetime.utcnow()
+            
+            # Update order
+            order.order_status = 'refunded'
+            
                 # FIXED: Sync listing status properly
                 order.sync_with_listing_status()
-                
-                return {
-                    'success': True,
-                    'refund_id': refund.id,
-                    'amount_refunded_cents': refund.amount,
-                    'refund_status': refund.status
-                }
-                
+            
+            return {
+                'success': True,
+                'refund_id': refund.id,
+                'amount_refunded_cents': refund.amount,
+                'refund_status': refund.status
+            }
+            
         except stripe.error.StripeError as e:
             return {'success': False, 'error': f'Refund failed: {str(e)}'}
         except Exception as e:
@@ -1281,8 +1281,8 @@ def stripe_webhook():
                 user.stripe_requirements_due = json.dumps(requirements['currently_due'])
             
             try:
-                db.session.commit()
-                print(f"Updated account status for user {user.username}: {user.stripe_account_status}")
+            db.session.commit()
+            print(f"Updated account status for user {user.username}: {user.stripe_account_status}")
             except Exception as e:
                 db.session.rollback()
                 print(f"Error updating user account status: {str(e)}")
@@ -1295,7 +1295,7 @@ def stripe_webhook():
     elif event['type'] == 'payout.failed':
         payout = event['data']['object']
         print(f"Payout failed: {payout['id']} - {payout.get('failure_message')}")
-    
+        
     # Handle disputes (liability shifted to sellers)
     elif event['type'] == 'charge.dispute.created':
         dispute = event['data']['object']
@@ -1389,7 +1389,7 @@ def get_seller_balance():
     
     try:
         balance = stripe.Balance.retrieve(stripe_account=current_user.stripe_account_id)
-        
+    
         return jsonify({
             'status': 'success',
             'balance': {
@@ -1604,9 +1604,9 @@ class Config:
     STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
     
     # FIXED: Direct Charges specific configuration
-    STRIPE_PAYOUT_HOLD_DAYS = int(os.environ.get('STRIPE_PAYOUT_HOLD_DAYS', '7'))
-    STRIPE_PLATFORM_FEE_PERCENTAGE = float(os.environ.get('STRIPE_PLATFORM_FEE_PERCENTAGE', '0.10'))
-    STRIPE_ENABLE_LIABILITY_SHIFT = os.environ.get('STRIPE_ENABLE_LIABILITY_SHIFT', 'true').lower() == 'true'
+STRIPE_PAYOUT_HOLD_DAYS = int(os.environ.get('STRIPE_PAYOUT_HOLD_DAYS', '7'))
+STRIPE_PLATFORM_FEE_PERCENTAGE = float(os.environ.get('STRIPE_PLATFORM_FEE_PERCENTAGE', '0.10'))
+STRIPE_ENABLE_LIABILITY_SHIFT = os.environ.get('STRIPE_ENABLE_LIABILITY_SHIFT', 'true').lower() == 'true'
     
     # FIXED: Rate limiting configuration
     RATELIMIT_STORAGE_URL = os.environ.get('REDIS_URL', 'memory://')

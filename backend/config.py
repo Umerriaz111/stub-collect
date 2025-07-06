@@ -11,7 +11,7 @@ class Config:
     # FIXED: Stripe configuration with enhanced settings
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
     STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
-    STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
+    STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY') 
     
     # FIXED: Direct Charges specific configuration
     STRIPE_PAYOUT_HOLD_DAYS = int(os.environ.get('STRIPE_PAYOUT_HOLD_DAYS', '7'))

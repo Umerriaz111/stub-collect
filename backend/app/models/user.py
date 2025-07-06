@@ -27,7 +27,7 @@ class User(UserMixin, db.Model):
 
     def can_accept_payments(self):
         """Check if user can accept payments (liability shift eligible)"""
-        return (
+        return bool(
             self.stripe_account_id and 
             self.stripe_onboarding_completed and 
             self.stripe_capabilities_enabled and
