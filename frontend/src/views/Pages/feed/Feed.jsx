@@ -10,6 +10,8 @@ import { Link } from "react-router-dom";
 import MainHeader from "../../components/Headers/MainHeader";
 import ProfileMenu from "../../components/Headers/ProfileMenu";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import notyf from "../../components/NotificationMessage/notyfInstance";
+import { createListing } from "../../../core/api/marketplace";
 
 function Feed() {
   const dispatch = useDispatch();
@@ -30,6 +32,17 @@ function Feed() {
       setError(err.message || "Failed to fetch stubs");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleListingSubmit = async (data) => {
+    try {
+      const response = await createListing(data);
+
+      notyf.success("listed on marketplace successfully");
+    } catch (error) {
+      // setError(error.response?.data?.message || "Failed to create listing");
+      notyf.error("something went wrong");
     }
   };
 
@@ -116,6 +129,7 @@ function Feed() {
                 link={`/stub-preview/${stub.id}`}
                 ticketPrice={stub.ticket_price}
                 listingStatus={stub.listing_status}
+                handleListingSubmit={handleListingSubmit}
               />
             </Grid>
           ))
