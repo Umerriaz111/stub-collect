@@ -16,6 +16,7 @@ import Dashboard from "../../views/Pages/dashboard/Dashboard.jsx";
 import AddNewStub from "../../views/Pages/addNewStub/AddNewStub.jsx";
 import StubPreview from "../../views/Pages/stubPreview/StubPreview.jsx";
 import SellerProfile from "../../views/Pages/sellerProfile/sellerProfile.jsx";
+import SellerOnBoarding from "../../views/Pages/sellerOnBoarding/SellerOnBoarding.jsx";
 // ********************* Protected PAGES**********
 
 // ********** EXPORT ROUTES *********
@@ -98,6 +99,18 @@ export const routes = [
       // <ProtectedRoute>
       // <PageWrapper>
       <SellerProfile />
+      // </PageWrapper>
+      // </ProtectedRoute>
+    ),
+    aside: null,
+  },
+
+  {
+    path: "/seller-onboarding",
+    page: (
+      // <ProtectedRoute>
+      // <PageWrapper>
+      <SellerOnBoarding />
       // </PageWrapper>
       // </ProtectedRoute>
     ),

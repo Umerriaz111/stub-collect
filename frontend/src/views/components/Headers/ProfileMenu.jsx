@@ -23,6 +23,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import notyf from "../NotificationMessage/notyfInstance";
 import { logoutApi } from "../../../core/api/auth";
+import { AddPaymentButton } from "../AddPaymentButton/AddPaymentButton";
 
 export default function ProfileMenu() {
   const user = useSelector((state) => state.auth.user);
@@ -165,6 +166,15 @@ export default function ProfileMenu() {
             <CollectionsBookmark fontSize="small" color="primary" />
           </ListItemIcon>
           My Stubs
+        </MenuItem>
+
+        <Divider sx={{ my: 1 }} />
+
+        <MenuItem>
+          <ListItemIcon>
+            <CollectionsBookmark fontSize="small" color="primary" />
+          </ListItemIcon>
+          <AddPaymentButton listing={null} />
         </MenuItem>
 
         {/* <MenuItem>
