@@ -15,7 +15,7 @@ const SellerOnBoarding = () => {
         color="primary"
         sx={{ m: 4 }}
         onClick={() => {
-          window.open(url, "_blank");
+          window.open(url);
         }}
       >
         start onboarding

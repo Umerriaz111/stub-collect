@@ -15,7 +15,7 @@ import NewPassword from "../../views/Pages/auth/NewPassword.jsx";
 import Dashboard from "../../views/Pages/dashboard/Dashboard.jsx";
 import AddNewStub from "../../views/Pages/addNewStub/AddNewStub.jsx";
 import StubPreview from "../../views/Pages/stubPreview/StubPreview.jsx";
-import SellerProfile from "../../views/Pages/sellerProfile/sellerProfile.jsx";
+import SellerProfile from "../../views/Pages/sellerProfile/SellerProfile.jsx";
 import SellerOnBoarding from "../../views/Pages/sellerOnBoarding/SellerOnBoarding.jsx";
 // ********************* Protected PAGES**********
 
