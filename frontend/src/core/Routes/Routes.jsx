@@ -17,6 +17,7 @@ import AddNewStub from "../../views/Pages/addNewStub/AddNewStub.jsx";
 import StubPreview from "../../views/Pages/stubPreview/StubPreview.jsx";
 import SellerProfile from "../../views/Pages/sellerProfile/SellerProfile.jsx";
 import SellerOnBoarding from "../../views/Pages/sellerOnBoarding/SellerOnBoarding.jsx";
+import ConnectPayments from "../../views/Pages/connectPayments/ConnectPayments.jsx";
 // ********************* Protected PAGES**********
 
 // ********** EXPORT ROUTES *********
@@ -131,6 +132,12 @@ export const routes = [
   {
     path: "/stub-preview/:stubId",
     page: <StubPreview />,
+    aside: null,
+  },
+
+  {
+    path: "/connect-payments",
+    page: <ConnectPayments />,
     aside: null,
   },
 ];

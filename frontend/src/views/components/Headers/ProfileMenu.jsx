@@ -23,7 +23,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import notyf from "../NotificationMessage/notyfInstance";
 import { logoutApi } from "../../../core/api/auth";
-import { AddPaymentButton } from "../AddPaymentButton/AddPaymentButton";
+import PaidIcon from "@mui/icons-material/Paid";
 
 export default function ProfileMenu() {
   const user = useSelector((state) => state.auth.user);
@@ -170,11 +170,11 @@ export default function ProfileMenu() {
 
         <Divider sx={{ my: 1 }} />
 
-        <MenuItem>
+        <MenuItem component={Link} to="/connect-payments">
           <ListItemIcon>
-            <CollectionsBookmark fontSize="small" color="primary" />
+            <PaidIcon fontSize="small" color="primary" />
           </ListItemIcon>
-          <AddPaymentButton listing={null} />
+          Connect Payments
         </MenuItem>
 
         {/* <MenuItem>
