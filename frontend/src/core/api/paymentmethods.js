@@ -1,5 +1,6 @@
 import config from "../services/configService";
 import axios from "axios";
+import { loadStripe } from "@stripe/stripe-js";
 
 const API_BASE_URL = config.VITE_APP_API_BASE_URL;
 
@@ -63,6 +64,48 @@ export const startStripeOnboarding = async () => {
         error?.response?.data?.message ||
         error?.message ||
         "Onboarding initialization failed",
+    };
+  }
+};
+
+const stripePromise = loadStripe(
+  "pk_test_51QlCWbJIDHKRj8Hxh5O35ATbVGsbYKEMrHZVoECkpWdxwf12tPzy5LuOQnGfeAXlRnQM8Z4srSYrCt4U75AXwA2y00bCqJ7qoT"
+);
+
+export const createPaymentIntent = async (listingId) => {
+  try {
+    const response = await api.post("/payments/create-payment-intent", {
+      listing_id: listingId,
+    });
+
+    debugger;
+
+    const data = response.data;
+
+    if (data.status === "success") {
+      return {
+        success: true,
+        clientSecret: data.client_secret,
+        paymentIntentId: data.payment_intent_id,
+        orderId: data.order_id,
+        liabilityShifted: data.liability_shifted,
+        payoutScheduleDays: data.payout_schedule_days,
+      };
+    } else {
+      return {
+        success: false,
+        error: data.message,
+        sellerRequirements: data.seller_requirements,
+      };
+    }
+  } catch (error) {
+    console.error("Error creating payment intent:", error);
+    return {
+      success: false,
+      error:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Payment creation failed",
     };
   }
 };

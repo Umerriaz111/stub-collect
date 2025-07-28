@@ -8,6 +8,7 @@ import { getAllListing } from "../../../core/api/marketplace";
 import config from "../../../core/services/configService";
 import StubUploadComponent from "../../components/StubUploadComponent/StubUploadComponent";
 import ProfileMenu from "../../components/Headers/ProfileMenu";
+import { createPaymentIntent } from "../../../core/api/paymentmethods";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -26,6 +27,15 @@ function Dashboard() {
     };
     fetchListings();
   }, []);
+
+  const buyTicket = async (listingId) => {
+    try {
+      const response = await createPaymentIntent(listingId);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Box
@@ -98,7 +108,8 @@ function Dashboard() {
               price={listing.asking_price}
               currency={listing.currency}
               date={listing.stub.date} // Assuming you have a date field
-              onClick={() => navigate(`/marketplace/listings/${listing.id}`)}
+              // onClick={() => navigate(`/marketplace/listings/${listing.id}`)}
+              onClick={() => buyTicket(listing.id)}
               showSeller={true}
               sellerName={listing?.seller_name}
               sellerId={listing?.seller_id}
