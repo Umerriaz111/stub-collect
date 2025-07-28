@@ -71,8 +71,6 @@ const ConnectPayments = () => {
       <Box
         my={2}
         fontSize={20}
-        component={Link}
-        to={"/"}
         sx={{
           position: "absolute",
           top: 10,
@@ -90,10 +88,23 @@ const ConnectPayments = () => {
           alignItems: "center",
         }}
       >
-        <IconButton>
-          <ArrowBackIcon />
-        </IconButton>{" "}
-        Back
+        <Typography
+          component={Link}
+          to={"/"}
+          sx={{
+            cursor: "pointer",
+            textDecoration: "none",
+            color: "black",
+            ":hover": {
+              color: "blue",
+            },
+          }}
+        >
+          <IconButton>
+            <ArrowBackIcon />
+          </IconButton>{" "}
+          Home
+        </Typography>
       </Box>
 
       <Box>

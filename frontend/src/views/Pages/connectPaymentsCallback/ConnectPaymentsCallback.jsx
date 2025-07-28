@@ -1,10 +1,52 @@
-import { IconButton } from "@mui/material";
-import React from "react";
-import { Link } from "react-router-dom";
+import { CircularProgress, IconButton, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Box } from "@mui/system";
+import { Box, keyframes, styled } from "@mui/system";
+import { Cancel, CheckCircle } from "@mui/icons-material";
+
+const pulse = keyframes`
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+`;
+
+const StatusWrapper = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 300,
+  height: 300,
+  borderRadius: "50%",
+  backgroundColor: "orange",
+  boxShadow: theme.shadows[6],
+  position: "relative",
+  animation: `${pulse} 2s ease-in-out infinite`,
+}));
+
+const StatusIcon = styled(Box)({
+  fontSize: 80,
+  marginBottom: 16,
+});
 
 const ConnectPaymentsCallback = () => {
+  const [searchParams] = useSearchParams();
+
+  const status = searchParams.get("status") || "loading";
+  const message = searchParams.get("message");
+
+  const [displayMessage, setDisplayMessage] = useState("");
+
+  useEffect(() => {
+    if (status === "loading") {
+      setDisplayMessage("Processing payment...");
+    } else if (status === "success") {
+      setDisplayMessage(message || "Payment account connected!");
+    } else if (status === "error") {
+      setDisplayMessage(message || "Account connection failed!");
+    }
+  }, [status, message]);
   return (
     <Box
       sx={{
@@ -23,8 +65,6 @@ const ConnectPaymentsCallback = () => {
       <Box
         my={2}
         fontSize={20}
-        component={Link}
-        to={"/connect-payments"}
         sx={{
           position: "absolute",
           top: 10,
@@ -42,10 +82,38 @@ const ConnectPaymentsCallback = () => {
           alignItems: "center",
         }}
       >
-        <IconButton>
-          <ArrowBackIcon />
-        </IconButton>{" "}
-        Back
+        <Typography
+          component={Link}
+          to={"/"}
+          sx={{
+            cursor: "pointer",
+            textDecoration: "none",
+            color: "black",
+            ":hover": {
+              color: "blue",
+            },
+          }}
+        >
+          <IconButton>
+            <ArrowBackIcon />
+          </IconButton>{" "}
+          Home
+        </Typography>
+        /
+        <Typography
+          component={Link}
+          to={"/connect-payments"}
+          sx={{
+            cursor: "pointer",
+            textDecoration: "none",
+            color: "black",
+            ":hover": {
+              color: "blue",
+            },
+          }}
+        >
+          Connect-Payments
+        </Typography>
       </Box>
 
       <Box
@@ -54,16 +122,44 @@ const ConnectPaymentsCallback = () => {
           width: "50vw",
           height: "60vh",
           borderRadius: 4,
-          p: 4,
           textAlign: "center",
           display: "flex",
           alignItems: "center",
-          // justifyContent: "center",
+          justifyContent: "center",
           flexDirection: "column",
           mt: 4,
         }}
       >
-        hello
+        <StatusWrapper>
+          {status === "loading" && (
+            <>
+              <CircularProgress size={80} thickness={2} />
+              <Typography variant="subtitle1" mt={2}>
+                {displayMessage}
+              </Typography>
+            </>
+          )}
+          {status === "success" && (
+            <>
+              <StatusIcon sx={{ color: "success.main" }}>
+                <CheckCircle fontSize="inherit" />
+              </StatusIcon>
+              <Typography variant="subtitle1" color="success.main">
+                {displayMessage}
+              </Typography>
+            </>
+          )}
+          {status === "error" && (
+            <>
+              <StatusIcon sx={{ color: "error.main" }}>
+                <Cancel fontSize="inherit" />
+              </StatusIcon>
+              <Typography variant="subtitle1" color="error.main">
+                {displayMessage}
+              </Typography>
+            </>
+          )}
+        </StatusWrapper>
       </Box>
     </Box>
   );
