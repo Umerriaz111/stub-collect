@@ -76,21 +76,24 @@ const ConnectPayments = () => {
         sx={{
           position: "absolute",
           top: 10,
-          left: 20,
-          border: "2px solid",
-          borderColor: "rgb(249, 194, 100)",
-          display: "inline-block",
-          borderRadius: 4,
-          pr: 2,
+          left: 0,
+          //   border: "2px solid",
+          //   borderColor: "rgb(249, 194, 100)",
+          backgroundColor: "rgb(249, 194, 100)",
+          display: "flex",
+          //   borderRadius: 4,
+          borderRadius: "0px 10px 10px 0px",
+          px: 2,
           cursor: "pointer",
           textDecoration: "none",
           color: "black",
+          alignItems: "center",
         }}
       >
         <IconButton>
           <ArrowBackIcon />
         </IconButton>{" "}
-        Back to Main Screen
+        Back
       </Box>
 
       <Box>

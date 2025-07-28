@@ -18,6 +18,7 @@ import StubPreview from "../../views/Pages/stubPreview/StubPreview.jsx";
 import SellerProfile from "../../views/Pages/sellerProfile/SellerProfile.jsx";
 import SellerOnBoarding from "../../views/Pages/sellerOnBoarding/SellerOnBoarding.jsx";
 import ConnectPayments from "../../views/Pages/connectPayments/ConnectPayments.jsx";
+import ConnectPaymentsCallback from "../../views/Pages/connectPaymentsCallback/ConnectPaymentsCallback.jsx";
 // ********************* Protected PAGES**********
 
 // ********** EXPORT ROUTES *********
@@ -118,17 +119,6 @@ export const routes = [
     aside: null,
   },
 
-  /* Page Not Found 404 */
-  {
-    path: "*",
-    page: (
-      // <PageWrapper isSidebar={false}>
-      <PageNotFound />
-      // </PageWrapper>
-    ),
-    header: null,
-    aside: null,
-  },
   {
     path: "/stub-preview/:stubId",
     page: <StubPreview />,
@@ -138,6 +128,24 @@ export const routes = [
   {
     path: "/connect-payments",
     page: <ConnectPayments />,
+    aside: null,
+  },
+
+  {
+    path: "/connect-payments/callback",
+    page: <ConnectPaymentsCallback />,
+    aside: null,
+  },
+
+  /* Page Not Found 404 */
+  {
+    path: "*",
+    page: (
+      // <PageWrapper isSidebar={false}>
+      <PageNotFound />
+      // </PageWrapper>
+    ),
+    header: null,
     aside: null,
   },
 ];
