@@ -1,4 +1,4 @@
-import { Typography, Grid, AppBar, Toolbar } from "@mui/material";
+import { Typography, Grid, AppBar, Toolbar, Button } from "@mui/material";
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import MainHeader from "../../components/Headers/MainHeader";
@@ -80,17 +80,51 @@ function Dashboard() {
         <AppBar
           position="fixed"
           sx={{
-            backgroundColor: "rgb(251 134 28)",
-            boxShadow: "none",
-            borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
+            backgroundImage:
+              "url(https://sdmntprwestcentralus.oaiusercontent.com/files/00000000-3808-61fb-9e76-cef80909f515/raw?se=2025-08-09T11%3A41%3A37Z&sp=r&sv=2024-08-04&sr=b&scid=77e5f4ac-5fc7-512b-82ed-3b365d0b1600&skoid=f28c0102-4d9d-4950-baf0-4a8e5f6cf9d4&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-08T16%3A48%3A16Z&ske=2025-08-09T16%3A48%3A16Z&sks=b&skv=2024-08-04&sig=G6Q7upleirKt5DjS/%2Bq0KJHjD7DkDDHA3vD4VvPyonk%3D)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Stub Collector
-            </Typography>
-            <ProfileMenu />
-          </Toolbar>
+          <Grid container p={2} display={"flex"} alignItems="center">
+            <Grid item xs={4}>
+              <Button
+                variant="outlined"
+                color="primary"
+                size="large"
+                sx={{
+                  backgroundColor: "rgb(250, 185, 71)",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  borderRadius: "30px",
+                  width: "50%",
+                  p: "0px",
+                  border: "1px solid black",
+                  color: "black",
+                }}
+                onClick={() => navigate("/add-new-stub")}
+              >
+                Upload
+              </Button>
+            </Grid>{" "}
+            <Grid item xs={4}>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "rgba(255, 253, 252, 1)",
+                  textAlign: "center",
+                  fontWeight: 800,
+                  fontSize: "30px",
+                }}
+                gutterBottom
+              >
+                Stub Collector
+              </Typography>
+            </Grid>{" "}
+            <Grid item xs={4} sx={{ textAlign: "right" }}>
+              <ProfileMenu />
+            </Grid>{" "}
+          </Grid>
         </AppBar>
       )}
 
@@ -109,7 +143,7 @@ function Dashboard() {
 
       <section
         ref={firstSectionRef}
-        style={{ scrollSnapAlign: "start", height: "100vh" }}
+        style={{ scrollSnapAlign: "start", height: "70vh" }}
       >
         <StubUploadComponent />
       </section>
@@ -129,6 +163,7 @@ function Dashboard() {
             textAlign: "center",
             fontWeight: 800,
             color: "Black",
+            pt: isFirstSectionVisible ? 0 : 4,
             textShadow:
               "-1px -1px 0 orange, 1px -1px 0 orange, -1px 1px 0 orange, 1px 1px 0 orange",
           }}
@@ -155,8 +190,7 @@ function Dashboard() {
               }}
               xs={12}
               sm={6}
-              md={4}
-              lg={3}
+              md={3}
               key={listing.id}
             >
               <StubCard

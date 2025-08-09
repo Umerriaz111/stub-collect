@@ -17,7 +17,11 @@ const StubUploadComponent = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "rgb(251 134 28)",
+        // backgroundColor: "rgb(251 134 28)",
+        backgroundImage:
+          "url(https://sdmntprwestcentralus.oaiusercontent.com/files/00000000-3808-61fb-9e76-cef80909f515/raw?se=2025-08-09T11%3A41%3A37Z&sp=r&sv=2024-08-04&sr=b&scid=77e5f4ac-5fc7-512b-82ed-3b365d0b1600&skoid=f28c0102-4d9d-4950-baf0-4a8e5f6cf9d4&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-08T16%3A48%3A16Z&ske=2025-08-09T16%3A48%3A16Z&sks=b&skv=2024-08-04&sig=G6Q7upleirKt5DjS/%2Bq0KJHjD7DkDDHA3vD4VvPyonk%3D)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
       {/* Heading , Button & Card */}
@@ -163,7 +167,7 @@ const StubUploadComponent = () => {
       <Grid xs={0} md={2.5}></Grid>
 
       {/* another section */}
-      <Grid item xs={12} sx={{ backgroundColor: "rgb(251 146 29)" }}>
+      <Grid item xs={12} py={2} sx={{ backgroundColor: "rgb(251 146 29)" }}>
         <Box sx={{ width: "500px", m: "auto" }}>
           <Typography
             variant="h5"
