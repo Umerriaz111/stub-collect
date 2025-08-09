@@ -85,7 +85,14 @@ const AddNewStub = () => {
   };
 
   return (
-    <Card sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
+    <Card
+      sx={{
+        maxWidth: 600,
+        m: "auto",
+        backgroundColor: "rgba(252, 196, 132, 1)",
+        mt: 10,
+      }}
+    >
       <CardContent>
         <Typography variant="h5" component="h1" gutterBottom>
           Add New Stub
@@ -130,7 +137,9 @@ const AddNewStub = () => {
                 sx={{
                   width: "100%",
                   height: 200,
-                  bgcolor: "grey.100",
+                  // bgcolor: "grey.100",
+                  bgcolor: "rgba(252, 196, 132, 1)",
+                  border: "1px dashed black",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",

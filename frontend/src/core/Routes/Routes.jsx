@@ -77,7 +77,9 @@ export const routes = [
     path: "/add-new-stub",
     page: (
       // <ProtectedRoute>
-      <AddNewStub />
+      <PageWrapper>
+        <AddNewStub />
+      </PageWrapper>
       // </ProtectedRoute>
     ),
     aside: null,

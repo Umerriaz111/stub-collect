@@ -24,7 +24,7 @@ const Filters = () => {
     >
       <Grid item xs={4} md={2} px={1}>
         <FormField
-          label="title"
+          label="Search Stub"
           fullWidth
           placeholder="Search by date"
           type={"text"}

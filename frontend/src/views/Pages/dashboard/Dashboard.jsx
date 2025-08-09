@@ -81,7 +81,7 @@ function Dashboard() {
           position="fixed"
           sx={{
             backgroundImage:
-              "url(https://sdmntprwestcentralus.oaiusercontent.com/files/00000000-3808-61fb-9e76-cef80909f515/raw?se=2025-08-09T11%3A41%3A37Z&sp=r&sv=2024-08-04&sr=b&scid=77e5f4ac-5fc7-512b-82ed-3b365d0b1600&skoid=f28c0102-4d9d-4950-baf0-4a8e5f6cf9d4&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-08T16%3A48%3A16Z&ske=2025-08-09T16%3A48%3A16Z&sks=b&skv=2024-08-04&sig=G6Q7upleirKt5DjS/%2Bq0KJHjD7DkDDHA3vD4VvPyonk%3D)",
+              "url(https://sdmntprwestcentralus.oaiusercontent.com/files/00000000-3808-61fb-9e76-cef80909f515/raw?se=2025-08-09T13%3A28%3A53Z&sp=r&sv=2024-08-04&sr=b&scid=638da1c4-2a13-57ab-90df-76f1f892bf63&skoid=a3412ad4-1a13-47ce-91a5-c07730964f35&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-09T08%3A05%3A30Z&ske=2025-08-10T08%3A05%3A30Z&sks=b&skv=2024-08-04&sig=F3pmzZC5/iJpYnjODTw1Dex51jzvRIVwBZVGvR2SYq8%3D)",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -179,7 +179,7 @@ function Dashboard() {
           </Typography>
         )}
 
-        <Grid container spacing={4} justifyContent="center">
+        <Grid container spacing={2} justifyContent="center">
           {listings.map((listing) => (
             <Grid
               item
@@ -190,7 +190,7 @@ function Dashboard() {
               }}
               xs={12}
               sm={6}
-              md={3}
+              md={2}
               key={listing.id}
             >
               <StubCard
