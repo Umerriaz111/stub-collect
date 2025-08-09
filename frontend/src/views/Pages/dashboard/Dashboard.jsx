@@ -9,6 +9,7 @@ import config from "../../../core/services/configService";
 import StubUploadComponent from "../../components/StubUploadComponent/StubUploadComponent";
 import ProfileMenu from "../../components/Headers/ProfileMenu";
 import { createPaymentIntent } from "../../../core/api/paymentmethods";
+import Filters from "./components/Filters";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -134,6 +135,8 @@ function Dashboard() {
         >
           Browse Famous Event Stubs
         </Typography>
+
+        {!isFirstSectionVisible && <Filters />}
 
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
