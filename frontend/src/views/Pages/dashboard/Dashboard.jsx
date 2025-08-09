@@ -10,6 +10,7 @@ import StubUploadComponent from "../../components/StubUploadComponent/StubUpload
 import ProfileMenu from "../../components/Headers/ProfileMenu";
 import { createPaymentIntent } from "../../../core/api/paymentmethods";
 import Filters from "./components/Filters";
+import Chatbot from "../../components/Chatbot/Chatbot.jsx";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -75,6 +76,7 @@ function Dashboard() {
         backgroundColor: "rgb(251 146 29)", // Bg yellowish-orange main
       }}
     >
+      <Chatbot />
       {/* Navbar that appears only when first section is not visible */}
       {!isFirstSectionVisible && (
         <AppBar
