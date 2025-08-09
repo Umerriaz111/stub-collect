@@ -11,6 +11,7 @@ import ProfileMenu from "../../components/Headers/ProfileMenu";
 import { createPaymentIntent } from "../../../core/api/paymentmethods";
 import Filters from "./components/Filters";
 import Chatbot from "../../components/Chatbot/Chatbot.jsx";
+import Footer from "../../components/footer/Footer.jsx";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -153,7 +154,7 @@ function Dashboard() {
       <section
         style={{
           scrollSnapAlign: "start",
-          height: "100vh",
+          minHeight: "100vh",
           paddingTop: !isFirstSectionVisible ? "64px" : "0",
         }}
       >
@@ -209,6 +210,7 @@ function Dashboard() {
             </Grid>
           ))}
         </Grid>
+        <Footer />
       </section>
     </Box>
   );

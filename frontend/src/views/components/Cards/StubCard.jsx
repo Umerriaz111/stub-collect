@@ -95,9 +95,11 @@ const StubCard = ({
     <>
       <Card
         sx={{
+          boxShadow:
+            "0 20px 40px rgba(255, 255, 255, 1), 0 10px 20px rgba(255, 255, 255, 1), 0 6px 6px rgba(255, 255, 255, 1)",
           width: 280,
           height: "100%",
-          borderRadius: "12px",
+          borderRadius: "20px",
           boxShadow: isHovered
             ? `0 12px 24px ${primaryColor}30`
             : "0 4px 12px rgba(0,0,0,0.3)",
@@ -151,7 +153,7 @@ const StubCard = ({
           <Box
             sx={{
               position: "relative",
-              height: 180,
+              height: 280,
               overflow: "hidden",
               "&::after": {
                 content: '""',

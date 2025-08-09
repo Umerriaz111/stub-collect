@@ -24,12 +24,12 @@ const Filters = () => {
     >
       <Grid item xs={4} md={2} px={1}>
         <FormField
-          label="Search Stub"
+          label="Search"
           fullWidth
           placeholder="Search by date"
           type={"text"}
           id={"title-search"}
-          value={""}
+          //   value={""}
         />
       </Grid>
 
@@ -40,7 +40,7 @@ const Filters = () => {
           fullWidth
           placeholder="Search by price"
           id={"title-search"}
-          value={""}
+          //   value={""}
         />
       </Grid>
       <Grid
