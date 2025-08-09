@@ -2,10 +2,8 @@ import React, { useState } from "react";
 import {
   Card,
   CardContent,
-  CardMedia,
   Typography,
   Box,
-  CardActionArea,
   useTheme,
   Avatar,
   Switch,
@@ -15,32 +13,59 @@ import {
   DialogActions,
   Button,
   TextField,
+  Chip,
+  Tooltip,
+  Divider,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import {
+  PriceChange,
+  Sell,
+  Event,
+  Person,
+  Star,
+  FlashOn,
+} from "@mui/icons-material";
+import { orange } from "@mui/material/colors";
 
 const StubCard = ({
   stub,
   image,
   title,
   price,
-  currency,
+  currency = "USD",
   onClick,
-  link,
   date,
   sellerName,
   showSeller,
   sellerId,
   listingStatus,
-  handleListingSubmit, // Function to call when listing with new price
+  handleListingSubmit,
+  onBuyNow, // New prop for buy now functionality
 }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [checked, setChecked] = useState(listingStatus === "listed");
   const [openDialog, setOpenDialog] = useState(false);
   const [newPrice, setNewPrice] = useState("");
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Custom theme colors
+  const primaryColor = "rgb(251 134 28)"; // Dark orange
+  const secondaryColor = "rgb(251 146 29)"; // Gold/yellow
+  const darkBlue = "#0A2463"; // Dark blue
+  const darkBackground = "#121212"; // Dark background
+  const cardBackground = "#173d5cff"; // Slightly lighter dark for cards
+  const accentColor = "rgb(191 59 54)"; // Coral accent
+
+  const handleBuyNow = (e) => {
+    e.stopPropagation();
+    onBuyNow && onBuyNow(stub);
+  };
 
   const handleChange = (event) => {
     event.preventDefault();
+    event.stopPropagation();
     if (listingStatus === "listed") {
       // we will unlist the stub from here
     } else {
@@ -73,63 +98,144 @@ const StubCard = ({
           width: 280,
           height: "100%",
           borderRadius: "12px",
-          boxShadow: "0 8px 16px rgba(0,0,0,0.2)",
-          transition: "transform 0.3s, box-shadow 0.3s",
+          boxShadow: isHovered
+            ? `0 12px 24px ${primaryColor}30`
+            : "0 4px 12px rgba(0,0,0,0.3)",
+          transition: "all 0.3s ease",
           textDecoration: "none",
-          background: "linear-gradient(145deg, #ffffff 0%, #f8f8f8 100%)",
-          backgroundImage:
-            "url(https://images.unsplash.com/photo-1746639643018-e600b8c194b8?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHJldHJvJTIwY29taWMlMjBibHVlJTIwYmFja2dyb3VuZHxlbnwwfHwwfHx8MA%3D%3D)",
-          border: "2px solid #000",
+          background: cardBackground,
+          border: `1px solid ${secondaryColor}30`,
           position: "relative",
           overflow: "hidden",
+          transform: isHovered ? "translateY(-4px)" : "none",
           "&:hover": {
-            transform: "translateY(-8px) scale(1.02)",
-            boxShadow: "0 12px 24px rgba(0,0,0,0.3)",
-          },
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            top: -4,
-            left: -4,
-            right: 4,
-            bottom: 4,
-            border: "2px dashed #ff4081",
-            zIndex: -1,
-            opacity: 0.7,
+            boxShadow: `0 12px 24px ${primaryColor}50`,
+            borderColor: `${secondaryColor}80`,
           },
         }}
-        //   component={Link}
-        // to={link || "#"}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
-        <Box onClick={onClick} sx={{ height: "100%", padding: "0px" }}>
+        {/* Premium Ribbon */}
+        {price > 500 && (
           <Box
             sx={{
-              backgroundColor: "transparent",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: 180,
-              borderBottom: "2px dashed #000",
-              backgroundImage: `url(${image})`,
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              backgroundSize: "cover",
+              position: "absolute",
+              top: 10,
+              right: -30,
+              backgroundColor: secondaryColor,
+              color: darkBlue,
+              padding: "4px 30px",
+              transform: "rotate(45deg)",
+              zIndex: 1,
+              boxShadow: `0 2px 4px ${darkBlue}`,
+              fontWeight: 700,
             }}
-          ></Box>
+          >
+            <Typography variant="caption" fontWeight={700}>
+              PREMIUM
+            </Typography>
+          </Box>
+        )}
+
+        <Box
+          onClick={onClick}
+          sx={{
+            height: "100%",
+            cursor: "pointer",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Image Section */}
+          <Box
+            sx={{
+              position: "relative",
+              height: 180,
+              overflow: "hidden",
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: "40%",
+                background: `linear-gradient(to top, ${darkBackground}DD, transparent)`,
+              },
+            }}
+          >
+            <Box
+              sx={{
+                height: "100%",
+                backgroundImage: `url(${image})`,
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                backgroundSize: "cover",
+                transition: "transform 0.5s ease",
+                transform: isHovered ? "scale(1.05)" : "scale(1)",
+                filter: isHovered ? "brightness(1.1)" : "brightness(0.9)",
+              }}
+            />
+
+            {/* Price Badge */}
+            {price && (
+              <Chip
+                icon={<PriceChange fontSize="small" sx={{ color: darkBlue }} />}
+                label={`${currency} ${price}`}
+                sx={{
+                  position: "absolute",
+                  bottom: 16,
+                  right: 16,
+                  backgroundColor: secondaryColor,
+                  color: darkBlue,
+                  fontWeight: 700,
+                  fontSize: "0.9rem",
+                  zIndex: 1,
+                  boxShadow: `0 2px 4px ${darkBlue}80`,
+                }}
+              />
+            )}
+          </Box>
+
+          {/* Content Section */}
           <CardContent
             sx={{
               padding: "16px",
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "column",
+              background: `linear-gradient(to bottom, ${cardBackground}, #2A2A2A)`,
               "&:last-child": {
                 paddingBottom: "16px",
               },
             }}
           >
+            {/* Title */}
+            <Typography
+              gutterBottom
+              component="div"
+              noWrap
+              sx={{
+                fontWeight: 700,
+                color: "white",
+                fontSize: "1.1rem",
+                mb: 1,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+                fontFamily: "'Bebas Neue', sans-serif",
+                textShadow: `0 0 8px ${primaryColor}80`,
+              }}
+            >
+              {title}
+            </Typography>
+
+            {/* Seller Info */}
             {showSeller && (
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  my: 1,
+                  mb: 1.5,
                   width: "fit-content",
                   "&:hover": {
                     textDecoration: "underline",
@@ -142,12 +248,10 @@ const StubCard = ({
               >
                 <Avatar
                   sx={{
-                    width: 32,
-                    height: 32,
-                    bgcolor: "red",
-                    color: "white",
-                    border: "1px solid",
-                    borderColor: "rgb(249, 194, 100)",
+                    width: 28,
+                    height: 28,
+                    bgcolor: primaryColor,
+                    color: darkBackground,
                     mr: 1,
                   }}
                 >
@@ -155,88 +259,119 @@ const StubCard = ({
                 </Avatar>
                 <Typography
                   variant="body2"
-                  fontWeight={"bold"}
-                  sx={{ color: "black" }}
+                  fontWeight={500}
+                  sx={{ color: secondaryColor }}
                 >
                   {sellerName}
                 </Typography>
               </Box>
             )}
-            <Typography
-              gutterBottom
-              component="div"
-              noWrap
-              sx={{
-                fontWeight: 800,
-                color: "#000",
-                letterSpacing: "0.5px",
-                fontSize: "14px",
-                textAlign: "center",
-                mb: 1,
-                textTransform: "uppercase",
-                fontFamily: "'Bebas Neue', cursive, sans-serif",
-              }}
-            >
-              {title}
-            </Typography>
 
+            {/* Date */}
             {date && (
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "#ff4081",
-                  fontWeight: 700,
-                  textAlign: "center",
-                  mb: 1,
-                  fontSize: "0.9rem",
-                  fontStyle: "italic",
-                }}
-              >
-                {new Date(date).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </Typography>
-            )}
-
-            {price && (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  mt: 2,
-                  p: 1,
-                  backgroundColor: "#000",
-                  borderRadius: "8px",
-                  color: "#fff",
-                }}
-              >
+              <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
+                <Event fontSize="small" sx={{ mr: 1, color: primaryColor }} />
                 <Typography
-                  variant="h6"
+                  variant="body2"
                   sx={{
-                    color: "#ffeb3b",
-                    fontWeight: 800,
-                    fontSize: "1.3rem",
-                    letterSpacing: "1px",
+                    color: secondaryColor,
+                    fontWeight: 500,
+                    fontSize: "0.85rem",
+                    opacity: 0.9,
                   }}
                 >
-                  {currency} {price}
+                  {new Date(date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
                 </Typography>
               </Box>
             )}
 
+            {/* Buy Now Button - Only shown if price exists */}
+            {price && (
+              <Button
+                variant="contained"
+                onClick={handleBuyNow}
+                startIcon={<FlashOn />}
+                sx={{
+                  mt: 1,
+                  mb: 1.5,
+                  // background: `linear-gradient(135deg, ${primaryColor}, ${accentColor})`,
+                  backgroundColor: accentColor,
+                  color: secondaryColor,
+                  fontWeight: 700,
+                  letterSpacing: "0.5px",
+                  textTransform: "uppercase",
+                  boxShadow: `0 4px 8px ${primaryColor}40`,
+                  "&:hover": {
+                    background: `linear-gradient(135deg, ${primaryColor}E6, ${accentColor}E6)`,
+                    boxShadow: `0 6px 12px ${primaryColor}60`,
+                    transform: "translateY(-1px)",
+                  },
+                  "&:active": {
+                    transform: "translateY(1px)",
+                  },
+                  transition: "all 0.2s ease",
+                }}
+                fullWidth
+              >
+                Buy Now
+              </Button>
+            )}
+
+            <Divider sx={{ my: 1, borderColor: `${primaryColor}40` }} />
+
+            {/* Listing Status Toggle */}
             {listingStatus && (
-              <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-                <Typography variant="body2" fontWeight={"bold"} sx={{ mr: 1 }}>
-                  {checked ? "Listed" : "Unlisted"}
-                </Typography>
-                <Switch
-                  checked={checked}
-                  onChange={handleChange}
-                  color="primary"
-                />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mt: "auto",
+                  pt: 1,
+                  justifyContent: "space-between",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Sell
+                    fontSize="small"
+                    sx={{
+                      mr: 1,
+                      color: checked ? primaryColor : `${secondaryColor}80`,
+                    }}
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 500,
+                      color: secondaryColor,
+                    }}
+                  >
+                    {checked ? "Listed" : "Unlisted"}
+                  </Typography>
+                </Box>
+                <Tooltip
+                  title={checked ? "Unlist this item" : "List this item"}
+                >
+                  <Switch
+                    checked={checked}
+                    onChange={handleChange}
+                    color="default"
+                    size="small"
+                    sx={{
+                      "& .MuiSwitch-thumb": {
+                        color: checked ? primaryColor : secondaryColor,
+                      },
+                      "& .MuiSwitch-track": {
+                        backgroundColor: checked
+                          ? `${primaryColor}30`
+                          : `${secondaryColor}20`,
+                      },
+                    }}
+                  />
+                </Tooltip>
               </Box>
             )}
           </CardContent>
@@ -249,10 +384,13 @@ const StubCard = ({
         onClose={handleDialogClose}
         sx={{
           "& .MuiDialog-paper": {
-            backgroundColor: "rgba(243, 199, 142, 0.83)",
-            borderRadius: "20px",
-            border: "2px solid",
-            borderColor: "rgb(251, 167, 57)",
+            background: `linear-gradient(135deg, #2A2A2A 0%, #1E1E1E 100%)`,
+            borderRadius: "12px",
+            border: `2px solid ${primaryColor}`,
+            boxShadow: `0 8px 16px ${primaryColor}30`,
+            maxWidth: "400px",
+            width: "100%",
+            color: secondaryColor,
           },
         }}
       >
