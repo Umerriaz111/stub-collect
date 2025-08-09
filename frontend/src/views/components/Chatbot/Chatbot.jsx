@@ -13,8 +13,8 @@ import {
   ListItemText,
   Divider,
   Slide,
-  Fade,
   Badge,
+  Chip,
 } from "@mui/material";
 import {
   Send as SendIcon,
@@ -22,21 +22,23 @@ import {
   Chat as ChatIcon,
   SmartToy as BotIcon,
   Person as UserIcon,
+  Image as ImageIcon,
+  AttachFile as AttachFileIcon,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 
 // Styled components
 const ChatbotContainer = styled(Box)(({ theme }) => ({
   position: "fixed",
-  bottom: theme.spacing(5),
-  right: theme.spacing(5),
+  bottom: theme.spacing(4),
+  right: theme.spacing(4),
   zIndex: 9999,
 }));
 
 const ChatWindow = styled(Paper)(({ theme }) => ({
-  width: 350,
+  width: 320,
   minHeight: 400,
-  maxHeight: 700,
+  maxHeight: 600,
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
@@ -47,64 +49,82 @@ const ChatWindow = styled(Paper)(({ theme }) => ({
 const ChatHeader = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
-  padding: theme.spacing(2),
+  padding: theme.spacing(1, 2),
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
 }));
 
-const MessageList = styled(List)({
+const MessageList = styled(List)(({ theme }) => ({
   flex: 1,
   overflowY: "auto",
-  padding: 0,
-  backgroundColor: "#f5f5f5",
-});
+  padding: theme.spacing(1),
+  backgroundColor: theme.palette.grey[50],
+}));
 
 const UserMessage = styled(ListItem)(({ theme }) => ({
   justifyContent: "flex-end",
-  paddingRight: theme.spacing(2),
+  padding: theme.spacing(0.5, 1),
+  alignItems: "flex-end",
 }));
 
 const BotMessage = styled(ListItem)(({ theme }) => ({
   justifyContent: "flex-start",
-  paddingLeft: theme.spacing(2),
+  padding: theme.spacing(0.5, 1),
+  alignItems: "flex-start",
 }));
 
-const MessageText = styled(ListItemText)(({ theme }) => ({
-  "& .MuiListItemText-primary": {
-    backgroundColor: theme.palette.grey[100],
-    padding: theme.spacing(1, 2),
-    borderRadius: "18px",
-    display: "inline-block",
-    maxWidth: "70%",
-    fontSize: "0.8rem",
-  },
+const MessageContent = styled(Box)(({ theme }) => ({
+  maxWidth: "85%",
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(0.5),
 }));
 
-const BotMessageText = styled(MessageText)(({ theme }) => ({
-  "& .MuiListItemText-primary": {
-    backgroundColor: theme.palette.primary.light,
-    color: theme.palette.primary.contrastText,
+const MessageBubble = styled(Box)(({ theme, sender }) => ({
+  backgroundColor:
+    sender === "user" ? theme.palette.primary.main : theme.palette.grey[200],
+  color:
+    sender === "user"
+      ? theme.palette.primary.contrastText
+      : theme.palette.text.primary,
+  padding: theme.spacing(1, 1.5),
+  borderRadius: sender === "user" ? "18px 18px 0 18px" : "18px 18px 18px 0",
+  fontSize: "0.875rem",
+  lineHeight: 1.4,
+  wordBreak: "break-word",
+}));
+
+const MessageImage = styled("img")(({ theme }) => ({
+  maxWidth: "100%",
+  maxHeight: 150,
+  borderRadius: "8px",
+  cursor: "pointer",
+  "&:hover": {
+    opacity: 0.9,
   },
 }));
 
 const ChatInput = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(1),
   borderTop: `1px solid ${theme.palette.divider}`,
+  backgroundColor: theme.palette.background.paper,
 }));
 
 const Chatbot = () => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
-      text: "Hello! I'm your AI assistant. How can I help you today?",
+      text: "Hi there! I'm your AI assistant. How can I help?",
       sender: "bot",
       timestamp: new Date(),
     },
   ]);
   const [inputValue, setInputValue] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
+  const [imagePreview, setImagePreview] = useState(null);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const toggleChat = () => {
     setOpen(!open);
@@ -115,25 +135,27 @@ const Chatbot = () => {
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (inputValue.trim() === "") return;
+    if (inputValue.trim() === "" && !imagePreview) return;
 
     // Add user message
     const userMessage = {
       text: inputValue,
       sender: "user",
       timestamp: new Date(),
+      image: imagePreview,
     };
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
+    setImagePreview(null);
 
     // Simulate bot response after a delay
     setTimeout(() => {
       const botResponses = [
-        "I understand your question. Let me look that up for you.",
-        "That's an interesting point. Here's what I found...",
-        "Thanks for your message. I'm processing your request.",
-        "I'm still learning. Can you rephrase your question?",
-        "Here's some information that might help with your query.",
+        "I've received your message. Let me process that...",
+        "Thanks for sharing that with me! Here's what I found...",
+        "I'm looking into your request now...",
+        "That's interesting! Here's some information...",
+        "I've noted your question. Here's what I can tell you...",
       ];
       const randomResponse =
         botResponses[Math.floor(Math.random() * botResponses.length)];
@@ -148,7 +170,37 @@ const Chatbot = () => {
       if (!open) {
         setUnreadCount((prev) => prev + 1);
       }
-    }, 1000);
+    }, 800);
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.match("image.*")) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setImagePreview(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePaste = (e) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf("image") !== -1) {
+        const blob = items[i].getAsFile();
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setImagePreview(event.target.result);
+        };
+        reader.readAsDataURL(blob);
+        break;
+      }
+    }
+  };
+
+  const removeImagePreview = () => {
+    setImagePreview(null);
   };
 
   // Auto-scroll to bottom when messages change
@@ -156,26 +208,15 @@ const Chatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Close chat when clicking outside (optional)
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      // You can implement this if you want clicks outside to close the chat
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   return (
     <ChatbotContainer>
       {open && (
         <Slide direction="up" in={open} mountOnEnter unmountOnExit>
           <ChatWindow>
             <ChatHeader>
-              <Box display="flex" alignItems="center">
-                <BotIcon sx={{ mr: 1 }} />
-                <Typography variant="h6">AI Assistant</Typography>
+              <Box display="flex" alignItems="center" gap={1}>
+                <BotIcon fontSize="small" />
+                <Typography variant="subtitle1">AI Assistant</Typography>
               </Box>
               <IconButton
                 edge="end"
@@ -183,7 +224,7 @@ const Chatbot = () => {
                 onClick={toggleChat}
                 size="small"
               >
-                <CloseIcon />
+                <CloseIcon fontSize="small" />
               </IconButton>
             </ChatHeader>
 
@@ -192,37 +233,48 @@ const Chatbot = () => {
                 <React.Fragment key={index}>
                   {message.sender === "user" ? (
                     <UserMessage>
-                      <MessageText
-                        primary={message.text}
-                        // secondary={message.timestamp.toLocaleTimeString([], {
-                        //   hour: "2-digit",
-                        //   minute: "2-digit",
-                        // })}
-                      />
-                      <ListItemAvatar sx={{ minWidth: 45 }}>
-                        <Avatar>
-                          <UserIcon />
+                      <MessageContent>
+                        {message.image && (
+                          <MessageImage
+                            src={message.image}
+                            alt="User uploaded"
+                            style={{
+                              maxHeight: 60,
+                              alignSelf: "flex-end",
+                            }}
+                          />
+                        )}
+                        {message.text && (
+                          <MessageBubble sender="user">
+                            {message.text}
+                          </MessageBubble>
+                        )}
+                      </MessageContent>
+                      <ListItemAvatar sx={{ minWidth: 32 }}>
+                        <Avatar sx={{ width: 32, height: 32 }}>
+                          <UserIcon fontSize="small" />
                         </Avatar>
                       </ListItemAvatar>
                     </UserMessage>
                   ) : (
                     <BotMessage>
-                      <ListItemAvatar sx={{ minWidth: 45 }}>
-                        <Avatar sx={{ bgcolor: "primary.main" }}>
-                          <BotIcon />
+                      <ListItemAvatar sx={{ minWidth: 32 }}>
+                        <Avatar
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            bgcolor: "primary.main",
+                          }}
+                        >
+                          <BotIcon fontSize="small" />
                         </Avatar>
                       </ListItemAvatar>
-                      <BotMessageText
-                        primary={message.text}
-                        // secondary={message.timestamp.toLocaleTimeString([], {
-                        //   hour: "2-digit",
-                        //   minute: "2-digit",
-                        // })}
-                      />
+                      <MessageContent>
+                        <MessageBubble sender="bot">
+                          {message.text}
+                        </MessageBubble>
+                      </MessageContent>
                     </BotMessage>
-                  )}
-                  {index < messages.length - 1 && (
-                    <Divider variant="inset" component="li" />
                   )}
                 </React.Fragment>
               ))}
@@ -230,32 +282,82 @@ const Chatbot = () => {
             </MessageList>
 
             <ChatInput component="form" onSubmit={handleSendMessage}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                placeholder="Type your message..."
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        edge="end"
-                        color="primary"
-                        type="submit"
-                        disabled={inputValue.trim() === ""}
-                      >
-                        <SendIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              {imagePreview && (
+                <Box
+                  sx={{
+                    position: "relative",
+                    mb: 1,
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <Chip
+                    label="Remove image"
+                    size="small"
+                    onDelete={removeImagePreview}
+                    deleteIcon={<CloseIcon fontSize="small" />}
+                    sx={{
+                      position: "absolute",
+                      right: 0,
+                      top: -30,
+                      bgcolor: "background.paper",
+                    }}
+                  />
+                  <MessageImage
+                    src={imagePreview}
+                    alt="Preview"
+                    style={{
+                      maxHeight: 60,
+                      alignSelf: "flex-end",
+                    }}
+                  />
+                </Box>
+              )}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <IconButton
+                  size="small"
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  <AttachFileIcon fontSize="small" />
+                </IconButton>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                  style={{ display: "none" }}
+                />
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  placeholder="Type a message..."
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onPaste={handlePaste}
+                  size="small"
+                  InputProps={{
+                    sx: { fontSize: "0.875rem" },
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          edge="end"
+                          color="primary"
+                          type="submit"
+                          disabled={inputValue.trim() === "" && !imagePreview}
+                          size="small"
+                        >
+                          <SendIcon fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Box>
             </ChatInput>
           </ChatWindow>
         </Slide>
       )}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+      <Box display={"flex"} justifyContent={"flex-end"} mt={2}>
         <Badge
           badgeContent={unreadCount}
           color="error"
@@ -271,11 +373,15 @@ const Chatbot = () => {
               "&:hover": {
                 backgroundColor: "primary.dark",
               },
-              width: 56,
-              height: 56,
+              width: 48,
+              height: 48,
             }}
           >
-            {open ? <CloseIcon /> : <ChatIcon />}
+            {open ? (
+              <CloseIcon fontSize="small" />
+            ) : (
+              <ChatIcon fontSize="small" />
+            )}
           </IconButton>
         </Badge>
       </Box>

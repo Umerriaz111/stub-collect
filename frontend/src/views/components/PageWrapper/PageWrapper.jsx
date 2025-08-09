@@ -15,7 +15,7 @@ const PageWrapper = ({ children, isSidebar }) => {
       // }}
       sx={{
         backgroundImage:
-          "url(https://sdmntprwestcentralus.oaiusercontent.com/files/00000000-3808-61fb-9e76-cef80909f515/raw?se=2025-08-09T13%3A28%3A53Z&sp=r&sv=2024-08-04&sr=b&scid=638da1c4-2a13-57ab-90df-76f1f892bf63&skoid=a3412ad4-1a13-47ce-91a5-c07730964f35&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-09T08%3A05%3A30Z&ske=2025-08-10T08%3A05%3A30Z&sks=b&skv=2024-08-04&sig=F3pmzZC5/iJpYnjODTw1Dex51jzvRIVwBZVGvR2SYq8%3D)",
+          "url(https://sdmntprwestcentralus.oaiusercontent.com/files/00000000-3808-61fb-9e76-cef80909f515/raw?se=2025-08-09T17%3A36%3A01Z&sp=r&sv=2024-08-04&sr=b&scid=bee0be3a-7dbc-5b53-9d72-713376393e84&skoid=bbd22fc4-f881-4ea4-b2f3-c12033cf6a8b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-09T16%3A08%3A24Z&ske=2025-08-10T16%3A08%3A24Z&sks=b&skv=2024-08-04&sig=hKo0FVgBwV8Wm1npJ9AXbOEFbSPV2sy45WMAVJO8bIE%3D)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         height: "98vh",
