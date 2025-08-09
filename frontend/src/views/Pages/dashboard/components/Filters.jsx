@@ -1,4 +1,4 @@
-import { Box, Grid } from "@mui/material";
+import { Box, Button, Grid, Stack } from "@mui/material";
 import React from "react";
 import { LicenseInfo } from "@mui/x-license";
 LicenseInfo.setLicenseKey(
@@ -11,74 +11,100 @@ import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { SingleInputDateRangeField } from "@mui/x-date-pickers-pro/SingleInputDateRangeField";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import dayjs, { Dayjs } from "dayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import SearchIcon from "@mui/icons-material/Search";
 
 const Filters = () => {
   return (
-    <Grid
-      container
-      mb={4}
-      display={"flex"}
-      justifyContent="center"
-      alignItems="center"
+    <Box
+      sx={{
+        p: 2,
+        backgroundColor: "transparent",
+        borderRadius: 2,
+        // boxShadow: 1,
+      }}
     >
-      <Grid item xs={4} md={2} px={1}>
-        <FormField
-          label="Search"
-          fullWidth
-          placeholder="Search by date"
-          type={"text"}
-          id={"title-search"}
-          //   value={""}
-        />
-      </Grid>
-
-      <Grid item xs={4} md={2} px={1}>
-        <FormField
-          label="Price Range"
-          type="number"
-          fullWidth
-          placeholder="Search by price"
-          id={"title-search"}
-          //   value={""}
-        />
-      </Grid>
       <Grid
-        item
-        xs={4}
-        md={3}
-        px={1}
-        sx={{
-          "& .MuiInputBase-root": {
-            borderRadius: "100px",
-          },
-          "& .MuiInputBase-input": {
-            padding: "8px",
-          },
-          "& .MuiStack-root": {
-            paddingTop: "0px",
-          },
-        }}
+        container
+        spacing={2}
+        display={"flex"}
+        justifyContent="center"
+        alignItems="center"
       >
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DemoContainer components={["SingleInputDateRangeField"]}>
-            <DateRangePicker
-              calendars={1}
-              slots={{ field: SingleInputDateRangeField }}
-              slotProps={{
-                // shortcuts: {
-                //   items: shortcutsItems,
-                // },
-                actionBar: { actions: [] },
+        {/* Search Field */}
+        <Grid item xs={12} md={3}>
+          <FormField
+            label="Search"
+            fullWidth
+            placeholder="Search events..."
+            type={"text"}
+            id={"event-search"}
+            size="small"
+          />
+        </Grid>
+
+        {/* Price Range Fields */}
+        <Grid item xs={12} md={3}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <FormField
+              label="Min Price"
+              type="number"
+              fullWidth
+              placeholder="Min"
+              id={"min-price"}
+              size="small"
+              InputProps={{
+                inputProps: { min: 0 },
               }}
-              name="allowedRange"
-              //   onChange={handleRangeChange}
-              // sx={pickerPadding}
             />
-          </DemoContainer>
-        </LocalizationProvider>
+            <Box>-</Box>
+            <FormField
+              label="Max Price"
+              type="number"
+              fullWidth
+              placeholder="Max"
+              id={"max-price"}
+              size="small"
+              InputProps={{
+                inputProps: { min: 0 },
+              }}
+            />
+          </Stack>
+        </Grid>
+
+        {/* Date Range Picker */}
+        <Grid item xs={12} md={3}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={["SingleInputDateRangeField"]}>
+              <DateRangePicker
+                calendars={1}
+                slots={{ field: SingleInputDateRangeField }}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    fullWidth: true,
+                  },
+                  actionBar: { actions: [] },
+                }}
+                name="allowedRange"
+              />
+            </DemoContainer>
+          </LocalizationProvider>
+        </Grid>
+
+        {/* Search Button */}
+        <Grid item xs={12} md={1} display="flex" justifyContent="center">
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<SearchIcon />}
+            fullWidth
+            sx={{ height: "40px" }}
+          >
+            Search
+          </Button>
+        </Grid>
       </Grid>
-    </Grid>
+    </Box>
   );
 };
 
