@@ -40,13 +40,15 @@ function Dashboard() {
   return (
     <Box
       sx={{
-        p: 3,
+        // p: 3,
         minHeight: "100vh",
-        backgroundImage:
-          " url('https://img.freepik.com/premium-vector/music-notes-seamless-pattern-background_559319-558.jpg') , url(https://images.unsplash.com/photo-1608555307638-992062b31329?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHJldHJvJTIwY29taWMlMjBvcmFuZ2UlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundBlendMode: "multiply",
+        // backgroundImage:
+        //   " url('https://img.freepik.com/premium-vector/music-notes-seamless-pattern-background_559319-558.jpg') , url(https://images.unsplash.com/photo-1608555307638-992062b31329?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHJldHJvJTIwY29taWMlMjBvcmFuZ2UlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww)",
+        // backgroundSize: "cover",
+        // backgroundPosition: "center",
+        // backgroundBlendMode: "multiply",
+        // backgroundColor: "rgb(251 134 28)", // Bg orange main
+        backgroundColor: "rgb(251 146 29)", // Bg yellowish-orange main
       }}
     >
       {/* <MainHeader /> */}
@@ -56,6 +58,7 @@ function Dashboard() {
             position: "absolute",
             top: 15,
             right: 15,
+            m: 3,
           }}
         >
           <ProfileMenu />

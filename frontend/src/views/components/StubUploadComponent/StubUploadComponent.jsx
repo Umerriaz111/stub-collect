@@ -13,7 +13,12 @@ const StubUploadComponent = () => {
   return (
     <Grid
       container
-      sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "rgb(251 134 28)",
+      }}
     >
       {/* Heading , Button & Card */}
 
@@ -158,7 +163,7 @@ const StubUploadComponent = () => {
       <Grid xs={0} md={2.5}></Grid>
 
       {/* another section */}
-      <Grid item xs={12}>
+      <Grid item xs={12} sx={{ backgroundColor: "rgb(251 146 29)" }}>
         <Box sx={{ width: "500px", m: "auto" }}>
           <Typography
             variant="h5"
