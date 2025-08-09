@@ -22,3 +22,7 @@ body {
 .MuiButtonBase-root {
   text-transform: capitalize !important;
 }
+
+html {
+  scroll-snap-type: y mandatory;
+}

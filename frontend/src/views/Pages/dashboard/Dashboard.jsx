@@ -1,5 +1,5 @@
-import { Typography, Grid } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import { Typography, Grid, AppBar, Toolbar } from "@mui/material";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import MainHeader from "../../components/Headers/MainHeader";
 import { Box } from "@mui/material";
@@ -14,6 +14,8 @@ function Dashboard() {
   const navigate = useNavigate();
   const [listings, setListings] = useState([]);
   const [error, setError] = useState("");
+  const [isFirstSectionVisible, setIsFirstSectionVisible] = useState(true);
+  const firstSectionRef = useRef(null);
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -26,6 +28,27 @@ function Dashboard() {
       }
     };
     fetchListings();
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFirstSectionVisible(entry.isIntersecting);
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the element is visible
+      }
+    );
+
+    if (firstSectionRef.current) {
+      observer.observe(firstSectionRef.current);
+    }
+
+    return () => {
+      if (firstSectionRef.current) {
+        observer.unobserve(firstSectionRef.current);
+      }
+    };
   }, []);
 
   const buyTicket = async (listingId) => {
@@ -51,7 +74,25 @@ function Dashboard() {
         backgroundColor: "rgb(251 146 29)", // Bg yellowish-orange main
       }}
     >
-      {/* <MainHeader /> */}
+      {/* Navbar that appears only when first section is not visible */}
+      {!isFirstSectionVisible && (
+        <AppBar
+          position="fixed"
+          sx={{
+            backgroundColor: "rgb(251 134 28)",
+            boxShadow: "none",
+            borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
+          }}
+        >
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Stub Collector
+            </Typography>
+            <ProfileMenu />
+          </Toolbar>
+        </AppBar>
+      )}
+
       <Box sx={{ position: "relative", width: "100%" }}>
         <Box
           sx={{
@@ -65,61 +106,71 @@ function Dashboard() {
         </Box>
       </Box>
 
-      <StubUploadComponent />
+      <section
+        ref={firstSectionRef}
+        style={{ scrollSnapAlign: "start", height: "100vh" }}
+      >
+        <StubUploadComponent />
+      </section>
 
-      <Typography
-        variant="h5"
-        sx={{
-          mt: 8,
-          mb: 4,
-          textAlign: "center",
-          fontWeight: 800,
-          color: "Black",
-          // textShadow: "2px 2px 0px rgba(241, 240, 177, 0.82)",
-          letterSpacing: "-0.5px",
-          textShadow:
-            "-1px -1px 0 orange, 1px -1px 0 orange, -1px 1px 0 orange, 1px 1px 0 orange",
+      <section
+        style={{
+          scrollSnapAlign: "start",
+          height: "100vh",
+          paddingTop: !isFirstSectionVisible ? "64px" : "0",
         }}
       >
-        Browse Famous Event Stubs
-      </Typography>
-
-      {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          {error}
+        <Typography
+          variant="h5"
+          sx={{
+            mt: 8,
+            mb: 4,
+            textAlign: "center",
+            fontWeight: 800,
+            color: "Black",
+            textShadow:
+              "-1px -1px 0 orange, 1px -1px 0 orange, -1px 1px 0 orange, 1px 1px 0 orange",
+          }}
+        >
+          Browse Famous Event Stubs
         </Typography>
-      )}
 
-      <Grid container spacing={4} justifyContent="center">
-        {listings.map((listing) => (
-          <Grid
-            item
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            xs={12}
-            sm={6}
-            md={4}
-            lg={3}
-            key={listing.id}
-          >
-            <StubCard
-              image={`${config.VITE_APP_API_BASE_URL}/${listing.stub.image_url}`}
-              title={listing.stub.title}
-              price={listing.asking_price}
-              currency={listing.currency}
-              date={listing.stub.date} // Assuming you have a date field
-              // onClick={() => navigate(`/marketplace/listings/${listing.id}`)}
-              onClick={() => buyTicket(listing.id)}
-              showSeller={true}
-              sellerName={listing?.seller_name}
-              sellerId={listing?.seller_id}
-            />
-          </Grid>
-        ))}
-      </Grid>
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+        )}
+
+        <Grid container spacing={4} justifyContent="center">
+          {listings.map((listing) => (
+            <Grid
+              item
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              xs={12}
+              sm={6}
+              md={4}
+              lg={3}
+              key={listing.id}
+            >
+              <StubCard
+                image={`${config.VITE_APP_API_BASE_URL}/${listing.stub.image_url}`}
+                title={listing.stub.title}
+                price={listing.asking_price}
+                currency={listing.currency}
+                date={listing.stub.date}
+                onClick={() => buyTicket(listing.id)}
+                showSeller={true}
+                sellerName={listing?.seller_name}
+                sellerId={listing?.seller_id}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </section>
     </Box>
   );
 }
