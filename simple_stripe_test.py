@@ -7,8 +7,14 @@ Tests the core Stripe payment system functionality
 import requests
 import json
 from datetime import datetime
+from dotenv import load_dotenv
+import os
 
-BASE_URL = "http://localhost:5000"
+load_dotenv()
+
+BASE_URL = os.getenv("BACKEND_URL")
+
+
 
 def test_stripe_endpoints():
     """Test Stripe endpoints that don't require authentication"""
@@ -124,7 +130,7 @@ def main():
             print("   Make sure you run: flask run --debug")
             return
     except:
-        print("❌ Cannot connect to Flask app at http://localhost:5000")
+        print(f"❌ Cannot connect to Flask app at {BASE_URL}")
         print("   Make sure you run: flask run --debug")
         return
     

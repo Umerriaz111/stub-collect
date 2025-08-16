@@ -5,7 +5,7 @@ import { loadStripe } from "@stripe/stripe-js";
 const API_BASE_URL = config.VITE_APP_API_BASE_URL;
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "http://localhost:5001/api",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

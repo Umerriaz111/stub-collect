@@ -56,11 +56,12 @@ def create_app(config_class=Config):
     from app import models
 
     # Import and register blueprints
-    from app.routes import auth, stubs, marketplace, direct_charges_payments
+    from app.routes import auth, stubs, marketplace, direct_charges_payments, chatbot
     app.register_blueprint(auth.bp, url_prefix='/auth')
     app.register_blueprint(stubs.bp, url_prefix='/api')
     app.register_blueprint(marketplace.bp, url_prefix='/api')
     app.register_blueprint(direct_charges_payments.bp, url_prefix='/api')  # NEW: Payment routes
+    app.register_blueprint(chatbot.bp, url_prefix='/api/chatbot')  # NEW: Chatbot routes
 
     # Setup login manager
     @login_manager.user_loader

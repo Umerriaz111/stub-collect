@@ -8,8 +8,14 @@ import requests
 import json
 import time
 from datetime import datetime
+import os
+import sys
+from dotenv import load_dotenv
 
-BASE_URL = "http://localhost:5000"
+load_dotenv()
+
+BASE_URL = os.getenv("BACKEND_URL")
+
 
 def create_test_user_and_login():
     """Create and login a test user"""

@@ -1,6 +1,10 @@
 import os
 
 class Config:
+    # FIXED: Base URL configuration
+    BASE_URL = os.environ.get('BACKEND_URL') or 'http://localhost:5000'
+    
+     
     # Secret key for session management
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
  
@@ -19,4 +23,8 @@ class Config:
     STRIPE_ENABLE_LIABILITY_SHIFT = os.environ.get('STRIPE_ENABLE_LIABILITY_SHIFT', 'true').lower() == 'true'
     
     # FIXED: Rate limiting configuration
-    RATELIMIT_STORAGE_URL = os.environ.get('REDIS_URL', 'memory://') 
+    RATELIMIT_STORAGE_URL = os.environ.get('REDIS_URL', 'memory://')
+    
+    # Chatbot configuration
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+    SAVE_CHATBOT_IMAGES = os.environ.get('SAVE_CHATBOT_IMAGES', 'false').lower() == 'true' 

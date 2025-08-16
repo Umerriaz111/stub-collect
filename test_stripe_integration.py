@@ -8,9 +8,14 @@ import requests
 import json
 import time
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Configuration
-BASE_URL = "http://localhost:5000"
+BASE_URL = os.getenv("BACKEND_URL")
+
 TEST_USER_CREDENTIALS = {
     "username": "testuser",
     "email": "test@example.com", 
@@ -34,7 +39,7 @@ class StripeIntegrationTester:
                 print(f"❌ Flask app health check failed: {response.status_code}")
                 return False
         except requests.exceptions.ConnectionError:
-            print("❌ Cannot connect to Flask app. Make sure it's running on http://localhost:5000")
+            print(f"❌ Cannot connect to Flask app. Make sure it's running on {BASE_URL}")
             return False
     
     def register_test_user(self):

@@ -8,8 +8,14 @@ import requests
 import json
 import time
 from datetime import datetime
+from dotenv import load_dotenv
+import os
 
-BASE_URL = "http://localhost:5000"
+load_dotenv()
+
+BASE_URL = os.getenv("BACKEND_URL")
+
+
 
 class StripeTestCardTester:
     def __init__(self):
