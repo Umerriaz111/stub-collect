@@ -21,6 +21,8 @@ import {
   SmartToy as BotIcon,
   Person as UserIcon,
   AttachFile as AttachFileIcon,
+  OpenInFull as ExpandIcon,
+  CloseFullscreen as ShrinkIcon,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { v4 as uuidv4 } from "uuid"; // ✅ generate unique IDs
@@ -35,9 +37,9 @@ const ChatbotContainer = styled(Box)(({ theme }) => ({
 }));
 
 const ChatWindow = styled(Paper)(({ theme }) => ({
-  width: 320,
-  minHeight: 400,
-  maxHeight: 600,
+  width: "var(--chatbot-width, 320px)",
+  minHeight: "var(--chatbot-minHeight, 400px)",
+  maxHeight: "var(--chatbot-maxHeight, 600px)",
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
@@ -108,6 +110,7 @@ const ChatInput = styled(Box)(({ theme }) => ({
 
 // Chatbot Component
 const Chatbot = () => {
+  const [expanded, setExpanded] = useState(false);
   // Inject blinking keyframes for typing dots (only once)
   useEffect(() => {
     if (!document.head.querySelector('style[data-chatbot-blink]')) {
@@ -145,6 +148,15 @@ const Chatbot = () => {
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
+
+  // Expand/shrink chat window
+  const handleExpandShrink = () => {
+    setExpanded((prev) => !prev);
+    // Optionally scroll to bottom after expanding
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 300);
+  };
   // Generate a unique question ID when component mounts
   useEffect(() => {
     const newId = uuidv4();
@@ -178,9 +190,9 @@ const Chatbot = () => {
     formData.append("question_id", questionId); // ✅ use generated ID
     formData.append("question", inputValue || "");
     if (imageFile) formData.append("image", imageFile);
-  // Only pass userMessages in conversation_history
-  const conversation_history = [...chatState.userMessages, userMessage];
-  formData.append("conversation_history", JSON.stringify(conversation_history));
+    // Only pass userMessages in conversation_history
+    const conversation_history = [...chatState.userMessages, userMessage];
+    formData.append("conversation_history", JSON.stringify(conversation_history));
 
     setInputValue("");
     setImageFile(null);
@@ -251,9 +263,36 @@ const Chatbot = () => {
     <ChatbotContainer>
       {open && (
         <Slide direction="up" in={open} mountOnEnter unmountOnExit>
-          <ChatWindow>
+          <ChatWindow
+            style={expanded
+              ? {
+                '--chatbot-width': '600px',
+                '--chatbot-minHeight': '600px',
+                '--chatbot-maxHeight': '800px',
+              }
+              : {
+                '--chatbot-width': '320px',
+                '--chatbot-minHeight': '400px',
+                '--chatbot-maxHeight': '600px',
+              }
+            }
+          >
             <ChatHeader>
               <Box display="flex" alignItems="center" gap={1}>
+                {/* Expand/Shrink button in left top corner */}
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  onClick={handleExpandShrink}
+                  size="small"
+                  sx={{
+                    mr: 1,
+                    transform:  "scaleX(-1)"
+                  }}
+                  aria-label={expanded ? "Shrink" : "Expand"}
+                >
+                  {expanded ? <ShrinkIcon fontSize="small" /> : <ExpandIcon fontSize="small" />}
+                </IconButton>
                 <BotIcon fontSize="small" />
                 <Typography variant="subtitle1">AI Assistant</Typography>
               </Box>
