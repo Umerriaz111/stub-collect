@@ -108,6 +108,23 @@ const ChatInput = styled(Box)(({ theme }) => ({
 
 // Chatbot Component
 const Chatbot = () => {
+  // Inject blinking keyframes for typing dots (only once)
+  useEffect(() => {
+    if (!document.head.querySelector('style[data-chatbot-blink]')) {
+      const style = document.createElement('style');
+      style.setAttribute('data-chatbot-blink', 'true');
+      style.innerHTML = `
+        @keyframes blink {
+          0% { opacity: 0.2; }
+          20% { opacity: 1; }
+          100% { opacity: 0.2; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
+  const [loading, setLoading] = useState(false);
+  const [animatedBotText, setAnimatedBotText] = useState("");
   const [open, setOpen] = useState(false);
   // Nested state for user and bot messages
   const [chatState, setChatState] = useState({
@@ -169,19 +186,35 @@ const Chatbot = () => {
     setImageFile(null);
     setImagePreview(null);
 
+    setLoading(true);
+    setAnimatedBotText("");
     try {
       const res = await askChatbot(formData);
-      const botMessage = {
-        text: res.data?.response || "Sorry, I couldn’t understand that.",
-        sender: "bot",
-        timestamp: new Date(),
+      const replyText = res.data?.response || "Sorry, I couldn’t understand that.";
+      // Handwriting effect: animate bot reply text
+      let i = 0;
+      setAnimatedBotText("");
+      const typeWriter = () => {
+        if (i <= replyText.length) {
+          setAnimatedBotText(replyText.slice(0, i));
+          i++;
+          setTimeout(typeWriter, 18); // speed of typing
+        } else {
+          // Add bot message to chatState after animation
+          setChatState((prev) => ({
+            ...prev,
+            botMessages: [...prev.botMessages, {
+              text: replyText,
+              sender: "bot",
+              timestamp: new Date(),
+            }],
+          }));
+          setLoading(false);
+          setAnimatedBotText("");
+          if (!open) setUnreadCount((prev) => prev + 1);
+        }
       };
-      setChatState((prev) => ({
-        ...prev,
-        botMessages: [...prev.botMessages, botMessage],
-      }));
-
-      if (!open) setUnreadCount((prev) => prev + 1);
+      typeWriter();
     } catch (err) {
       console.error("Chatbot API error:", err);
       setChatState((prev) => ({
@@ -191,6 +224,8 @@ const Chatbot = () => {
           { text: "Error connecting to chatbot.", sender: "bot", timestamp: new Date() },
         ],
       }));
+      setLoading(false);
+      setAnimatedBotText("");
     }
   };
 
@@ -267,6 +302,30 @@ const Chatbot = () => {
                     )}
                   </React.Fragment>
                 ))}
+              {/* Loading state for bot reply (handwriting effect) */}
+              {loading && (
+                <BotMessage>
+                  <ListItemAvatar sx={{ minWidth: 32 }}>
+                    <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
+                      <BotIcon fontSize="small" />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <MessageContent>
+                    <MessageBubble sender="bot">
+                      {animatedBotText}
+                      {!animatedBotText && (
+                        <span style={{ fontSize: "1.2em", letterSpacing: 2 }}>
+                          <span className="typing-dots">
+                            <span style={{ animation: "blink 1s infinite" }}>.</span>
+                            <span style={{ animation: "blink 1.2s infinite" }}>.</span>
+                            <span style={{ animation: "blink 1.4s infinite" }}>.</span>
+                          </span>
+                        </span>
+                      )}
+                    </MessageBubble>
+                  </MessageContent>
+                </BotMessage>
+              )}
               <div ref={messagesEndRef} />
             </MessageList>
 
