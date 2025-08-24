@@ -5,6 +5,8 @@ import CameraAltOutlinedIcon from "@mui/icons-material/CameraAltOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import { useNavigate } from "react-router-dom";
+import bgImage from "../../../assets/doodles-bg.png"
+
 
 const StubUploadComponent = () => {
   const boxBorderRadius = "10px";
@@ -19,7 +21,7 @@ const StubUploadComponent = () => {
         justifyContent: "center",
         // backgroundColor: "rgb(251 134 28)",
         backgroundImage:
-          "url(https://sdmntprwestcentralus.oaiusercontent.com/files/00000000-3808-61fb-9e76-cef80909f515/raw?se=2025-08-09T17%3A36%3A01Z&sp=r&sv=2024-08-04&sr=b&scid=bee0be3a-7dbc-5b53-9d72-713376393e84&skoid=bbd22fc4-f881-4ea4-b2f3-c12033cf6a8b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-09T16%3A08%3A24Z&ske=2025-08-10T16%3A08%3A24Z&sks=b&skv=2024-08-04&sig=hKo0FVgBwV8Wm1npJ9AXbOEFbSPV2sy45WMAVJO8bIE%3D)",
+                      `url(${bgImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
