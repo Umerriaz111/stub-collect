@@ -109,13 +109,17 @@ const ChatInput = styled(Box)(({ theme }) => ({
 // Chatbot Component
 const Chatbot = () => {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      text: "Hi there! I'm your AI assistant. How can I help?",
-      sender: "bot",
-      timestamp: new Date(),
-    },
-  ]);
+  // Nested state for user and bot messages
+  const [chatState, setChatState] = useState({
+    userMessages: [],
+    botMessages: [
+      {
+        text: "Hi there! I'm your AI assistant. How can I help?",
+        sender: "bot",
+        timestamp: new Date(),
+      },
+    ],
+  });
   const [inputValue, setInputValue] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
   const [imageFile, setImageFile] = useState(null);
@@ -140,21 +144,26 @@ const Chatbot = () => {
     e.preventDefault();
     if (inputValue.trim() === "" && !imageFile) return;
 
-    // Add user message
+    // Add user message to nested state
     const userMessage = {
       text: inputValue,
       sender: "user",
       timestamp: new Date(),
       image: imagePreview,
     };
-    setMessages((prev) => [...prev, userMessage]);
+    setChatState((prev) => ({
+      ...prev,
+      userMessages: [...prev.userMessages, userMessage],
+    }));
 
     // Prepare FormData
     const formData = new FormData();
     formData.append("question_id", questionId); // ✅ use generated ID
     formData.append("question", inputValue || "");
     if (imageFile) formData.append("image", imageFile);
-    formData.append("conversation_history", JSON.stringify(messages));
+  // Only pass userMessages in conversation_history
+  const conversation_history = [...chatState.userMessages, userMessage];
+  formData.append("conversation_history", JSON.stringify(conversation_history));
 
     setInputValue("");
     setImageFile(null);
@@ -167,15 +176,21 @@ const Chatbot = () => {
         sender: "bot",
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, botMessage]);
+      setChatState((prev) => ({
+        ...prev,
+        botMessages: [...prev.botMessages, botMessage],
+      }));
 
       if (!open) setUnreadCount((prev) => prev + 1);
     } catch (err) {
       console.error("Chatbot API error:", err);
-      setMessages((prev) => [
+      setChatState((prev) => ({
         ...prev,
-        { text: "Error connecting to chatbot.", sender: "bot", timestamp: new Date() },
-      ]);
+        botMessages: [
+          ...prev.botMessages,
+          { text: "Error connecting to chatbot.", sender: "bot", timestamp: new Date() },
+        ],
+      }));
     }
   };
 
@@ -195,7 +210,7 @@ const Chatbot = () => {
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [chatState]);
 
   return (
     <ChatbotContainer>
@@ -214,38 +229,44 @@ const Chatbot = () => {
 
             {/* Messages */}
             <MessageList>
-              {messages.map((message, index) => (
-                <React.Fragment key={index}>
-                  {message.sender === "user" ? (
-                    <UserMessage>
-                      <MessageContent>
-                        {message.image && (
-                          <MessageImage src={message.image} alt="User uploaded" />
-                        )}
-                        {message.text && (
-                          <MessageBubble sender="user">{message.text}</MessageBubble>
-                        )}
-                      </MessageContent>
-                      <ListItemAvatar sx={{ minWidth: 32 }}>
-                        <Avatar sx={{ width: 32, height: 32 }}>
-                          <UserIcon fontSize="small" />
-                        </Avatar>
-                      </ListItemAvatar>
-                    </UserMessage>
-                  ) : (
-                    <BotMessage>
-                      <ListItemAvatar sx={{ minWidth: 32 }}>
-                        <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
-                          <BotIcon fontSize="small" />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <MessageContent>
-                        <MessageBubble sender="bot">{message.text}</MessageBubble>
-                      </MessageContent>
-                    </BotMessage>
-                  )}
-                </React.Fragment>
-              ))}
+              {/* Render bot and user messages in order */}
+              {[
+                ...chatState.botMessages.map((message, index) => ({ ...message, type: "bot", key: `bot-${index}` })),
+                ...chatState.userMessages.map((message, index) => ({ ...message, type: "user", key: `user-${index}` })),
+              ]
+                .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+                .map((message) => (
+                  <React.Fragment key={message.key}>
+                    {message.type === "user" ? (
+                      <UserMessage>
+                        <MessageContent>
+                          {message.image && (
+                            <MessageImage src={message.image} alt="User uploaded" />
+                          )}
+                          {message.text && (
+                            <MessageBubble sender="user">{message.text}</MessageBubble>
+                          )}
+                        </MessageContent>
+                        <ListItemAvatar sx={{ minWidth: 32 }}>
+                          <Avatar sx={{ width: 32, height: 32 }}>
+                            <UserIcon fontSize="small" />
+                          </Avatar>
+                        </ListItemAvatar>
+                      </UserMessage>
+                    ) : (
+                      <BotMessage>
+                        <ListItemAvatar sx={{ minWidth: 32 }}>
+                          <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
+                            <BotIcon fontSize="small" />
+                          </Avatar>
+                        </ListItemAvatar>
+                        <MessageContent>
+                          <MessageBubble sender="bot">{message.text}</MessageBubble>
+                        </MessageContent>
+                      </BotMessage>
+                    )}
+                  </React.Fragment>
+                ))}
               <div ref={messagesEndRef} />
             </MessageList>
 
