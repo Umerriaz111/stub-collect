@@ -62,7 +62,7 @@ export default function Login() {
         }
       } catch (error) {
         console.error("Login failed:", error);
-        notyf.error(error?.message || "Login failed. Please try again.");
+        notyf.error(error.response.data.message || "Something went wrong");
       } finally {
         setLoading(false);
       }

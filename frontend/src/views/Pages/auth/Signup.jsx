@@ -48,8 +48,8 @@ const Signup = () => {
     password: Yup.string()
       .required("Password is required")
       .matches(
-        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,20}$/,
-        "Password must be 6-20 characters, with uppercase, lowercase, number, special character, and no spaces"
+        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,20}$/,
+        "Password must be 8-20 characters, with uppercase, lowercase, number, special character, and no spaces"
       ),
     confirm_password: Yup.string()
       .required("Confirm Password is required")
@@ -79,7 +79,7 @@ const Signup = () => {
         }
       } catch (error) {
         console.log("Error Occured", error);
-        notyf.error(error.data.detail);
+        notyf.error(error.response.data.message || "Something went wrong");
       } finally {
         setLoading(false);
       }
