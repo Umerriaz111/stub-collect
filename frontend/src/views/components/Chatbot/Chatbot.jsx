@@ -190,8 +190,11 @@ const Chatbot = () => {
     formData.append("question_id", questionId); // ✅ use generated ID
     formData.append("question", inputValue || "");
     if (imageFile) formData.append("image", imageFile);
-    // Only pass userMessages in conversation_history
-    const conversation_history = [...chatState.userMessages, userMessage];
+    // Only pass userMessages text and image in conversation_history
+    const conversation_history = [...chatState.userMessages, userMessage].map(msg => ({
+      text: msg.text,
+      image: msg.image || null
+    }));
     formData.append("conversation_history", JSON.stringify(conversation_history));
 
     setInputValue("");
@@ -440,7 +443,7 @@ const Chatbot = () => {
               height: 48,
             }}
           >
-            {open ? <CloseIcon fontSize="small" /> : <ChatIcon fontSize="small" />}
+             <ChatIcon fontSize="small" />
           </IconButton>
         </Badge>
       </Box>
