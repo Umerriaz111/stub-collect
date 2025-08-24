@@ -22,7 +22,7 @@ import notyf from "../../components/NotificationMessage/notyfInstance";
 import { useDispatch } from "react-redux";
 import { LOGIN } from "../../../core/store/auth/authSlice";
 import * as Yup from "yup";
-import { registerUserApi } from "../../../core/api/auth";
+import { loginApi, registerUserApi } from "../../../core/api/auth";
 import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
@@ -68,22 +68,40 @@ const Signup = () => {
     onSubmit: async (values) => {
       setLoading(true);
       console.log("values", values);
+
       try {
         const { confirm_password, ...data } = values;
-        const response = await registerUserApi(data);
-        if (response?.data?.status === "success") {
-          //   dispatch(LOGIN(response));
-          notyf.success(`User Created Successfully!`);
-          navigate("/login");
-          //   notyf.success(`login successful!`);
+
+        // Step 1: Register user
+        const registerResponse = await registerUserApi(data);
+
+        if (registerResponse?.data?.status === "success") {
+          notyf.success("User Created Successfully!");
+
+          // Step 2: Login after successful signup
+          const loginResponse = await loginApi({
+            email: values.email,
+            password: values.password,
+          });
+
+          if (loginResponse?.data?.status === "success") {
+            dispatch(LOGIN(loginResponse.data)); // Store auth state
+
+            const redirectURL = localStorage.getItem("redirectURL") || "/";
+            localStorage.removeItem("redirectURL");
+
+            navigate(redirectURL);
+            notyf.success("Login successful!");
+          }
         }
       } catch (error) {
-        console.log("Error Occured", error);
-        notyf.error(error.response.data.message || "Something went wrong");
+        console.log("Error Occurred", error);
+        notyf.error(error.response?.data?.message || "Something went wrong");
       } finally {
         setLoading(false);
       }
     },
+
   });
 
   return (
