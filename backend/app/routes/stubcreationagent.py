@@ -16,6 +16,8 @@ from agents import SQLiteSession
 from werkzeug.utils import secure_filename
 import uuid
 from datetime import datetime
+
+from dataclasses import dataclass
         
 # Get current user ID from Flask-Login
 from flask_login import current_user
@@ -23,8 +25,10 @@ from flask_login import current_user
 from app.prompts.agentprompt import system_prompt
 
 from app.services.stub_service import StubProcessor
+from app.models.stub import Stub
 
 load_dotenv()
+
 
 bp = Blueprint('stubcreationagent', __name__)
 
@@ -53,6 +57,7 @@ def custom_save_image(image_file, user_id):
         
         # Full file path
         file_path = os.path.join(user_upload_dir, unique_filename)
+        
         
         # Save the file
         image_file.save(file_path)
@@ -109,7 +114,9 @@ async def draft_listing(
     event_plain: str,
     date: str,  # formatted as YYYY-MM-DD
     venue: str,
-    estimated_market_value: int  # strict float, no ranges/strings
+    seat_details: str,
+    estimated_market_value: int # strict float, no ranges/strings,
+    
 ):
     """
     Represents extracted information from a ticket stub to draft a marketplace listing.
@@ -124,9 +131,87 @@ async def draft_listing(
         f"venue: {venue}, estimated market value: {estimated_market_value}"
     )
     
+    # Log the current user and app context
+    print(f"Current user ID: {current_user.id}")
+    print(f"Current app context: {current_app.name}")
+    print(f"Image path in app context: {getattr(current_app, 'last_uploaded_image_path', 'Not set')}")
+    
+    # Store stub in database
+    try:
+        from app import db
+        
+        # Get the current app context
+        with current_app.app_context():
+            # Get image path from app context or use a default
+            image_path = getattr(current_app, 'last_uploaded_image_path', '')
+            if not image_path:
+                # Fallback: create a placeholder path
+                image_path = f"placeholder_{current_user.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+                print(f"Warning: No image path found, using placeholder: {image_path}")
+            
+            # Validate required fields
+            if not listing_title or not event_plain or not venue:
+                print("Warning: Missing required fields for stub creation")
+                return f"Warning: Missing required fields, but listing created for {event_plain} at {venue} on {date} with estimated value: ${estimated_market_value}"
+            
+            # Validate date format
+            parsed_date = Stub.parse_date(date)
+            if not parsed_date:
+                print(f"Warning: Invalid date format: {date}")
+                return f"Warning: Invalid date format ({date}), but listing created for {event_plain} at {venue} with estimated value: ${estimated_market_value}"
+            
+            # Validate estimated market value
+            if not isinstance(estimated_market_value, (int, float)) or estimated_market_value <= 0:
+                print(f"Warning: Invalid estimated market value: {estimated_market_value}")
+                return f"Warning: Invalid estimated market value ({estimated_market_value}), but listing created for {event_plain} at {venue} on {date}"
+            
+            # Create new stub record
+            new_stub = Stub(
+                user_id=current_user.id,
+                title=listing_title,
+                image_path=image_path,
+                raw_text=listing_description_paragraph,
+                event_name=event_plain,
+                event_date=parsed_date,
+                venue_name=venue,
+                ticket_price=estimated_market_value,
+                currency='USD',
+                seat_info=seat_details,
+                status='processed'
+            )
+            
+            # Add to database
+            db.session.add(new_stub)
+            db.session.commit()
+            
+            # Verify the stub was actually created
+            if new_stub.id:
+                print(f"Successfully stored stub in database with ID: {new_stub.id}")
+                
+                # Return success message
+                return f"Stub successfully stored in database with ID: {new_stub.id}. Listing created for {event_plain} at {venue} on {date} with estimated value: ${estimated_market_value}"
+            else:
+                raise Exception("Stub was not properly created in database")
+            
+    except Exception as e:
+        print(f"Error storing stub in database: {e}")
+        print(f"Stub storage failed, but listing creation will continue")
+        
+        # Return error message but continue with listing creation
+        return f"Warning: Stub storage failed ({str(e)}), but listing created for {event_plain} at {venue} on {date} with estimated value: ${estimated_market_value}"
+    finally:
+        # Clean up the image path from app context to prevent reuse
+        try:
+            if hasattr(current_app, 'last_uploaded_image_path'):
+                delattr(current_app, 'last_uploaded_image_path')
+                print("Cleaned up image path from app context")
+        except Exception as e:
+            print(f"Warning: Could not clean up image path: {e}")
+    
     # Clean up user memory after successful listing creation
     try:
         print(f"Starting memory cleanup for user {current_user.id}")
+        
         
         # Create session for cleanup
         session_id = f"user_{current_user.id}_session"
@@ -211,6 +296,9 @@ def stub_creation_agent():
             try:
                 saved_image_path = custom_save_image(image_file, current_user.id)
                 print(f"Image saved successfully at: {saved_image_path}")
+                
+                # Store the image path in app context for the tool function to access
+                current_app.last_uploaded_image_path = saved_image_path
                 
                 # Verify the saved file exists and has content
                 if not os.path.exists(saved_image_path):

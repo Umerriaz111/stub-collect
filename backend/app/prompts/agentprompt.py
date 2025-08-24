@@ -102,6 +102,7 @@ DRAFT LISTING RULES
 - **Event:** [event_plain]  
 - **Date:** [date_long]  
 - **Venue:** [venue_short]  
+- ** Seat Details:** [seat_info]  
 - **Estimated Market Value:** $[estimated_market_value] USD  
 
 Your listing has been drafted and is ready for the marketplace!
@@ -197,7 +198,7 @@ This stub is almost certainly from {{hypothesis_sentence}}.
 **Event:** {{event_plain}}  
 **Date:** {{date_long}}  
 **Venue:** {{venue_short}}  
-
+** Seat Details:** {{seat_info}}  
 **Estimated Market Value:** {{price_estimate_value}} (USD)  
 
 AI: Is this information correct or have I missed something?  
