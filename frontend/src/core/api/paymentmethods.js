@@ -5,7 +5,7 @@ import { loadStripe } from "@stripe/stripe-js";
 const API_BASE_URL = config.VITE_APP_API_BASE_URL;
 
 const api = axios.create({
-  baseURL: "http://localhost:5001/api",
+  baseURL: API_BASE_URL || "http://localhost:5000",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -14,7 +14,7 @@ const api = axios.create({
 
 export const checkSellerStatus = async () => {
   try {
-    const response = await api.get("/payments/connect/status");
+    const response = await api.get("/api/payments/connect/status");
 
     const data = response.data;
 
@@ -44,7 +44,7 @@ export const checkSellerStatus = async () => {
 
 export const startStripeOnboarding = async () => {
   try {
-    const response = await api.post("/payments/connect/onboard");
+    const response = await api.post("/api/payments/connect/onboard");
 
     const data = response.data;
 
@@ -74,7 +74,7 @@ const stripePromise = loadStripe(
 
 export const createPaymentIntent = async (listingId) => {
   try {
-    const response = await api.post("/payments/create-payment-intent", {
+    const response = await api.post("/api/payments/create-payment-intent", {
       listing_id: listingId,
     });
 

@@ -3,7 +3,7 @@ import config from "../services/configService";
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: config.VITE_APP_API_BASE_URL || "http://localhost:5001",
+  baseURL: config.VITE_APP_API_BASE_URL || "http://localhost:5000",
   withCredentials: true, // Important for sending cookies
 });
 
