@@ -10,11 +10,9 @@ import {
   List,
   ListItem,
   ListItemAvatar,
-  ListItemText,
-  Divider,
-  Slide,
-  Badge,
   Chip,
+  Badge,
+  Slide,
 } from "@mui/material";
 import {
   Send as SendIcon,
@@ -22,10 +20,11 @@ import {
   Chat as ChatIcon,
   SmartToy as BotIcon,
   Person as UserIcon,
-  Image as ImageIcon,
   AttachFile as AttachFileIcon,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
+import { v4 as uuidv4 } from "uuid"; // ✅ generate unique IDs
+import { askChatbot } from "../../../core/api/chatBoard";
 
 // Styled components
 const ChatbotContainer = styled(Box)(({ theme }) => ({
@@ -62,23 +61,23 @@ const MessageList = styled(List)(({ theme }) => ({
   backgroundColor: theme.palette.grey[50],
 }));
 
-const UserMessage = styled(ListItem)(({ theme }) => ({
+const UserMessage = styled(ListItem)(() => ({
   justifyContent: "flex-end",
-  padding: theme.spacing(0.5, 1),
+  padding: "4px 8px",
   alignItems: "flex-end",
 }));
 
-const BotMessage = styled(ListItem)(({ theme }) => ({
+const BotMessage = styled(ListItem)(() => ({
   justifyContent: "flex-start",
-  padding: theme.spacing(0.5, 1),
+  padding: "4px 8px",
   alignItems: "flex-start",
 }));
 
-const MessageContent = styled(Box)(({ theme }) => ({
+const MessageContent = styled(Box)(() => ({
   maxWidth: "85%",
   display: "flex",
   flexDirection: "column",
-  gap: theme.spacing(0.5),
+  gap: "4px",
 }));
 
 const MessageBubble = styled(Box)(({ theme, sender }) => ({
@@ -95,14 +94,10 @@ const MessageBubble = styled(Box)(({ theme, sender }) => ({
   wordBreak: "break-word",
 }));
 
-const MessageImage = styled("img")(({ theme }) => ({
+const MessageImage = styled("img")(() => ({
   maxWidth: "100%",
   maxHeight: 150,
   borderRadius: "8px",
-  cursor: "pointer",
-  "&:hover": {
-    opacity: 0.9,
-  },
 }));
 
 const ChatInput = styled(Box)(({ theme }) => ({
@@ -111,6 +106,7 @@ const ChatInput = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
+// Chatbot Component
 const Chatbot = () => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -122,20 +118,27 @@ const Chatbot = () => {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
+  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [questionId, setQuestionId] = useState(""); // ✅ new state for ID
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // Generate a unique question ID when component mounts
+  useEffect(() => {
+    const newId = uuidv4();
+    setQuestionId(newId);
+    console.log("Generated Question ID:", newId);
+  }, []);
+
   const toggleChat = () => {
     setOpen(!open);
-    if (!open) {
-      setUnreadCount(0);
-    }
+    if (!open) setUnreadCount(0);
   };
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (inputValue.trim() === "" && !imagePreview) return;
+    if (inputValue.trim() === "" && !imageFile) return;
 
     // Add user message
     const userMessage = {
@@ -145,65 +148,51 @@ const Chatbot = () => {
       image: imagePreview,
     };
     setMessages((prev) => [...prev, userMessage]);
+
+    // Prepare FormData
+    const formData = new FormData();
+    formData.append("question_id", questionId); // ✅ use generated ID
+    formData.append("question", inputValue || "");
+    if (imageFile) formData.append("image", imageFile);
+    formData.append("conversation_history", JSON.stringify(messages));
+
     setInputValue("");
+    setImageFile(null);
     setImagePreview(null);
 
-    // Simulate bot response after a delay
-    setTimeout(() => {
-      const botResponses = [
-        "I've received your message. Let me process that...",
-        "Thanks for sharing that with me! Here's what I found...",
-        "I'm looking into your request now...",
-        "That's interesting! Here's some information...",
-        "I've noted your question. Here's what I can tell you...",
-      ];
-      const randomResponse =
-        botResponses[Math.floor(Math.random() * botResponses.length)];
-
+    try {
+      const res = await askChatbot(formData);
       const botMessage = {
-        text: randomResponse,
+        text: res.data?.response || "Sorry, I couldn’t understand that.",
         sender: "bot",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);
 
-      if (!open) {
-        setUnreadCount((prev) => prev + 1);
-      }
-    }, 800);
+      if (!open) setUnreadCount((prev) => prev + 1);
+    } catch (err) {
+      console.error("Chatbot API error:", err);
+      setMessages((prev) => [
+        ...prev,
+        { text: "Error connecting to chatbot.", sender: "bot", timestamp: new Date() },
+      ]);
+    }
   };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file && file.type.match("image.*")) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setImagePreview(event.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handlePaste = (e) => {
-    const items = e.clipboardData.items;
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].type.indexOf("image") !== -1) {
-        const blob = items[i].getAsFile();
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setImagePreview(event.target.result);
-        };
-        reader.readAsDataURL(blob);
-        break;
-      }
+    if (file && file.type.startsWith("image/")) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
   const removeImagePreview = () => {
+    setImageFile(null);
     setImagePreview(null);
   };
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -218,16 +207,12 @@ const Chatbot = () => {
                 <BotIcon fontSize="small" />
                 <Typography variant="subtitle1">AI Assistant</Typography>
               </Box>
-              <IconButton
-                edge="end"
-                color="inherit"
-                onClick={toggleChat}
-                size="small"
-              >
+              <IconButton edge="end" color="inherit" onClick={toggleChat} size="small">
                 <CloseIcon fontSize="small" />
               </IconButton>
             </ChatHeader>
 
+            {/* Messages */}
             <MessageList>
               {messages.map((message, index) => (
                 <React.Fragment key={index}>
@@ -235,19 +220,10 @@ const Chatbot = () => {
                     <UserMessage>
                       <MessageContent>
                         {message.image && (
-                          <MessageImage
-                            src={message.image}
-                            alt="User uploaded"
-                            style={{
-                              maxHeight: 60,
-                              alignSelf: "flex-end",
-                            }}
-                          />
+                          <MessageImage src={message.image} alt="User uploaded" />
                         )}
                         {message.text && (
-                          <MessageBubble sender="user">
-                            {message.text}
-                          </MessageBubble>
+                          <MessageBubble sender="user">{message.text}</MessageBubble>
                         )}
                       </MessageContent>
                       <ListItemAvatar sx={{ minWidth: 32 }}>
@@ -259,20 +235,12 @@ const Chatbot = () => {
                   ) : (
                     <BotMessage>
                       <ListItemAvatar sx={{ minWidth: 32 }}>
-                        <Avatar
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            bgcolor: "primary.main",
-                          }}
-                        >
+                        <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
                           <BotIcon fontSize="small" />
                         </Avatar>
                       </ListItemAvatar>
                       <MessageContent>
-                        <MessageBubble sender="bot">
-                          {message.text}
-                        </MessageBubble>
+                        <MessageBubble sender="bot">{message.text}</MessageBubble>
                       </MessageContent>
                     </BotMessage>
                   )}
@@ -281,43 +249,22 @@ const Chatbot = () => {
               <div ref={messagesEndRef} />
             </MessageList>
 
+            {/* Input */}
             <ChatInput component="form" onSubmit={handleSendMessage}>
               {imagePreview && (
-                <Box
-                  sx={{
-                    position: "relative",
-                    mb: 1,
-                    display: "flex",
-                    justifyContent: "flex-end",
-                  }}
-                >
+                <Box sx={{ position: "relative", mb: 1 }}>
                   <Chip
                     label="Remove image"
                     size="small"
                     onDelete={removeImagePreview}
                     deleteIcon={<CloseIcon fontSize="small" />}
-                    sx={{
-                      position: "absolute",
-                      right: 0,
-                      top: -30,
-                      bgcolor: "background.paper",
-                    }}
+                    sx={{ position: "absolute", right: 0, top: -30 }}
                   />
-                  <MessageImage
-                    src={imagePreview}
-                    alt="Preview"
-                    style={{
-                      maxHeight: 60,
-                      alignSelf: "flex-end",
-                    }}
-                  />
+                  <MessageImage src={imagePreview} alt="Preview" />
                 </Box>
               )}
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <IconButton
-                  size="small"
-                  onClick={() => fileInputRef.current.click()}
-                >
+                <IconButton size="small" onClick={() => fileInputRef.current.click()}>
                   <AttachFileIcon fontSize="small" />
                 </IconButton>
                 <input
@@ -333,7 +280,6 @@ const Chatbot = () => {
                   placeholder="Type a message..."
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onPaste={handlePaste}
                   size="small"
                   InputProps={{
                     sx: { fontSize: "0.875rem" },
@@ -343,7 +289,7 @@ const Chatbot = () => {
                           edge="end"
                           color="primary"
                           type="submit"
-                          disabled={inputValue.trim() === "" && !imagePreview}
+                          disabled={inputValue.trim() === "" && !imageFile}
                           size="small"
                         >
                           <SendIcon fontSize="small" />
@@ -370,18 +316,12 @@ const Chatbot = () => {
             sx={{
               backgroundColor: "primary.main",
               color: "primary.contrastText",
-              "&:hover": {
-                backgroundColor: "primary.dark",
-              },
+              "&:hover": { backgroundColor: "primary.dark" },
               width: 48,
               height: 48,
             }}
           >
-            {open ? (
-              <CloseIcon fontSize="small" />
-            ) : (
-              <ChatIcon fontSize="small" />
-            )}
+            {open ? <CloseIcon fontSize="small" /> : <ChatIcon fontSize="small" />}
           </IconButton>
         </Badge>
       </Box>
