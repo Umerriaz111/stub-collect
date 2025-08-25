@@ -91,7 +91,7 @@ DRAFT LISTING RULES
 - Only call `draft_listing` once.  
 
 ### Listing Display Format (after confirmation):
-## 🎫 Listing Created Successfully!
+## Listing Created Successfully!
 
 **Title:** [listing_title]  
 
