@@ -109,9 +109,18 @@ async def draft_listing(
     
 ):
     """
-    Represents extracted information from a ticket stub to draft a marketplace listing.
-    - `date`: MUST be in YYYY-MM-DD format.
-    - `estimated_market_value`: MUST be a float (e.g., 120.01).
+     Drafts a structured marketplace listing from the extracted details of a ticket stub.
+
+    Parameters:
+        listing_title (str): A concise title for the listing.
+        listing_description_paragraph (str): A descriptive paragraph providing 
+            context and details about the ticket/event.
+        event_plain (str): The plain text name of the event (e.g., "Coldplay Concert").
+        date (str): The date of the event, formatted strictly as YYYY-MM-DD.
+        venue (str): The name of the venue where the event will take place.
+        seat_details (str): Specific seating information (e.g., "Section A, Row 5, Seat 12").
+        estimated_market_value (float): The precise market value of the ticket. 
+            Must be a float (e.g., 120.01) and cannot be a string or range.
     """
     
     # Store stub in database
@@ -236,11 +245,15 @@ def stub_creation_agent():
         if request.content_type and 'application/json' in request.content_type:
             data = request.get_json()
             query = data.get('query', '')
-            queryid = data.get('queryid')  # Optional queryid
+            # Handle optional queryid - convert to int only if provided
+            queryid_raw = data.get('queryid')
+            queryid = int(queryid_raw) if queryid_raw is not None else None
         else:
             # Handle form data (when image is uploaded)
             query = request.form.get('query', '')  # Make query optional, default to empty string
-            queryid = int(request.form.get('queryid'))  # Optional queryid
+            # Handle optional queryid - convert to int only if provided
+            queryid_raw = request.form.get('queryid')
+            queryid = int(queryid_raw) if queryid_raw is not None else None
         
         image_file = request.files.get('image') if request.files else None
         
