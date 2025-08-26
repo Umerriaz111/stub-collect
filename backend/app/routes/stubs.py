@@ -170,6 +170,40 @@ def update_stub(stub_id):
             'message': str(e)
         }), 400
 
+@bp.route('/stubs/<int:stub_id>', methods=['DELETE'])
+@login_required
+def delete_stub(stub_id):
+    """Delete a stub and its associated image file"""
+    stub = Stub.query.filter_by(id=stub_id, user_id=current_user.id).first()
+    
+    if not stub:
+        return jsonify({
+            'status': 'error',
+            'message': 'Stub not found'
+        }), 404
+
+    try:
+        # Delete the associated image file if it exists
+        if stub.image_path and os.path.exists(stub.image_path):
+            os.remove(stub.image_path)
+        
+        # Remove the stub from database
+        db.session.delete(stub)
+        db.session.commit()
+
+        return jsonify({
+            'status': 'success',
+            'message': 'Stub deleted successfully'
+        })
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting stub: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': 'An error occurred while deleting the stub',
+            'error': str(e)
+        }), 500
+
 @bp.route('/stubs', methods=['GET'])
 @login_required
 def get_stubs():

@@ -72,6 +72,7 @@ class Stub(db.Model):
             'id': self.id,
             'title': self.title,
             'image_path': self.image_path,
+            'raw_text': self.raw_text,
             'event_name': self.event_name,
             'event_date': self.event_date.isoformat() if self.event_date else None,
             'venue_name': self.venue_name,
