@@ -1,23 +1,12 @@
-import config from "../services/configService";
-import axios from "axios";
 import { loadStripe } from "@stripe/stripe-js";
-
-const API_BASE_URL = config.VITE_APP_API_BASE_URL;
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+import { getApi } from "./apiService";
 
 export const checkSellerStatus = async () => {
+
   try {
+    const api = await getApi();
     const response = await api.get("/api/payments/connect/status");
-
     const data = response.data;
-
     if (data.status === "success") {
       return {
         hasAccount: data.account_info.has_account,
@@ -28,7 +17,6 @@ export const checkSellerStatus = async () => {
         requirementsDue: data.account_info.requirements_due,
       };
     }
-
     return { hasAccount: false };
   } catch (error) {
     console.error("Error checking seller status:", error);
@@ -44,10 +32,9 @@ export const checkSellerStatus = async () => {
 
 export const startStripeOnboarding = async () => {
   try {
+    const api = await getApi();
     const response = await api.post("/api/payments/connect/onboard");
-
     const data = response.data;
-
     if (data.status === "success") {
       return {
         success: true,
@@ -74,14 +61,11 @@ const stripePromise = loadStripe(
 
 export const createPaymentIntent = async (listingId) => {
   try {
+    const api = await getApi();
     const response = await api.post("/api/payments/create-payment-intent", {
       listing_id: listingId,
     });
-
-    debugger;
-
     const data = response.data;
-
     if (data.status === "success") {
       return {
         success: true,

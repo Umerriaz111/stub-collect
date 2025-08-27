@@ -1,56 +1,56 @@
-import axios from "axios";
-import config from "../services/configService";
-
-// Create axios instance with default config
-const api = axios.create({
-  baseURL: config.VITE_APP_API_BASE_URL,
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
 
 // Request interceptor to handle content type for FormData
-api.interceptors.request.use(
-  (config) => {
-    if (config.data instanceof FormData) {
-      config.headers["Content-Type"] = "multipart/form-data";
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
-// Response interceptor to handle errors
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      window.location.href = "/login";
-      return Promise.reject({ message: "Please login to continue" });
+import { getApi } from "./apiService";
+
+async function addInterceptors(api) {
+  api.interceptors.request.use(
+    (config) => {
+      if (config.data instanceof FormData) {
+        config.headers["Content-Type"] = "multipart/form-data";
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        window.location.href = "/login";
+        return Promise.reject({ message: "Please login to continue" });
+      }
+      return Promise.reject(error.response?.data || error);
     }
-    return Promise.reject(error.response?.data || error);
-  }
-);
+  );
+}
+
 
 // Stub data upload function - Simplified version
+
 export const uploadStub = async (formData) => {
+  const api = await getApi();
+  await addInterceptors(api);
   return await api.post("/api/stubs/upload", formData);
 };
 
 // Get user's stubs
-export const getUserStubs = () => {
+export const getUserStubs = async () => {
+  const api = await getApi();
+  await addInterceptors(api);
   return api.get("/api/stubs");
 };
 
 // Get specific stub
-export const getStub = (stubId) => {
+export const getStub = async (stubId) => {
+  const api = await getApi();
+  await addInterceptors(api);
   return api.get(`/api/stubs/${stubId}`);
 };
 
 // Update stub
-export const updateStub = (stubId, data) => {
+export const updateStub = async (stubId, data) => {
+  const api = await getApi();
+  await addInterceptors(api);
   return api.put(`/api/stubs/${stubId}`, data);
 };

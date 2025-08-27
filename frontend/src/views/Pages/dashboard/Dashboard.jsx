@@ -184,7 +184,7 @@ function Dashboard() {
         )}
 
         <Grid container spacing={2} justifyContent="center">
-          {listings.map((listing) => (
+          {listings?.map((listing) => (
             <Grid
               item
               sx={{

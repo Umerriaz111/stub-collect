@@ -1,24 +1,16 @@
-import axios from "axios";
-import config from "../services/configService";
-
-const API_BASE_URL = config.VITE_APP_API_BASE_URL;
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+import { getApi } from "./apiService";
 
 export const createListing = async (data) => {
+  const api = await getApi();
   return await api.post("/api/marketplace/list", data);
 };
 
 export const getAllListing = async () => {
+  const api = await getApi();
   return await api.get("/api/marketplace/listings");
 };
 
 export const getListingBySeller = async (sellerId) => {
+  const api = await getApi();
   return await api.get(`/api/marketplace/sellers/${sellerId}/listings`);
 };
