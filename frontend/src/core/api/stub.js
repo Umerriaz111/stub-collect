@@ -54,3 +54,10 @@ export const updateStub = async (stubId, data) => {
   await addInterceptors(api);
   return api.put(`/api/stubs/${stubId}`, data);
 };
+
+// Stub creation agent - for chatbot interaction
+export const stubCreationAgent = async (formData) => {
+  const api = await getApi();
+  await addInterceptors(api);
+  return await api.post("/api/stub-creation-agent", formData);
+};
