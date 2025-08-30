@@ -13,7 +13,7 @@ import {
 } from "../../../core/api/paymentmethods";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { Link } from "react-router-dom";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import BackToMainButton from "../../components/BackToMainButton/BackToMainButton";
 
 const ConnectPayments = () => {
   const [onboardingUrl, setOnboardingUrl] = useState(null);
@@ -68,44 +68,7 @@ const ConnectPayments = () => {
         position: "relative",
       }}
     >
-      <Box
-        my={2}
-        fontSize={20}
-        sx={{
-          position: "absolute",
-          top: 10,
-          left: 0,
-          //   border: "2px solid",
-          //   borderColor: "rgb(249, 194, 100)",
-          backgroundColor: "rgb(249, 194, 100)",
-          display: "flex",
-          //   borderRadius: 4,
-          borderRadius: "0px 10px 10px 0px",
-          px: 2,
-          cursor: "pointer",
-          textDecoration: "none",
-          color: "black",
-          alignItems: "center",
-        }}
-      >
-        <Typography
-          component={Link}
-          to={"/"}
-          sx={{
-            cursor: "pointer",
-            textDecoration: "none",
-            color: "black",
-            ":hover": {
-              color: "blue",
-            },
-          }}
-        >
-          <IconButton>
-            <ArrowBackIcon />
-          </IconButton>{" "}
-          Home
-        </Typography>
-      </Box>
+      <BackToMainButton />
 
       <Box>
         <Typography

@@ -24,6 +24,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import CloseIcon from "@mui/icons-material/Close";
 import { stubCreationAgent } from "../../../core/api/stub";
 import { useNavigate } from "react-router-dom";
+import BackToMainButton from "../../components/BackToMainButton/BackToMainButton";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -333,18 +334,24 @@ const AddNewStub = () => {
   };
 
   return (
-    <Card
-      sx={{
-        maxWidth: 900,
-        m: "auto",
-        mt: 3,
-        mb: 3,
-        background: "linear-gradient(135deg, rgba(252, 196, 132, 0.1) 0%, rgba(255, 138, 80, 0.05) 100%)",
-        border: "1px solid rgba(252, 196, 132, 0.3)",
-        borderRadius: "20px",
-        boxShadow: "0 8px 32px rgba(252, 196, 132, 0.2)",
-      }}
-    >
+    <Box sx={{ position: "relative", minHeight: "95vh" }}>
+      <BackToMainButton
+        backgroundColor="rgba(252, 196, 132, 0.9)"
+        hoverColor="#ff6b35"
+      />
+      
+      <Card
+        sx={{
+          maxWidth: 900,
+          m: "auto",
+          mt: 3,
+          mb: 3,
+          background: "linear-gradient(135deg, rgba(252, 196, 132, 0.1) 0%, rgba(255, 138, 80, 0.05) 100%)",
+          border: "1px solid rgba(252, 196, 132, 0.3)",
+          borderRadius: "20px",
+          boxShadow: "0 8px 32px rgba(252, 196, 132, 0.2)",
+        }}
+      >
       <CardContent sx={{ p: 0 }}>
         {/* Header */}
         <Box sx={{ 
@@ -628,6 +635,7 @@ const AddNewStub = () => {
         </ChatContainer>
       </CardContent>
     </Card>
+    </Box>
   );
 };
 
