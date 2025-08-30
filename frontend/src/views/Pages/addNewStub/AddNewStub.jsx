@@ -42,7 +42,9 @@ const ChatContainer = styled(Paper)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
-  backgroundColor: "#f8f9fa",
+  backgroundColor: "#fff8f0",
+  border: "2px solid rgba(252, 196, 132, 0.3)",
+  borderRadius: "16px",
 }));
 
 const MessagesContainer = styled(Box)(({ theme }) => ({
@@ -52,19 +54,20 @@ const MessagesContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   gap: theme.spacing(2),
+  background: "linear-gradient(135deg, #fff8f0 0%, #fef5e7 100%)",
   "&::-webkit-scrollbar": {
-    width: "6px",
+    width: "8px",
   },
   "&::-webkit-scrollbar-track": {
-    background: "#f1f1f1",
-    borderRadius: "3px",
+    background: "rgba(252, 196, 132, 0.1)",
+    borderRadius: "4px",
   },
   "&::-webkit-scrollbar-thumb": {
-    background: "#c1c1c1",
-    borderRadius: "3px",
+    background: "rgba(252, 196, 132, 0.6)",
+    borderRadius: "4px",
   },
   "&::-webkit-scrollbar-thumb:hover": {
-    background: "#a8a8a8",
+    background: "rgba(252, 196, 132, 0.8)",
   },
 }));
 
@@ -78,11 +81,19 @@ const MessageBubble = styled(Box)(({ theme, isUser }) => ({
 const MessageContent = styled(Paper)(({ theme, isUser }) => ({
   padding: theme.spacing(1.5, 2),
   maxWidth: "75%",
-  backgroundColor: isUser ? theme.palette.primary.main : "#ffffff",
-  color: isUser ? theme.palette.primary.contrastText : theme.palette.text.primary,
+  backgroundColor: isUser 
+    ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)" 
+    : "#ffffff",
+  background: isUser 
+    ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)" 
+    : "#ffffff",
+  color: isUser ? "#ffffff" : theme.palette.text.primary,
   borderRadius: isUser ? "20px 20px 4px 20px" : "20px 20px 20px 4px",
   wordBreak: "break-word",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+  boxShadow: isUser 
+    ? "0 4px 12px rgba(255, 138, 80, 0.3)" 
+    : "0 2px 8px rgba(0,0,0,0.1)",
+  border: isUser ? "none" : "1px solid rgba(252, 196, 132, 0.2)",
   "& p": {
     margin: "8px 0",
     "&:first-of-type": {
@@ -106,26 +117,29 @@ const MessageContent = styled(Paper)(({ theme, isUser }) => ({
     fontStyle: "italic",
   },
   "& code": {
-    backgroundColor: isUser ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
-    padding: "2px 4px",
-    borderRadius: "4px",
+    backgroundColor: isUser ? "rgba(255,255,255,0.25)" : "rgba(252, 196, 132, 0.2)",
+    padding: "2px 6px",
+    borderRadius: "6px",
     fontSize: "0.9em",
+    fontFamily: "monospace",
   },
 }));
 
 const InputContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
-  borderTop: `1px solid ${theme.palette.divider}`,
+  borderTop: `1px solid rgba(252, 196, 132, 0.3)`,
   backgroundColor: "#ffffff",
+  borderBottomLeftRadius: "16px",
+  borderBottomRightRadius: "16px",
 }));
 
 const SuggestionsContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(1, 2),
+  padding: theme.spacing(1.5, 2),
   display: "flex",
   gap: theme.spacing(1),
   flexWrap: "wrap",
-  borderTop: `1px solid ${theme.palette.divider}`,
-  backgroundColor: "#ffffff",
+  borderTop: `1px solid rgba(252, 196, 132, 0.2)`,
+  backgroundColor: "#fef9f5",
 }));
 
 const ImagePreview = styled(Box)(({ theme }) => ({
@@ -325,12 +339,34 @@ const AddNewStub = () => {
         m: "auto",
         mt: 3,
         mb: 3,
+        background: "linear-gradient(135deg, rgba(252, 196, 132, 0.1) 0%, rgba(255, 138, 80, 0.05) 100%)",
+        border: "1px solid rgba(252, 196, 132, 0.3)",
+        borderRadius: "20px",
+        boxShadow: "0 8px 32px rgba(252, 196, 132, 0.2)",
       }}
     >
       <CardContent sx={{ p: 0 }}>
         {/* Header */}
-        <Box sx={{ p: 3, borderBottom: 1, borderColor: "divider" }}>
-          <Typography variant="h4" component="h1" gutterBottom>
+        <Box sx={{ 
+          p: 3, 
+          borderBottom: 1, 
+          borderColor: "rgba(252, 228, 200, 0.62)",
+          background: "linear-gradient(135deg, rgba(252, 196, 132, 0.67) 0%, rgba(252, 152, 102, 0.71) 100%)",
+          borderTopLeftRadius: "20px",
+          borderTopRightRadius: "20px",
+        }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom
+            sx={{
+              background: "linear-gradient(135deg, #fa844aff 0%, #ff6b35 100%)",
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              fontWeight: 700,
+            }}
+          >
             💬 Stub Creator Chat
           </Typography>
           <Typography variant="body1" color="text.secondary">
@@ -340,19 +376,19 @@ const AddNewStub = () => {
 
         {/* Alerts */}
         {error && (
-          <Alert severity="error" sx={{ m: 2 }}>
+          <Alert severity="error">
             {error}
           </Alert>
         )}
 
-        {success && (
-          <Alert severity="success" sx={{ m: 2 }}>
+        {success  && (
+          <Alert severity="success" >
             {success}
           </Alert>
         )}
 
         {/* Chat Interface */}
-        <ChatContainer elevation={0}>
+        <ChatContainer sx={{borderRadius: "0px 0px 20px 20px"}} elevation={0}>
           <MessagesContainer>
             {chatMessages.map((message) => (
               <MessageBubble key={message.id} isUser={message.isUser}>
@@ -360,7 +396,16 @@ const AddNewStub = () => {
                   sx={{ 
                     width: 40, 
                     height: 40,
-                    bgcolor: message.isUser ? "primary.main" : "grey.300"
+                    bgcolor: message.isUser 
+                      ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)" 
+                      : "linear-gradient(135deg, rgba(252, 196, 132, 0.8) 0%, rgba(255, 138, 80, 0.6) 100%)",
+                    background: message.isUser 
+                      ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)" 
+                      : "linear-gradient(135deg, rgba(252, 196, 132, 0.8) 0%, rgba(255, 138, 80, 0.6) 100%)",
+                    color: "#ffffff",
+                    boxShadow: message.isUser 
+                      ? "0 4px 12px rgba(255, 138, 80, 0.3)" 
+                      : "0 2px 8px rgba(252, 196, 132, 0.3)",
                   }}
                 >
                   {message.isUser ? <PersonIcon /> : <SmartToyIcon />}
@@ -389,7 +434,13 @@ const AddNewStub = () => {
             
             {isLoading && (
               <MessageBubble isUser={false}>
-                <Avatar sx={{ width: 40, height: 40, bgcolor: "grey.300" }}>
+                <Avatar sx={{ 
+                  width: 40, 
+                  height: 40, 
+                  background: "linear-gradient(135deg, rgba(252, 196, 132, 0.8) 0%, rgba(255, 138, 80, 0.6) 100%)",
+                  color: "#ffffff",
+                  boxShadow: "0 2px 8px rgba(252, 196, 132, 0.3)",
+                }}>
                   <SmartToyIcon />
                 </Avatar>
                 <MessageContent isUser={false}>
@@ -407,7 +458,15 @@ const AddNewStub = () => {
 
           {/* Suggestions */}
           <SuggestionsContainer>
-            <Typography variant="body2" sx={{ color: "text.secondary", mr: 1 }}>
+            <Typography variant="body2" sx={{ 
+              color: "#ff6b35", 
+              mr: 1, 
+              fontWeight: 600,
+              background: "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
               💡 Quick actions:
             </Typography>
             {suggestions.map((suggestion, index) => (
@@ -419,10 +478,16 @@ const AddNewStub = () => {
                 size="small"
                 sx={{ 
                   cursor: "pointer",
+                  borderColor: "rgba(252, 196, 132, 0.5)",
+                  color: "#ff6b35",
                   "&:hover": {
-                    backgroundColor: "primary.light",
+                    background: "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
                     color: "white",
-                  }
+                    borderColor: "#ff6b35",
+                    transform: "translateY(-1px)",
+                    boxShadow: "0 4px 12px rgba(255, 138, 80, 0.3)",
+                  },
+                  transition: "all 0.2s ease-in-out",
                 }}
                 disabled={isLoading}
               />
@@ -434,7 +499,14 @@ const AddNewStub = () => {
             {/* File Preview */}
             {filePreview && (
               <ImagePreview>
-                <Paper sx={{ p: 1, mb: 1, display: "inline-block" }}>
+                <Paper sx={{ 
+                  p: 1, 
+                  mb: 1, 
+                  display: "inline-block",
+                  border: "1px solid rgba(252, 196, 132, 0.3)",
+                  borderRadius: "12px",
+                  background: "linear-gradient(135deg, #fff8f0 0%, #fef5e7 100%)",
+                }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <img
                       src={filePreview}
@@ -443,21 +515,28 @@ const AddNewStub = () => {
                         width: "60px",
                         height: "60px",
                         objectFit: "cover",
-                        borderRadius: "4px",
+                        borderRadius: "8px",
+                        border: "2px solid rgba(252, 196, 132, 0.3)",
                       }}
                     />
                     <Box>
                       <Typography variant="body2" color="text.secondary">
                         {selectedFile?.name}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="caption" sx={{ color: "#ff6b35" }}>
                         {(selectedFile?.size / 1024 / 1024).toFixed(2)} MB
                       </Typography>
                     </Box>
                     <IconButton
                       size="small"
                       onClick={removeSelectedFile}
-                      sx={{ ml: 1 }}
+                      sx={{ 
+                        ml: 1,
+                        color: "#ff6b35",
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 107, 53, 0.1)",
+                        }
+                      }}
                     >
                       <CloseIcon fontSize="small" />
                     </IconButton>
@@ -479,14 +558,37 @@ const AddNewStub = () => {
                 disabled={isLoading}
                 variant="outlined"
                 size="small"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "12px",
+                    backgroundColor: "#fff8f0",
+                    border: "1px solid rgba(252, 196, 132, 0.3)",
+                    "&:hover": {
+                      borderColor: "rgba(255, 138, 80, 0.5)",
+                    },
+                    "&.Mui-focused": {
+                      borderColor: "#ff6b35",
+                      boxShadow: "0 0 0 2px rgba(255, 138, 80, 0.2)",
+                    },
+                  },
+                }}
               />
               
               <IconButton
                 component="label"
                 disabled={isLoading}
                 sx={{ 
-                  bgcolor: "grey.100",
-                  "&:hover": { bgcolor: "grey.200" }
+                  bgcolor: "rgba(252, 196, 132, 0.1)",
+                  border: "2px solid rgba(252, 196, 132, 0.3)",
+                  borderRadius: "12px",
+                  color: "#ff6b35",
+                  "&:hover": { 
+                    bgcolor: "rgba(252, 196, 132, 0.2)",
+                    borderColor: "#ff6b35",
+                    transform: "translateY(-1px)",
+                    boxShadow: "0 4px 12px rgba(252, 196, 132, 0.3)",
+                  },
+                  transition: "all 0.2s ease-in-out",
                 }}
               >
                 <ImageIcon />
@@ -501,12 +603,22 @@ const AddNewStub = () => {
               <IconButton
                 onClick={() => sendMessage()}
                 disabled={isLoading || (!inputMessage.trim() && !selectedFile)}
-                color="primary"
                 sx={{
-                  bgcolor: "primary.main",
+                  background: "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
                   color: "white",
-                  "&:hover": { bgcolor: "primary.dark" },
-                  "&:disabled": { bgcolor: "grey.300" }
+                  borderRadius: "12px",
+                  minWidth: "48px",
+                  minHeight: "48px",
+                  "&:hover": { 
+                    background: "linear-gradient(135deg, #ff6b35 0%, #ff5722 100%)",
+                    transform: "translateY(-1px)",
+                    boxShadow: "0 6px 16px rgba(255, 138, 80, 0.4)",
+                  },
+                  "&:disabled": { 
+                    background: "rgba(189, 189, 189, 0.5)",
+                    color: "rgba(255, 255, 255, 0.5)",
+                  },
+                  transition: "all 0.2s ease-in-out",
                 }}
               >
                 <SendIcon />
