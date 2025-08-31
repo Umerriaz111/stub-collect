@@ -163,8 +163,10 @@ const AddNewStub = () => {
   const [success, setSuccess] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
+  const [typingMessageId, setTypingMessageId] = useState(null);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const typingIntervalRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -184,6 +186,15 @@ const AddNewStub = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, isLoading]);
 
+  // Cleanup typing interval on unmount
+  useEffect(() => {
+    return () => {
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+      }
+    };
+  }, []);
+
   // Initialize with welcome message
   useEffect(() => {
     setChatMessages([
@@ -196,6 +207,31 @@ const AddNewStub = () => {
       }
     ]);
   }, []);
+
+  // Typing animation function
+  const typeMessage = (messageId, fullContent, onComplete) => {
+    let currentIndex = 0;
+    setTypingMessageId(messageId);
+    
+    const typeNextChar = () => {
+      if (currentIndex <= fullContent.length) {
+        setChatMessages(prev => 
+          prev.map(msg => 
+            msg.id === messageId 
+              ? { ...msg, content: fullContent.substring(0, currentIndex) }
+              : msg
+          )
+        );
+        currentIndex++;
+      } else {
+        clearInterval(typingIntervalRef.current);
+        setTypingMessageId(null);
+        if (onComplete) onComplete();
+      }
+    };
+
+    typingIntervalRef.current = setInterval(typeNextChar, 10); // Adjust speed here (lower = faster)
+  };
 
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
@@ -257,6 +293,12 @@ const AddNewStub = () => {
   const sendMessage = async (message = inputMessage, file = selectedFile) => {
     if (!message.trim() && !file) return;
 
+    // Clear any existing typing animation
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      setTypingMessageId(null);
+    }
+
     // Create user message
     const userMessage = {
       id: Date.now(),
@@ -286,35 +328,45 @@ const AddNewStub = () => {
       const response = await stubCreationAgent(formData);
       
       if (response.data.success) {
+        const botMessageId = Date.now() + 1;
         const botMessage = {
-          id: Date.now() + 1,
+          id: botMessageId,
           isUser: false,
-          content: response.data.response,
+          content: "", // Start with empty content
           timestamp: new Date().toISOString(),
         };
 
+        // Add the message to chat first
         setChatMessages(prev => [...prev, botMessage]);
+        setIsLoading(false);
 
-        // Check if stub was created and navigate
-        if (response.data.stub_created && response.data.stub_id) {
-          setSuccess("🎉 Stub created successfully! Redirecting to preview...");
-          
-          // Navigate to stub preview page
-          setTimeout(() => {
-            navigate(`/stub-preview/${response.data.stub_id}`);
-          }, 2000);
-        }
+        // Start typing animation
+        typeMessage(botMessageId, response.data.response, () => {
+          // Check if stub was created and navigate after typing is complete
+          if (response.data.stub_created && response.data.stub_id) {
+            setSuccess("🎉 Stub created successfully! Redirecting to preview...");
+            
+            // Navigate to stub preview page
+            setTimeout(() => {
+              navigate(`/stub-preview/${response.data.stub_id}`);
+            }, 2000);
+          }
+        });
       }
     } catch (error) {
+      setIsLoading(false);
+      const errorMessageId = Date.now() + 1;
       const errorMessage = {
-        id: Date.now() + 1,
+        id: errorMessageId,
         isUser: false,
-        content: `❌ **Error:** ${error.response?.data?.message || "Failed to process request"}`,
+        content: "",
         timestamp: new Date().toISOString(),
       };
+      
       setChatMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
+      
+      // Type the error message
+      typeMessage(errorMessageId, `❌ **Error:** ${error.response?.data?.message || "Failed to process request"}`);
     }
   };
 
@@ -434,6 +486,23 @@ const AddNewStub = () => {
                   )}
                   <Typography variant="body1" component="div">
                     {formatMessageContent(message.content)}
+                    {typingMessageId === message.id && (
+                      <Box 
+                        component="span" 
+                        sx={{ 
+                          display: 'inline-block',
+                          width: '3px',
+                          height: '1em',
+                          backgroundColor: message.isUser ? 'rgba(255,255,255,0.8)' : '#ff6b35',
+                          ml: 0.5,
+                          animation: 'blink 1s infinite',
+                          '@keyframes blink': {
+                            '0%, 50%': { opacity: 1 },
+                            '51%, 100%': { opacity: 0 }
+                          }
+                        }}
+                      />
+                    )}
                   </Typography>
                 </MessageContent>
               </MessageBubble>
