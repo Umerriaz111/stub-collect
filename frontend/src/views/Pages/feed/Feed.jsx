@@ -2,19 +2,21 @@ import { Typography, Grid, IconButton } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { SET_HEADING } from "../../../core/store/App/appSlice";
-import { getUserStubs } from "../../../core/api/stub";
+import { getUserStubs, deleteStub } from "../../../core/api/stub";
 import StubCard from "../../components/Cards/StubCard";
 import { Box } from "@mui/system";
 import config from "../../../core/services/configService";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MainHeader from "../../components/Headers/MainHeader";
 import ProfileMenu from "../../components/Headers/ProfileMenu";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import notyf from "../../components/NotificationMessage/notyfInstance";
 import { createListing } from "../../../core/api/marketplace";
+import BackToMainButton from "../../components/BackToMainButton/BackToMainButton";
 
 function Feed() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [stubs, setStubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,6 +48,18 @@ function Feed() {
     }
   };
 
+  const handleDeleteStub = async (stubId) => {
+    try {
+      await deleteStub(stubId);
+      notyf.success("Stub deleted successfully");
+      // Remove the deleted stub from the state
+      setStubs(stubs.filter(stub => stub.id !== stubId));
+    } catch (error) {
+      console.error("Error deleting stub:", error);
+      notyf.error("Failed to delete stub");
+    }
+  };
+
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
 
@@ -53,9 +67,7 @@ function Feed() {
     <Box
       sx={{
         p: 3,
-        minHeight: "100vh",
-        backgroundImage:
-          " url('https://img.freepik.com/premium-vector/music-notes-seamless-pattern-background_559319-558.jpg') , url(https://images.unsplash.com/photo-1608555307638-992062b31329?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHJldHJvJTIwY29taWMlMjBvcmFuZ2UlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww)",
+        minHeight: "95vh",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundBlendMode: "multiply",
@@ -74,32 +86,16 @@ function Feed() {
         </Box>
       </Box>
 
-      <Box
-        my={2}
-        fontSize={20}
-        component={Link}
-        to={"/"}
-        sx={{
-          border: "2px solid",
-          borderColor: "rgb(249, 194, 100)",
-          display: "inline-block",
-          borderRadius: 4,
-          pr: 2,
-          cursor: "pointer",
-          textDecoration: "none",
-          color: "black",
-        }}
-      >
-        <IconButton>
-          <ArrowBackIcon />
-        </IconButton>{" "}
-        Back to Main Screen
-      </Box>
+      <BackToMainButton
+        backgroundColor="rgba(252, 196, 132, 0.9)"
+        label="Home/My Stubs"
+        hoverColor="#ff6b35"
+        position={{ top: 30, left: 0 }}
+      />
 
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        My Stubs
-      </Typography>
-      <Grid container>
+
+      <Grid container margin={"auto"} mt={8}>
+
         {stubs.length === 0 ? (
           <Grid item xs={12}>
             <Typography component={Link} to={"/add-new-stub"}>
@@ -111,8 +107,9 @@ function Feed() {
             <Grid
               item
               xs={12}
-              sm={4}
-              md={3}
+              sm={6}
+              md={4}
+              lg={3}
               key={stub.id}
               sx={{
                 display: "flex",
@@ -130,6 +127,9 @@ function Feed() {
                 ticketPrice={stub.ticket_price}
                 listingStatus={stub.listing_status}
                 handleListingSubmit={handleListingSubmit}
+                isMyStubsPage={true}
+                onEdit={(stub) => navigate(`/stub-preview/${stub.id}`)}
+                onDelete={(stub) => handleDeleteStub(stub.id)}
               />
             </Grid>
           ))

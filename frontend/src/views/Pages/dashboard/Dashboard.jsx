@@ -194,7 +194,8 @@ function Dashboard() {
               }}
               xs={12}
               sm={6}
-              md={2}
+              md={4}
+              lg={3}
               key={listing.id}
             >
               <StubCard
@@ -205,6 +206,7 @@ function Dashboard() {
                 date={listing.stub.date}
                 onClick={() => buyTicket(listing.id)}
                 showSeller={true}
+                stub={listing.stub}
                 sellerName={listing?.seller_name}
                 sellerId={listing?.seller_id}
               />
