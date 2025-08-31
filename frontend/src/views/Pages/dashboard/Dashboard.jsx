@@ -194,7 +194,8 @@ function Dashboard() {
               }}
               xs={12}
               sm={6}
-              md={2}
+              md={4}
+              lg={3}
               key={listing.id}
             >
               <StubCard
