@@ -205,6 +205,7 @@ function Dashboard() {
                 date={listing.stub.date}
                 onClick={() => buyTicket(listing.id)}
                 showSeller={true}
+                stub={listing.stub}
                 sellerName={listing?.seller_name}
                 sellerId={listing?.seller_id}
               />

@@ -12,6 +12,7 @@ import ProfileMenu from "../../components/Headers/ProfileMenu";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import notyf from "../../components/NotificationMessage/notyfInstance";
 import { createListing } from "../../../core/api/marketplace";
+import BackToMainButton from "../../components/BackToMainButton/BackToMainButton";
 
 function Feed() {
   const dispatch = useDispatch();
@@ -53,9 +54,7 @@ function Feed() {
     <Box
       sx={{
         p: 3,
-        minHeight: "100vh",
-        backgroundImage:
-          " url('https://img.freepik.com/premium-vector/music-notes-seamless-pattern-background_559319-558.jpg') , url(https://images.unsplash.com/photo-1608555307638-992062b31329?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHJldHJvJTIwY29taWMlMjBvcmFuZ2UlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww)",
+        minHeight: "95vh",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundBlendMode: "multiply",
@@ -74,32 +73,16 @@ function Feed() {
         </Box>
       </Box>
 
-      <Box
-        my={2}
-        fontSize={20}
-        component={Link}
-        to={"/"}
-        sx={{
-          border: "2px solid",
-          borderColor: "rgb(249, 194, 100)",
-          display: "inline-block",
-          borderRadius: 4,
-          pr: 2,
-          cursor: "pointer",
-          textDecoration: "none",
-          color: "black",
-        }}
-      >
-        <IconButton>
-          <ArrowBackIcon />
-        </IconButton>{" "}
-        Back to Main Screen
-      </Box>
+      <BackToMainButton
+        backgroundColor="rgba(252, 196, 132, 0.9)"
+        label="Home/My Stubs"
+        hoverColor="#ff6b35"
+        position={{ top: 50, left: 0 }}
+      />
 
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        My Stubs
-      </Typography>
-      <Grid container>
+
+      <Grid container maxWidth={"80vw"} margin={"auto"} mt={4}>
+
         {stubs.length === 0 ? (
           <Grid item xs={12}>
             <Typography component={Link} to={"/add-new-stub"}>
@@ -130,6 +113,9 @@ function Feed() {
                 ticketPrice={stub.ticket_price}
                 listingStatus={stub.listing_status}
                 handleListingSubmit={handleListingSubmit}
+                isMyStubsPage={true}
+                onEdit={(stub) => navigate(`/stub-preview/${stub.id}`)}
+                onDelete={(stub) => handleDeleteStub(stub.id)}
               />
             </Grid>
           ))
