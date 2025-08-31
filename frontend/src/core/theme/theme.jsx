@@ -89,15 +89,7 @@ export const lightTheme = {
       fontWeight: 700,
       fontSize: "48px",
     },
-  },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 601,
-      md: 1024,
-      lg: 1920,
-    },
-  },
+  }
 };
 
 export const darkTheme = {
@@ -180,12 +172,5 @@ export const darkTheme = {
       fontSize: "12px",
     },
   },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 601,
-      md: 1024,
-      lg: 1920,
-    },
-  },
+  
 };

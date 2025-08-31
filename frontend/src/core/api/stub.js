@@ -55,6 +55,13 @@ export const updateStub = async (stubId, data) => {
   return api.put(`/api/stubs/${stubId}`, data);
 };
 
+// Delete stub
+export const deleteStub = async (stubId) => {
+  const api = await getApi();
+  await addInterceptors(api);
+  return api.delete(`/api/stubs/${stubId}`);
+};
+
 // Stub creation agent - for chatbot interaction
 export const stubCreationAgent = async (formData) => {
   const api = await getApi();

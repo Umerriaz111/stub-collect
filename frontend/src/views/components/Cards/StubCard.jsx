@@ -156,7 +156,7 @@ const StubCard = ({
     <>
       <Card
         sx={{
-          width: 320,
+          width: "80%",
           height: "100%",
           borderRadius: "16px",
           boxShadow: isHovered
@@ -377,6 +377,7 @@ const StubCard = ({
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
+                height: "52px", // Fixed height for 2 lines
               }}
             >
               {eventName}
@@ -461,7 +462,14 @@ const StubCard = ({
                   },
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "flex-start", mb: 1.5 }}>
+                <Box 
+                  sx={{ 
+                    display: "flex", 
+                    alignItems: "flex-start", 
+                    mb: 1.5,
+                    height: "72px", // Fixed height for 3 lines of description
+                  }}
+                >
                   <Description fontSize="small" sx={{ mr: 1, color: primaryColor, mt: 0.2 }} />
                   <Typography
                     variant="body2"
@@ -486,6 +494,17 @@ const StubCard = ({
                   </Typography>
                 </Box>
               </Tooltip>
+            )}
+
+            {/* Description Placeholder - when no raw text */}
+            {!rawText && (
+              <Box 
+                sx={{ 
+                  height: "72px", // Same height as description to maintain consistent spacing
+                  minHeight: "72px",
+                  mb: 1.5,
+                }}
+              />
             )}
 
             {/* Seller Info */}
@@ -596,12 +615,11 @@ const StubCard = ({
             />
 
             {/* Listing Status Toggle - Only for My Stubs page */}
-            {listingStatus && isMyStubsPage && (
+            {isMyStubsPage && (
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  mt: "auto",
                   pt: 1,
                   justifyContent: "space-between",
                   backgroundColor: `${primaryColor}10`,
