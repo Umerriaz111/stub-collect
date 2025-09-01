@@ -35,6 +35,7 @@ const StubPreview = () => {
     event_date: "",
     seat_info: "",
     ticket_price: "",
+    description: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -52,6 +53,7 @@ const StubPreview = () => {
             : "",
           seat_info: response.data.data.seat_info || "",
           ticket_price: response.data.data.ticket_price || "",
+          description: response.data.data.description || response.data.data.raw_text || "",
         });
       } catch (error) {
         setError("Failed to load stub details");
@@ -346,6 +348,33 @@ const StubPreview = () => {
                         name="seat_info"
                         value={stubDetails.seat_info}
                         onChange={handleStubDetailChange}
+                        size="small"
+                        sx={{ 
+                          mb: 1.5,
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: "8px",
+                            backgroundColor: "#fff8f0",
+                            border: "1px solid rgba(252, 196, 132, 0.3)",
+                            "&:hover": {
+                              borderColor: "rgba(255, 138, 80, 0.5)",
+                            },
+                            "&.Mui-focused": {
+                              borderColor: "#ff6b35",
+                              boxShadow: "0 0 0 2px rgba(255, 138, 80, 0.2)",
+                            },
+                          },
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        label="Description"
+                        name="description"
+                        value={stubDetails.description}
+                        onChange={handleStubDetailChange}
+                        multiline
+                        rows={3}
                         size="small"
                         sx={{ 
                           mb: 0,
