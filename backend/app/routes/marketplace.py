@@ -107,14 +107,38 @@ def create_listing():
 @bp.route('/marketplace/listings', methods=['GET'])
 @limiter.limit("30 per minute")  # PHASE 6: Add rate limiting
 def get_listings():
-    """Get all active marketplace listings with payment status"""
+    """
+    Get all active marketplace listings with payment status and optional filtering
+    
+    Query Parameters (all optional):
+    - status: Listing status (default: 'active')
+    - payment_enabled: Filter by payment capability (true/false)
+    - title: Search in stub titles (case-insensitive partial match)
+    - min_price: Minimum asking price (number)
+    - max_price: Maximum asking price (number)
+    - start_date: Start date for listings (YYYY-MM-DD format)
+    - end_date: End date for listings (YYYY-MM-DD format)
+    
+    Examples:
+    - /marketplace/listings?title=concert&min_price=50&max_price=200
+    """
     try:
         # Get query parameters for filtering
         status = request.args.get('status', 'active')
         payment_enabled = request.args.get('payment_enabled', None)
         
-        # Build query
-        query = StubListing.query.options(joinedload(StubListing.seller))
+        # New optional filtering parameters
+        title_search = request.args.get('title', None)
+        min_price = request.args.get('min_price', None)
+        max_price = request.args.get('max_price', None)
+        start_date = request.args.get('start_date', None)
+        end_date = request.args.get('end_date', None)
+        
+        # Build query with stub relationship for title search
+        query = StubListing.query.options(
+            joinedload(StubListing.seller),
+            joinedload(StubListing.stub)
+        )
         
         # Filter by status
         query = query.filter_by(status=status)
@@ -123,6 +147,57 @@ def get_listings():
         if payment_enabled is not None:
             payment_enabled = payment_enabled.lower() == 'true'
             query = query.filter_by(payment_required=payment_enabled)
+        
+        # Filter by title search (case-insensitive partial match)
+        if title_search:
+            query = query.join(Stub).filter(
+                Stub.title.ilike(f'%{title_search}%')
+            )
+        
+        # Filter by price range
+        if min_price is not None:
+            try:
+                min_price_float = float(min_price)
+                query = query.filter(StubListing.asking_price >= min_price_float)
+            except ValueError:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Invalid min_price parameter. Must be a number.'
+                }), 400
+        
+        if max_price is not None:
+            try:
+                max_price_float = float(max_price)
+                query = query.filter(StubListing.asking_price <= max_price_float)
+            except ValueError:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Invalid max_price parameter. Must be a number.'
+                }), 400
+        
+        # Filter by date range (using listed_at date)
+        if start_date:
+            try:
+                start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+                query = query.filter(StubListing.listed_at >= start_date_obj)
+            except ValueError:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Invalid start_date parameter. Use YYYY-MM-DD format.'
+                }), 400
+        
+        if end_date:
+            try:
+                end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+                # Add one day to include the entire end date
+                from datetime import timedelta
+                end_date_obj = end_date_obj + timedelta(days=1)
+                query = query.filter(StubListing.listed_at < end_date_obj)
+            except ValueError:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Invalid end_date parameter. Use YYYY-MM-DD format.'
+                }), 400
         
         listings = query.order_by(StubListing.listed_at.desc()).all()
         
@@ -144,10 +219,15 @@ def get_listings():
         return jsonify({
             'status': 'success',
             'data': listings_data,
-            'filters_applied': {
-                'status': status,
-                'payment_enabled': payment_enabled
-            }
+            # 'filters_applied': {
+            #     'status': status
+                # 'payment_enabled': payment_enabled,
+                # 'title_search': title_search,
+                # 'min_price': min_price,
+                # 'max_price': max_price,
+                # 'start_date': start_date,
+                # 'end_date': end_date
+            # }
         })
         
     except Exception as e:
