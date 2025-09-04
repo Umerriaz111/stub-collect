@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { SET_THEME_LIGHT } from "../store/App/appSlice";
 import PageWrapper from "../../views/components/PageWrapper/PageWrapper.jsx";
 import { lazy } from "@loadable/component";
 import SideDrawer from "../../views/components/Asides/SideDrawer.jsx";
 import Login from "../../views/Pages/auth/Login.jsx";
+import AuthLoadingScreen from "../../views/components/LoadingScreen/AuthLoadingScreen.jsx";
 const PageNotFound = lazy(() => import("../../views/Pages/404/PageNotFound"));
 
 import Feed from "../../views/Pages/feed/Feed.jsx";
@@ -19,6 +20,7 @@ import SellerProfile from "../../views/Pages/sellerProfile/SellerProfile.jsx";
 import SellerOnBoarding from "../../views/Pages/sellerOnBoarding/SellerOnBoarding.jsx";
 import ConnectPayments from "../../views/Pages/connectPayments/ConnectPayments.jsx";
 import ConnectPaymentsCallback from "../../views/Pages/connectPaymentsCallback/ConnectPaymentsCallback.jsx";
+import { checkAuthStatusApi } from "../api/auth.ts";
 // ********************* Protected PAGES**********
 
 // ********** EXPORT ROUTES *********
@@ -69,18 +71,22 @@ export const routes = [
 
   {
     path: "/",
-    page: <Dashboard />,
+    page: (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
     aside: null,
   },
 
   {
     path: "/add-new-stub",
     page: (
-      // <ProtectedRoute>
-      <PageWrapper>
-        <AddNewStub />
-      </PageWrapper>
-      // </ProtectedRoute>
+      <ProtectedRoute>
+        <PageWrapper>
+          <AddNewStub />
+        </PageWrapper>
+      </ProtectedRoute>
     ),
     aside: null,
   },
@@ -88,11 +94,9 @@ export const routes = [
   {
     path: "/feed",
     page: (
-      // <ProtectedRoute>
-      // <PageWrapper>
-      <Feed />
-      // </PageWrapper>
-      // </ProtectedRoute>
+      <ProtectedRoute>
+        <Feed />
+      </ProtectedRoute>
     ),
     aside: null,
   },
@@ -100,11 +104,9 @@ export const routes = [
   {
     path: "/seller-profile/:sellerId",
     page: (
-      // <ProtectedRoute>
-      // <PageWrapper>
-      <SellerProfile />
-      // </PageWrapper>
-      // </ProtectedRoute>
+      <ProtectedRoute>
+        <SellerProfile />
+      </ProtectedRoute>
     ),
     aside: null,
   },
@@ -112,30 +114,40 @@ export const routes = [
   {
     path: "/seller-onboarding",
     page: (
-      // <ProtectedRoute>
-      // <PageWrapper>
-      <SellerOnBoarding />
-      // </PageWrapper>
-      // </ProtectedRoute>
+      <ProtectedRoute>
+        <SellerOnBoarding />
+      </ProtectedRoute>
     ),
     aside: null,
   },
 
   {
     path: "/stub-preview/:stubId",
-    page: <StubPreview />,
+    page: (
+      <ProtectedRoute>
+        <StubPreview />
+      </ProtectedRoute>
+    ),
     aside: null,
   },
 
   {
     path: "/connect-payments",
-    page: <ConnectPayments />,
+    page: (
+      <ProtectedRoute>
+        <ConnectPayments />
+      </ProtectedRoute>
+    ),
     aside: null,
   },
 
   {
     path: "/connect-payments/callback",
-    page: <ConnectPaymentsCallback />,
+    page: (
+      <ProtectedRoute>
+        <ConnectPaymentsCallback />
+      </ProtectedRoute>
+    ),
     aside: null,
   },
 
@@ -154,14 +166,49 @@ export const routes = [
 
 export function ProtectedRoute({ children }) {
   const location = useLocation();
-  const isAuthenticated = useSelector((state) => state?.auth?.isAuthenticated);
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
 
-  // console.log('isValid :', isValid)
+  useEffect(() => {
+    // Only check auth status if we haven't checked yet and we're not currently checking
+    checkAuthStatus();
+  }, []);
 
+  const checkAuthStatus = async () => {
+    setIsCheckingAuth(true);
+    try {
+      const response = await checkAuthStatusApi();
+      
+      if (response?.data?.data?.is_authenticated) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        // Redirect to login if not authenticated
+        const redirectURL = location.pathname;
+        window.localStorage.setItem("redirectURL", redirectURL);
+        navigate("/login", { replace: true });
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      setIsAuthenticated(false);
+      // Redirect to login on error
+      const redirectURL = location.pathname;
+      window.localStorage.setItem("redirectURL", redirectURL);
+      navigate("/login", { replace: true });
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
+
+  // Show loading screen while checking authentication
+  if (isCheckingAuth || isAuthenticated === null) {
+    return <AuthLoadingScreen />;
+  }
+
+  // If not authenticated, the redirect is handled in checkAuthStatus
   if (!isAuthenticated) {
-    const redirectURL = location.pathname;
-    window.localStorage.setItem("redirectURL", redirectURL);
-    return <Navigate to="/login" replace />;
+    return null;
   }
 
   return <>{children}</>;
@@ -169,23 +216,47 @@ export function ProtectedRoute({ children }) {
 
 export function AuthRoute({ children }) {
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const themeMode = useSelector((state) => state?.app?.themeMode);
-  let redirectRoute = "/";
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
 
-  if (themeMode === "dark") {
-    dispatch(SET_THEME_LIGHT());
-    console.log("themeMode is changed to light");
+  useEffect(() => {
+    // Only check auth status if we haven't checked yet and we're not currently checking
+    checkAuthStatus();
+  }, []);
+
+  const checkAuthStatus = async () => {
+    setIsCheckingAuth(true);
+    try {
+      const response = await checkAuthStatusApi();
+      
+      if (response?.data?.data?.is_authenticated) {
+        setIsAuthenticated(true);
+        // Redirect to dashboard or saved redirect URL if authenticated
+        const redirectURL = localStorage.getItem("redirectURL");
+        localStorage.removeItem("redirectURL");
+        const redirectRoute = redirectURL || "/";
+        navigate(redirectRoute, { replace: true });
+      } else {
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      setIsAuthenticated(false);
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
+
+  // Show loading screen while checking authentication
+  if (isCheckingAuth || isAuthenticated === null) {
+    return <AuthLoadingScreen />;
   }
+
+  // If authenticated, the redirect is handled in checkAuthStatus
   if (isAuthenticated) {
-    const redirectURL = localStorage.getItem("redirectURL");
-    localStorage.removeItem("redirectURL");
-    if (redirectURL) redirectRoute = redirectURL;
+    return null;
   }
 
-  return isAuthenticated ? (
-    <Navigate to={`${redirectRoute}`} replace />
-  ) : (
-    children
-  );
+  return children;
 }

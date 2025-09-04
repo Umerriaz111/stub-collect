@@ -95,4 +95,25 @@ def logout():
     return jsonify({
         'status': 'success',
         'message': 'Logged out successfully'
-    }), 200 
+    }), 200
+
+@bp.route('/userAuthStatusCheck', methods=['GET'])
+def user_auth_status_check():
+    if current_user.is_authenticated:
+        return jsonify({
+            'status': 'success',
+            'message': 'User is authenticated',
+            'data': {
+                'is_authenticated': True,
+                'username': current_user.username,
+                'user_id': current_user.id
+            }
+        }), 200
+    else:
+        return jsonify({
+            'status': 'success',
+            'message': 'User is not authenticated',
+            'data': {
+                'is_authenticated': False
+            }
+        }), 200 
