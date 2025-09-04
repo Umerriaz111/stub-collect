@@ -21,16 +21,18 @@ function Dashboard() {
   const [isFirstSectionVisible, setIsFirstSectionVisible] = useState(true);
   const firstSectionRef = useRef(null);
 
+  // Fetch listings with optional filters
+  const fetchListings = async (filters = {}) => {
+    try {
+      const response = await getAllListing(filters);
+      setListings(response.data.data);
+    } catch (err) {
+      setError("Failed to fetch listings");
+      console.error("Error fetching listings:", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        const response = await getAllListing();
-        setListings(response.data.data);
-      } catch (err) {
-        setError("Failed to fetch listings");
-        console.error("Error fetching listings:", err);
-      }
-    };
     fetchListings();
   }, []);
 
@@ -175,7 +177,7 @@ function Dashboard() {
           Browse Famous Event Stubs
         </Typography>
 
-        {!isFirstSectionVisible && <Filters />}
+  {!isFirstSectionVisible && <Filters onSearch={fetchListings} />}
 
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
