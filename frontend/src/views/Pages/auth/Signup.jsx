@@ -10,6 +10,7 @@ import {
   IconButton,
   CircularProgress,
   Paper,
+  useMediaQuery,
 } from "@mui/material";
 import FormField from "../../components/MUITextFiled/FormField";
 import { Link } from "react-router-dom";
@@ -41,6 +42,8 @@ const Signup = () => {
   };
 
   const [loading, setLoading] = useState(false);
+
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   const validationSchema = Yup.object().shape({
     username: Yup.string().required("name is required"),
@@ -101,18 +104,22 @@ const Signup = () => {
         setLoading(false);
       }
     },
-
   });
 
   return (
-    <Grid container minHeight={"100vh"}>
+    <Grid
+      container
+      minHeight={"100vh"}
+      maxWidth={isMobile ? "100vw" : "80vw"}
+      margin={"auto"}
+    >
       {/* right grid item */}
       <AuthPageRightSide /> {/* :: This component is grid item */}
       {/* left grid item */}
       <Grid
         item
         xs={12}
-        sm={7}
+        sm={6}
         container
         px={4}
         sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
@@ -124,6 +131,7 @@ const Signup = () => {
             maxWidth: "500px",
             p: 4,
             borderRadius: 2,
+            backgroundColor: "rgba(255, 255, 255, 0.24)",
           }}
         >
           <Grid
@@ -138,7 +146,7 @@ const Signup = () => {
               <Typography variant="h4" fontWeight={700}>
                 Create Account
               </Typography>
-              <Typography variant="body3" color={"text.light"}>
+              <Typography variant="body3" color={"text.main"}>
                 Please fill in this form to create an account !
               </Typography>
             </Grid>
@@ -186,7 +194,7 @@ const Signup = () => {
                   isTouched={formik.touched.email}
                   error={formik.errors?.email}
                 />
-                <Typography variant="body3" color={"text.light"}>
+                <Typography variant="body3" color={"text.main"}>
                   You can use letters, numbers & symbols
                 </Typography>
               </Grid>

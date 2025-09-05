@@ -13,6 +13,7 @@ import {
   FormControlLabel,
   styled,
   CircularProgress,
+  useMediaQuery,
 } from "@mui/material";
 import FormField from "../../components/MUITextFiled/FormField";
 import { Link } from "react-router-dom";
@@ -31,6 +32,8 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -70,12 +73,17 @@ export default function Login() {
   });
 
   return (
-    <Grid container minHeight={"100vh"} sx={{ backgroundColor: "#f5f5f5" }}>
+    <Grid
+      container
+      minHeight={"100vh"}
+      maxWidth={isMobile ? "100vw" : "80vw"}
+      margin={"auto"}
+    >
       <AuthPageRightSide />
       <Grid
         item
         xs={12}
-        sm={7}
+        sm={6}
         container
         sx={{
           display: "flex",
@@ -91,6 +99,7 @@ export default function Login() {
             maxWidth: "500px",
             p: 4,
             borderRadius: 2,
+            backgroundColor: "rgba(255, 255, 255, 0.24)",
           }}
         >
           <Grid
