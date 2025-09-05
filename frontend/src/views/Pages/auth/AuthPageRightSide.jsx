@@ -12,16 +12,16 @@ function AuthPageRightSide() {
       item
       container
       xs={12}
-      sm={5}
+      sm={6}
       sx={{
-        backgroundColor: "primary.main",
+        backgroundColor: "transparent",
         backgroundPosition: "center",
         backgroundSize: "cover",
         position: "relative",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "right",
         p: 4,
       }}
     >
