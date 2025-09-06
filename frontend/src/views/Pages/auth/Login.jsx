@@ -109,6 +109,20 @@ export default function Login() {
             boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
           }}
         >
+          <Box sx={{ mb: 2, textAlign: "left" }}>
+            <Button
+              variant="text"
+              onClick={() => navigate("/")}
+              sx={{
+                textTransform: "none",
+                color: "#FB921D",
+                fontWeight: 700,
+                px: 0,
+              }}
+            >
+              ← Back to Home
+            </Button>
+          </Box>
           <Grid
             item
             xs={12}
