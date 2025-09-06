@@ -76,7 +76,7 @@ export default function Login() {
     <Grid
       container
       minHeight={"100vh"}
-      maxWidth={isMobile ? "100vw" : "80vw"}
+      px={isMobile ? 0 : 40}
       margin={"auto"}
       sx={{
         background:

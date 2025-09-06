@@ -110,7 +110,7 @@ const Signup = () => {
     <Grid
       container
       minHeight={"100vh"}
-      maxWidth={isMobile ? "100vw" : "80vw"}
+      px={isMobile ? 0 : 40}
       margin={"auto"}
       sx={{
         background:
@@ -118,8 +118,6 @@ const Signup = () => {
       }}
     >
       {/* right grid item */}
-      <AuthPageRightSide /> {/* :: This component is grid item */}
-      {/* left grid item */}
       <Grid
         item
         xs={12}
@@ -384,6 +382,8 @@ const Signup = () => {
           </Grid>
         </Paper>
       </Grid>
+      {/* left grid item */}
+      <AuthPageRightSide /> {/* :: This component is grid item */}
     </Grid>
   );
 };
