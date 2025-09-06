@@ -20,6 +20,7 @@ import SellerProfile from "../../views/Pages/sellerProfile/SellerProfile.jsx";
 import SellerOnBoarding from "../../views/Pages/sellerOnBoarding/SellerOnBoarding.jsx";
 import ConnectPayments from "../../views/Pages/connectPayments/ConnectPayments.jsx";
 import ConnectPaymentsCallback from "../../views/Pages/connectPaymentsCallback/ConnectPaymentsCallback.jsx";
+import LandingPage from "../../views/Pages/Home/LandingPage.jsx";
 import { checkAuthStatusApi } from "../api/auth.ts";
 // ********************* Protected PAGES**********
 
@@ -67,10 +68,17 @@ export const routes = [
     aside: null,
   },
 
-  /*  All protected routes */
+  /*  Landing page and protected routes */
 
   {
     path: "/",
+    page: <LandingPage />,
+    header: null,
+    aside: null,
+  },
+
+  {
+    path: "/dashboard",
     page: (
       <ProtectedRoute>
         <Dashboard />
@@ -179,7 +187,7 @@ export function ProtectedRoute({ children }) {
     setIsCheckingAuth(true);
     try {
       const response = await checkAuthStatusApi();
-      
+
       if (response?.data?.data?.is_authenticated) {
         setIsAuthenticated(true);
       } else {
@@ -190,7 +198,7 @@ export function ProtectedRoute({ children }) {
         navigate("/login", { replace: true });
       }
     } catch (error) {
-      console.error('Error checking auth status:', error);
+      console.error("Error checking auth status:", error);
       setIsAuthenticated(false);
       // Redirect to login on error
       const redirectURL = location.pathname;
@@ -229,19 +237,19 @@ export function AuthRoute({ children }) {
     setIsCheckingAuth(true);
     try {
       const response = await checkAuthStatusApi();
-      
+
       if (response?.data?.data?.is_authenticated) {
         setIsAuthenticated(true);
         // Redirect to dashboard or saved redirect URL if authenticated
         const redirectURL = localStorage.getItem("redirectURL");
         localStorage.removeItem("redirectURL");
-        const redirectRoute = redirectURL || "/";
+        const redirectRoute = redirectURL || "/dashboard";
         navigate(redirectRoute, { replace: true });
       } else {
         setIsAuthenticated(false);
       }
     } catch (error) {
-      console.error('Error checking auth status:', error);
+      console.error("Error checking auth status:", error);
       setIsAuthenticated(false);
     } finally {
       setIsCheckingAuth(false);
