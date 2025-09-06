@@ -6,7 +6,6 @@ import FeaturesSection from "./components/FeaturesSection";
 import HowItWorksSection from "./components/HowItWorksSection";
 import TestimonialsSection from "./components/TestimonialsSection";
 import CallToActionSection from "./components/CallToActionSection";
-import Footer from "./components/LandingFooter";
 
 const LandingPage = () => {
   return (
@@ -23,7 +22,6 @@ const LandingPage = () => {
       <HowItWorksSection />
       {/* <TestimonialsSection /> */}
       <CallToActionSection />
-      <Footer />
     </Box>
   );
 };

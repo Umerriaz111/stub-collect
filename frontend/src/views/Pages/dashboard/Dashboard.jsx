@@ -12,7 +12,7 @@ import { createPaymentIntent } from "../../../core/api/paymentmethods";
 import Filters from "./components/Filters";
 import Chatbot from "../../components/Chatbot/Chatbot.jsx";
 import Footer from "../../components/footer/Footer.jsx";
-import bgImage from "../../../assets/doodles-bg.png"
+import bgImage from "../../../assets/doodles-bg.png";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -86,8 +86,7 @@ function Dashboard() {
         <AppBar
           position="fixed"
           sx={{
-            backgroundImage:
-              `url(${bgImage})`,
+            backgroundImage: `url(${bgImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -177,7 +176,7 @@ function Dashboard() {
           Browse Famous Event Stubs
         </Typography>
 
-  {!isFirstSectionVisible && <Filters onSearch={fetchListings} />}
+        {!isFirstSectionVisible && <Filters onSearch={fetchListings} />}
 
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
@@ -215,7 +214,7 @@ function Dashboard() {
             </Grid>
           ))}
         </Grid>
-        <Footer />
+        {/* <Footer /> */}
       </section>
     </Box>
   );

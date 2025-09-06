@@ -24,6 +24,7 @@ import LandingPage from "../../views/Pages/Home/LandingPage.jsx";
 import PrivacyPolicy from "../../views/Pages/privacy/PrivacyPolicy.jsx";
 import TermsOfService from "../../views/Pages/privacy/TermsOfService.jsx";
 import { checkAuthStatusApi } from "../api/auth.ts";
+import Footer from "../../views/components/footer/Footer.jsx";
 // ********************* Protected PAGES**********
 
 // ********** EXPORT ROUTES *********
@@ -38,6 +39,7 @@ export const routes = [
     ),
     header: null,
     aside: null,
+    footer: <Footer />,
   },
   {
     path: "/signup",
@@ -48,6 +50,7 @@ export const routes = [
     ),
     header: null,
     aside: null,
+    footer: <Footer />,
   },
   {
     path: "/forget-password",
@@ -77,6 +80,7 @@ export const routes = [
     page: <LandingPage />,
     header: null,
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -96,11 +100,12 @@ export const routes = [
   {
     path: "/dashboard",
     page: (
-      <ProtectedRoute>
-        <Dashboard />
-      </ProtectedRoute>
+      // <ProtectedRoute>
+      <Dashboard />
+      // </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -113,6 +118,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -123,6 +129,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -133,6 +140,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -143,6 +151,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -153,6 +162,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -163,6 +173,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -173,6 +184,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   /* Page Not Found 404 */
@@ -185,6 +197,7 @@ export const routes = [
     ),
     header: null,
     aside: null,
+    footer: <Footer />,
   },
 ];
 
