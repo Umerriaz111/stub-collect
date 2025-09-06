@@ -257,7 +257,7 @@ const HowItWorksSection = () => {
     <Box
       sx={{
         py: { xs: 8, md: 12 },
-        backgroundColor: theme.palette.primary.lightBG,
+        backgroundColor: "#FFEDD5", // Orange-100 - light orange background
         position: "relative",
       }}
     >
@@ -269,7 +269,9 @@ const HowItWorksSection = () => {
           left: 0,
           right: 0,
           height: "2px",
-          background: theme.palette.gradients?.blueGradient,
+          background:
+            theme.palette.gradients?.orangeGradient ||
+            "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
         }}
       />
 

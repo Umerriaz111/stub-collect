@@ -21,6 +21,8 @@ import SellerOnBoarding from "../../views/Pages/sellerOnBoarding/SellerOnBoardin
 import ConnectPayments from "../../views/Pages/connectPayments/ConnectPayments.jsx";
 import ConnectPaymentsCallback from "../../views/Pages/connectPaymentsCallback/ConnectPaymentsCallback.jsx";
 import LandingPage from "../../views/Pages/Home/LandingPage.jsx";
+import PrivacyPolicy from "../../views/Pages/privacy/PrivacyPolicy.jsx";
+import TermsOfService from "../../views/Pages/privacy/TermsOfService.jsx";
 import { checkAuthStatusApi } from "../api/auth.ts";
 // ********************* Protected PAGES**********
 
@@ -73,6 +75,20 @@ export const routes = [
   {
     path: "/",
     page: <LandingPage />,
+    header: null,
+    aside: null,
+  },
+
+  {
+    path: "/privacy-policy",
+    page: <PrivacyPolicy />,
+    header: null,
+    aside: null,
+  },
+
+  {
+    path: "/terms-of-service",
+    page: <TermsOfService />,
     header: null,
     aside: null,
   },

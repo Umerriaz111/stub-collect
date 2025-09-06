@@ -79,7 +79,7 @@ const FeaturesSection = () => {
     <Box
       sx={{
         py: { xs: 8, md: 12 },
-        backgroundColor: theme.palette.background.default,
+        backgroundColor: "#FFF7ED", // Orange-50 - cream background
         position: "relative",
       }}
     >

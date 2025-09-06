@@ -61,8 +61,14 @@ const LandingFooter = () => {
       { label: "API Docs", action: () => {} },
     ],
     Legal: [
-      { label: "Privacy Policy", action: () => {} },
-      { label: "Terms of Service", action: () => {} },
+      {
+        label: "Privacy Policy",
+        action: () => handleNavigate("/privacy-policy"),
+      },
+      {
+        label: "Terms of Service",
+        action: () => handleNavigate("/terms-of-service"),
+      },
       { label: "Cookie Policy", action: () => {} },
       { label: "GDPR", action: () => {} },
     ],

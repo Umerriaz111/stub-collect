@@ -13,7 +13,7 @@ const LandingPage = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "background.default",
+        backgroundColor: "#FB921D", // Orange background like body
         overflowX: "hidden",
       }}
     >
@@ -21,7 +21,7 @@ const LandingPage = () => {
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
-      <TestimonialsSection />
+      {/* <TestimonialsSection /> */}
       <CallToActionSection />
       <Footer />
     </Box>

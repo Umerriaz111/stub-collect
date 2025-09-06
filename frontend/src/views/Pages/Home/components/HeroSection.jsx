@@ -62,7 +62,9 @@ const HeroSection = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background: `linear-gradient(135deg, ${theme.palette.primary.lightBG} 0%, ${theme.palette.background.default} 100%)`,
+        background:
+          theme.palette.gradients?.lightOrangeGradient ||
+          `linear-gradient(135deg, #FED7AA 0%, #FDE68A 50%, #FEF3C7 100%)`,
         position: "relative",
         overflow: "hidden",
       }}
@@ -76,8 +78,10 @@ const HeroSection = () => {
           width: "200px",
           height: "200px",
           borderRadius: "50%",
-          background: `linear-gradient(45deg, ${theme.palette.primary.main}20, ${theme.palette.text.secondary}20)`,
-          opacity: 0.3,
+          background: `linear-gradient(45deg, ${
+            theme.palette.orange?.main || "#FB921D"
+          }30, ${theme.palette.orange?.dark || "#EA580C"}30)`,
+          opacity: 0.4,
           display: { xs: "none", md: "block" },
         }}
       />
@@ -89,8 +93,10 @@ const HeroSection = () => {
           width: "150px",
           height: "150px",
           borderRadius: "50%",
-          background: `linear-gradient(45deg, ${theme.palette.text.secondary}20, ${theme.palette.primary.main}20)`,
-          opacity: 0.3,
+          background: `linear-gradient(45deg, ${
+            theme.palette.orange?.dark || "#EA580C"
+          }30, ${theme.palette.orange?.main || "#FB921D"}30)`,
+          opacity: 0.4,
           display: { xs: "none", md: "block" },
         }}
       />
@@ -120,7 +126,9 @@ const HeroSection = () => {
                 <Box
                   component="span"
                   sx={{
-                    background: theme.palette.gradients?.blueGradient,
+                    background:
+                      theme.palette.gradients?.warmGradient ||
+                      "linear-gradient(135deg, #FB921D 0%, #DC2626 100%)",
                     backgroundClip: "text",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
@@ -151,7 +159,9 @@ const HeroSection = () => {
                 sx={{ mb: 4, display: "flex", flexDirection: "column", gap: 2 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <SecurityIcon sx={{ color: theme.palette.primary.main }} />
+                  <SecurityIcon
+                    sx={{ color: theme.palette.orange?.main || "#FB921D" }}
+                  />
                   <Typography
                     variant="body1"
                     sx={{ color: theme.palette.text.primary }}
@@ -160,7 +170,9 @@ const HeroSection = () => {
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <TrendingUpIcon sx={{ color: theme.palette.primary.main }} />
+                  <TrendingUpIcon
+                    sx={{ color: theme.palette.orange?.main || "#FB921D" }}
+                  />
                   <Typography
                     variant="body1"
                     sx={{ color: theme.palette.text.primary }}
@@ -169,7 +181,9 @@ const HeroSection = () => {
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <SpeedIcon sx={{ color: theme.palette.primary.main }} />
+                  <SpeedIcon
+                    sx={{ color: theme.palette.orange?.main || "#FB921D" }}
+                  />
                   <Typography
                     variant="body1"
                     sx={{ color: theme.palette.text.primary }}
@@ -198,12 +212,16 @@ const HeroSection = () => {
                     py: 1.5,
                     fontSize: "1.1rem",
                     fontWeight: 600,
-                    background: theme.palette.gradients?.blueGradient,
-                    boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+                    background:
+                      theme.palette.gradients?.warmGradient ||
+                      "linear-gradient(135deg, #FB921D 0%, #DC2626 100%)",
+                    boxShadow: "0 8px 25px rgba(251,146,29,0.3)",
                     "&:hover": {
-                      background: theme.palette.gradients?.lightBlueGradient,
+                      background:
+                        theme.palette.gradients?.orangeGradient ||
+                        "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
                       transform: "translateY(-2px)",
-                      boxShadow: "0 12px 35px rgba(0,0,0,0.2)",
+                      boxShadow: "0 12px 35px rgba(251,146,29,0.4)",
                     },
                   }}
                 >
@@ -219,15 +237,15 @@ const HeroSection = () => {
                     py: 1.5,
                     fontSize: "1.1rem",
                     fontWeight: 600,
-                    borderColor: theme.palette.primary.main,
-                    color: theme.palette.primary.main,
+                    borderColor: theme.palette.orange?.dark || "#EA580C",
+                    color: theme.palette.orange?.dark || "#EA580C",
                     borderWidth: 2,
                     "&:hover": {
-                      backgroundColor: theme.palette.primary.main,
+                      backgroundColor: theme.palette.orange?.dark || "#EA580C",
                       color: "white",
                       borderWidth: 2,
                       transform: "translateY(-2px)",
-                      boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+                      boxShadow: "0 8px 25px rgba(234,88,12,0.3)",
                     },
                   }}
                 >
@@ -288,7 +306,9 @@ const HeroSection = () => {
                       component="div"
                       sx={{
                         height: index === 0 ? 120 : 100,
-                        background: `linear-gradient(45deg, ${theme.palette.primary.main}40, ${theme.palette.text.secondary}40)`,
+                        background: `linear-gradient(45deg, ${
+                          theme.palette.orange?.main || "#FB921D"
+                        }70, ${theme.palette.orange?.dark || "#EA580C"}70)`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -325,7 +345,7 @@ const HeroSection = () => {
                       <Typography
                         variant="h6"
                         sx={{
-                          color: theme.palette.primary.main,
+                          color: theme.palette.orange?.dark || "#EA580C",
                           fontWeight: 700,
                         }}
                       >

@@ -86,7 +86,9 @@ const Navbar = () => {
           fontWeight: 800,
           color: theme.palette.primary.main,
           cursor: "pointer",
-          background: theme.palette.gradients?.blueGradient,
+          background:
+            theme.palette.gradients?.orangeGradient ||
+            "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
           backgroundClip: "text",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
@@ -173,10 +175,10 @@ const Navbar = () => {
               borderRadius: "25px",
               px: 3,
               py: 1,
-              borderColor: theme.palette.primary.main,
-              color: theme.palette.primary.main,
+              borderColor: theme.palette.orange?.main || "#FB921D",
+              color: theme.palette.orange?.main || "#FB921D",
               "&:hover": {
-                backgroundColor: theme.palette.primary.main,
+                backgroundColor: theme.palette.orange?.main || "#FB921D",
                 color: "white",
               },
             }}
@@ -190,11 +192,15 @@ const Navbar = () => {
               borderRadius: "25px",
               px: 3,
               py: 1,
-              background: theme.palette.gradients?.blueGradient,
+              background:
+                theme.palette.gradients?.warmGradient ||
+                "linear-gradient(135deg, #FB921D 0%, #DC2626 100%)",
               "&:hover": {
-                background: theme.palette.gradients?.lightBlueGradient,
+                background:
+                  theme.palette.gradients?.orangeGradient ||
+                  "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
                 transform: "translateY(-1px)",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                boxShadow: "0 4px 12px rgba(251,146,29,0.3)",
               },
             }}
           >

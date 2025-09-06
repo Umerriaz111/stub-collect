@@ -112,6 +112,10 @@ const Signup = () => {
       minHeight={"100vh"}
       maxWidth={isMobile ? "100vw" : "80vw"}
       margin={"auto"}
+      sx={{
+        background:
+          "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
+      }}
     >
       {/* right grid item */}
       <AuthPageRightSide /> {/* :: This component is grid item */}
@@ -130,8 +134,11 @@ const Signup = () => {
             width: "100%",
             maxWidth: "500px",
             p: 4,
-            borderRadius: 2,
-            backgroundColor: "rgba(255, 255, 255, 0.24)",
+            borderRadius: 3,
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
           }}
         >
           <Grid
@@ -143,11 +150,22 @@ const Signup = () => {
             py={3}
           >
             <Grid item xs={12}>
-              <Typography variant="h4" fontWeight={700}>
+              <Typography
+                variant="h4"
+                fontWeight={800}
+                sx={{
+                  background:
+                    "linear-gradient(135deg, #FB921D 0%, #DC2626 100%)",
+                  backgroundClip: "text",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  mb: 1,
+                }}
+              >
                 Create Account
               </Typography>
-              <Typography variant="body3" color={"text.main"}>
-                Please fill in this form to create an account !
+              <Typography variant="body1" color={"text.secondary"}>
+                Please fill in this form to create an account!
               </Typography>
             </Grid>
             {/* Form */}
@@ -282,25 +300,85 @@ const Signup = () => {
                 variant="contained"
                 type="submit"
                 fullWidth
-                sx={{ borderRadius: "16px", py: 2 }}
+                sx={{
+                  borderRadius: 3,
+                  py: 2,
+                  background:
+                    "linear-gradient(135deg, #FB921D 0%, #DC2626 100%)",
+                  fontWeight: 600,
+                  fontSize: "1.1rem",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
+                    transform: "translateY(-1px)",
+                    boxShadow: "0 8px 25px rgba(251,146,29,0.3)",
+                  },
+                }}
                 disabled={loading}
               >
-                <Typography variant="body3" display={"flex"}>
-                  CREATE ACCOUNT {loading && <CircularProgress />}{" "}
+                <Typography
+                  variant="body1"
+                  display={"flex"}
+                  alignItems={"center"}
+                  gap={1}
+                >
+                  CREATE ACCOUNT{" "}
+                  {loading && <CircularProgress size={20} color="inherit" />}
                 </Typography>
               </Button>
             </Grid>
-            <Grid item xs={12} display={"flex"}>
-              <Typography variant="body3">Already have an account?</Typography>
+            <Grid
+              item
+              xs={12}
+              display={"flex"}
+              flexDirection={"column"}
+              gap={1}
+            >
+              <Box display={"flex"} justifyContent={"center"}>
+                <Typography variant="body2">
+                  Already have an account?
+                </Typography>
+                <Typography
+                  variant="body2"
+                  component={Link}
+                  to={"/login"}
+                  px={"4px"}
+                  sx={{ textDecoration: "none", fontWeight: 600 }}
+                  color={"#FB921D"}
+                >
+                  Sign In
+                </Typography>
+              </Box>
+
+              {/* Privacy Policy */}
               <Typography
-                variant="body3"
-                component={Link}
-                to={"/login"}
-                px={"2px"}
-                sx={{ textDecoration: "none" }}
-                color={"text.secondary"}
+                variant="caption"
+                color="text.secondary"
+                textAlign="center"
+                sx={{ mt: 2 }}
               >
-                Sign In
+                By creating an account, you agree to our{" "}
+                <Link
+                  to={"/privacy-policy"}
+                  style={{
+                    textDecoration: "none",
+                    color: "#FB921D",
+                    fontWeight: 500,
+                  }}
+                >
+                  Privacy Policy
+                </Link>{" "}
+                and{" "}
+                <Link
+                  to={"/terms"}
+                  style={{
+                    textDecoration: "none",
+                    color: "#FB921D",
+                    fontWeight: 500,
+                  }}
+                >
+                  Terms of Service
+                </Link>
               </Typography>
             </Grid>
           </Grid>
