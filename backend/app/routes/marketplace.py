@@ -153,7 +153,6 @@ def get_listings():
             query = query.join(Stub).filter(
                 Stub.title.ilike(f'%{title_search}%')
             )
-        
         # Filter by price range
         if min_price is not None:
             try:
@@ -198,8 +197,22 @@ def get_listings():
                     'status': 'error',
                     'message': 'Invalid end_date parameter. Use YYYY-MM-DD format.'
                 }), 400
-        
-        listings = query.order_by(StubListing.listed_at.desc()).all()
+                
+        try:
+            page = int(request.args.get('page', 1))
+            per_page = int(request.args.get('per_page', 4))
+        except (TypeError, ValueError):
+            return jsonify({
+                'status': 'error',
+                'message': 'Page and per_page must be integers.'
+            }), 400
+            
+        listings_paginated = query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+        listings = listings_paginated.items
         
         # PHASE 6: Enhanced response with payment information
         listings_data = []
@@ -219,6 +232,14 @@ def get_listings():
         return jsonify({
             'status': 'success',
             'data': listings_data,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': listings_paginated.total,
+                'pages': listings_paginated.pages,
+                'has_next': listings_paginated.has_next,
+                'has_prev': listings_paginated.has_prev
+            }
             # 'filters_applied': {
             #     'status': status
                 # 'payment_enabled': payment_enabled,

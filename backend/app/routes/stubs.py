@@ -281,12 +281,31 @@ def get_stubs():
                     'status': 'error',
                     'message': 'Invalid end_date parameter. Use YYYY-MM-DD format.'
                 }), 400
-        
-        stubs = query.order_by(Stub.created_at.desc()).all()
+        try:
+            page = int(request.args.get('page', 1))
+            per_page = int(request.args.get('per_page', 4))
+        except (TypeError, ValueError):
+            return jsonify({
+                'status': 'error',
+                'message': 'Page and per_page must be integers.'
+            }), 400
+        stubs = query.order_by(Stub.created_at.desc()).paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
         
         return jsonify({
             'status': 'success',
-            'data': [stub.to_dict() for stub in stubs],
+            'data': [stub.to_dict() for stub in stubs.items],
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': stubs.total,
+                'pages': stubs.pages,
+                'has_next': stubs.has_next,
+                'has_prev': stubs.has_prev
+            }
             # 'filters_applied': {
             #     'title_search': title_search,
             #     'min_price': min_price,
