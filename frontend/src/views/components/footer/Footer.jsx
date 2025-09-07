@@ -208,7 +208,7 @@ const Footer = () => {
         </Grid>
 
         {/* Newsletter Signup */}
-        <Box
+        {/* <Box
           sx={{
             mt: 6,
             p: 4,
@@ -265,7 +265,7 @@ const Footer = () => {
               Subscribe
             </Button>
           </Box>
-        </Box>
+        </Box> */}
 
         <Divider sx={{ my: 4, backgroundColor: "rgba(255,255,255,0.2)" }} />
 

@@ -18,8 +18,6 @@ function Dashboard() {
   const navigate = useNavigate();
   const [listings, setListings] = useState([]);
   const [error, setError] = useState("");
-  const [isFirstSectionVisible, setIsFirstSectionVisible] = useState(true);
-  const firstSectionRef = useRef(null);
 
   // Fetch listings with optional filters
   const fetchListings = async (filters = {}) => {
@@ -34,27 +32,6 @@ function Dashboard() {
 
   useEffect(() => {
     fetchListings();
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsFirstSectionVisible(entry.isIntersecting);
-      },
-      {
-        threshold: 0.1, // Trigger when 10% of the element is visible
-      }
-    );
-
-    if (firstSectionRef.current) {
-      observer.observe(firstSectionRef.current);
-    }
-
-    return () => {
-      if (firstSectionRef.current) {
-        observer.unobserve(firstSectionRef.current);
-      }
-    };
   }, []);
 
   const buyTicket = async (listingId) => {
@@ -82,56 +59,54 @@ function Dashboard() {
     >
       <Chatbot />
       {/* Navbar that appears only when first section is not visible */}
-      {!isFirstSectionVisible && (
-        <AppBar
-          position="fixed"
-          sx={{
-            backgroundImage: `url(${bgImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <Grid container p={2} display={"flex"} alignItems="center">
-            <Grid item xs={4}>
-              <Button
-                variant="outlined"
-                color="primary"
-                size="large"
-                sx={{
-                  backgroundColor: "rgb(250, 185, 71)",
-                  fontWeight: "bold",
-                  fontSize: "16px",
-                  borderRadius: "30px",
-                  width: "50%",
-                  p: "0px",
-                  border: "1px solid black",
-                  color: "black",
-                }}
-                onClick={() => navigate("/add-new-stub")}
-              >
-                Upload
-              </Button>
-            </Grid>{" "}
-            <Grid item xs={4}>
-              <Typography
-                variant="body1"
-                sx={{
-                  color: "rgba(255, 253, 252, 1)",
-                  textAlign: "center",
-                  fontWeight: 800,
-                  fontSize: "30px",
-                }}
-                gutterBottom
-              >
-                Stub Collector
-              </Typography>
-            </Grid>{" "}
-            <Grid item xs={4} sx={{ textAlign: "right" }}>
-              <ProfileMenu />
-            </Grid>{" "}
-          </Grid>
-        </AppBar>
-      )}
+      <AppBar
+        position="fixed"
+        sx={{
+          backgroundImage: `url(${bgImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <Grid container p={2} display={"flex"} alignItems="center">
+          <Grid item xs={4}>
+            <Button
+              variant="outlined"
+              color="primary"
+              size="large"
+              sx={{
+                backgroundColor: "rgb(250, 185, 71)",
+                fontWeight: "bold",
+                fontSize: "16px",
+                borderRadius: "30px",
+                width: "50%",
+                p: "0px",
+                border: "1px solid black",
+                color: "black",
+              }}
+              onClick={() => navigate("/add-new-stub")}
+            >
+              Upload
+            </Button>
+          </Grid>{" "}
+          <Grid item xs={4}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "rgba(255, 253, 252, 1)",
+                textAlign: "center",
+                fontWeight: 800,
+                fontSize: "30px",
+              }}
+              gutterBottom
+            >
+              Stub Collector
+            </Typography>
+          </Grid>{" "}
+          <Grid item xs={4} sx={{ textAlign: "right" }}>
+            <ProfileMenu />
+          </Grid>{" "}
+        </Grid>
+      </AppBar>
 
       <Box sx={{ position: "relative", width: "100%" }}>
         <Box
@@ -145,19 +120,13 @@ function Dashboard() {
           <ProfileMenu />
         </Box>
       </Box>
-
-      <section
-        ref={firstSectionRef}
-        style={{ scrollSnapAlign: "start", height: "70vh" }}
-      >
+      <section style={{ height: "70vh" }}>
         <StubUploadComponent />
       </section>
-
       <section
         style={{
-          scrollSnapAlign: "start",
           minHeight: "100vh",
-          paddingTop: !isFirstSectionVisible ? "64px" : "0",
+          paddingTop: "64px",
         }}
       >
         <Typography
@@ -168,7 +137,7 @@ function Dashboard() {
             textAlign: "center",
             fontWeight: 800,
             color: "Black",
-            pt: isFirstSectionVisible ? 0 : 4,
+            pt: 0,
             textShadow:
               "-1px -1px 0 orange, 1px -1px 0 orange, -1px 1px 0 orange, 1px 1px 0 orange",
           }}
@@ -176,7 +145,7 @@ function Dashboard() {
           Browse Famous Event Stubs
         </Typography>
 
-        {!isFirstSectionVisible && <Filters onSearch={fetchListings} />}
+        <Filters onSearch={fetchListings} />
 
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
