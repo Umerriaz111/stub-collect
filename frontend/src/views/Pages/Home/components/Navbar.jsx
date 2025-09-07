@@ -29,16 +29,7 @@ const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [sellAnchorEl, setSellAnchorEl] = useState(null);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-
-  const handleSellMenuOpen = (event) => {
-    setSellAnchorEl(event.currentTarget);
-  };
-
-  const handleSellMenuClose = () => {
-    setSellAnchorEl(null);
-  };
 
   const handleMobileDrawerToggle = () => {
     setMobileDrawerOpen(!mobileDrawerOpen);
@@ -48,16 +39,8 @@ const Navbar = () => {
     navigate("/dashboard");
   };
 
-  const handleSellerGuideClick = () => {
-    // Navigate to seller guide or onboarding
-    navigate("/seller-onboarding");
-    handleSellMenuClose();
-  };
-
-  const handleStartSellingClick = () => {
-    // Navigate to add new stub for selling
-    navigate("/add-new-stub");
-    handleSellMenuClose();
+  const handleSellClick = () => {
+    navigate("/dashboard?showUpload=true");
   };
 
   const handleLoginClick = () => {
@@ -69,9 +52,7 @@ const Navbar = () => {
   };
 
   const handleLogoClick = () => {
-    // If you want to add a home route later, navigate to it
-    // For now, refresh the landing page
-    window.location.reload();
+    navigate("/");
   };
 
   // Desktop Menu Items
@@ -120,51 +101,21 @@ const Navbar = () => {
         </Button>
 
         {/* Sell Dropdown */}
-        <Box>
-          <Button
-            color="inherit"
-            onClick={handleSellMenuOpen}
-            endIcon={<ArrowDownIcon />}
-            sx={{
-              fontSize: "16px",
-              fontWeight: 600,
-              color: theme.palette.text.primary,
-              "&:hover": {
-                backgroundColor: theme.palette.primary.lightBG,
-                color: theme.palette.primary.main,
-              },
-            }}
-          >
-            Sell
-          </Button>
-          <Menu
-            anchorEl={sellAnchorEl}
-            open={Boolean(sellAnchorEl)}
-            onClose={handleSellMenuClose}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
-            PaperProps={{
-              sx: {
-                mt: 1,
-                boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-                borderRadius: 2,
-              },
-            }}
-          >
-            <MenuItem onClick={handleSellerGuideClick}>
-              <Typography variant="body1">Seller Guide</Typography>
-            </MenuItem>
-            <MenuItem onClick={handleStartSellingClick}>
-              <Typography variant="body1">Start Selling</Typography>
-            </MenuItem>
-          </Menu>
-        </Box>
+        <Button
+          color="inherit"
+          onClick={handleSellClick}
+          sx={{
+            fontSize: "16px",
+            fontWeight: 600,
+            color: theme.palette.text.primary,
+            "&:hover": {
+              backgroundColor: theme.palette.primary.lightBG,
+              color: theme.palette.primary.main,
+            },
+          }}
+        >
+          Browse
+        </Button>
 
         {/* Auth Buttons */}
         <Box sx={{ display: "flex", gap: 2 }}>
@@ -234,20 +185,8 @@ const Navbar = () => {
 
         <Divider />
 
-        <ListItem>
-          <ListItemText
-            primary="Sell"
-            primaryTypographyProps={{
-              fontWeight: 600,
-              color: theme.palette.text.secondary,
-            }}
-          />
-        </ListItem>
-        <ListItem button onClick={handleSellerGuideClick} sx={{ pl: 4 }}>
-          <ListItemText primary="Seller Guide" />
-        </ListItem>
-        <ListItem button onClick={handleStartSellingClick} sx={{ pl: 4 }}>
-          <ListItemText primary="Start Selling" />
+        <ListItem button onClick={handleSellClick}>
+          <ListItemText primary="Browse" />
         </ListItem>
 
         <Divider sx={{ my: 2 }} />

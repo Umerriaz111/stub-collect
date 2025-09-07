@@ -18,7 +18,15 @@ function Dashboard() {
   const navigate = useNavigate();
   const [listings, setListings] = useState([]);
   const [error, setError] = useState("");
+  const [showUpload, setShowUpload] = useState(false);
 
+  // Check for query param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("showUpload") === "true") {
+      setShowUpload(true);
+    }
+  }, []);
   // Fetch listings with optional filters
   const fetchListings = async (filters = {}) => {
     try {
@@ -46,19 +54,11 @@ function Dashboard() {
   return (
     <Box
       sx={{
-        // p: 3,
         minHeight: "100vh",
-        // backgroundImage:
-        //   " url('https://img.freepik.com/premium-vector/music-notes-seamless-pattern-background_559319-558.jpg') , url(https://images.unsplash.com/photo-1608555307638-992062b31329?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHJldHJvJTIwY29taWMlMjBvcmFuZ2UlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww)",
-        // backgroundSize: "cover",
-        // backgroundPosition: "center",
-        // backgroundBlendMode: "multiply",
-        // backgroundColor: "rgb(251 134 28)", // Bg orange main
-        backgroundColor: "rgb(251 146 29)", // Bg yellowish-orange main
+        backgroundColor: "rgb(251 146 29)",
       }}
     >
       <Chatbot />
-      {/* Navbar that appears only when first section is not visible */}
       <AppBar
         position="fixed"
         sx={{
@@ -87,7 +87,7 @@ function Dashboard() {
             >
               Upload
             </Button>
-          </Grid>{" "}
+          </Grid>
           <Grid item xs={4}>
             <Typography
               variant="body1"
@@ -101,10 +101,10 @@ function Dashboard() {
             >
               Stub Collector
             </Typography>
-          </Grid>{" "}
+          </Grid>
           <Grid item xs={4} sx={{ textAlign: "right" }}>
             <ProfileMenu />
-          </Grid>{" "}
+          </Grid>
         </Grid>
       </AppBar>
 
@@ -120,71 +120,89 @@ function Dashboard() {
           <ProfileMenu />
         </Box>
       </Box>
-      <section style={{ height: "70vh" }}>
-        <StubUploadComponent />
-      </section>
-      <section
-        style={{
-          minHeight: "100vh",
-          paddingTop: "64px",
-        }}
-      >
-        <Typography
-          variant="h5"
-          sx={{
-            mt: 8,
-            mb: 4,
-            textAlign: "center",
-            fontWeight: 800,
-            color: "Black",
-            pt: 0,
-            textShadow:
-              "-1px -1px 0 orange, 1px -1px 0 orange, -1px 1px 0 orange, 1px 1px 0 orange",
+
+      {/* Conditionally show StubUploadComponent if showUpload is true */}
+      {showUpload && (
+        <section style={{ height: "70vh" }}>
+          <StubUploadComponent />
+          <Box sx={{ textAlign: "center", mt: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ borderRadius: "25px", px: 4, py: 1 }}
+              onClick={() => setShowUpload(false)}
+            >
+              Browse Listings
+            </Button>
+          </Box>
+        </section>
+      )}
+
+      {/* Show normal dashboard if not showing upload */}
+      {!showUpload && (
+        <section
+          style={{
+            minHeight: "100vh",
+            paddingTop: "64px",
           }}
         >
-          Browse Famous Event Stubs
-        </Typography>
-
-        <Filters onSearch={fetchListings} />
-
-        {error && (
-          <Typography color="error" sx={{ mb: 2 }}>
-            {error}
+          <Typography
+            variant="h5"
+            sx={{
+              mt: 8,
+              mb: 4,
+              textAlign: "center",
+              fontWeight: 800,
+              color: "Black",
+              pt: 0,
+              textShadow:
+                "-1px -1px 0 orange, 1px -1px 0 orange, -1px 1px 0 orange, 1px 1px 0 orange",
+            }}
+          >
+            Browse Famous Event Stubs
           </Typography>
-        )}
 
-        <Grid container spacing={2} justifyContent="center">
-          {listings?.map((listing) => (
-            <Grid
-              item
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              xs={12}
-              sm={6}
-              md={4}
-              lg={3}
-              key={listing.id}
-            >
-              <StubCard
-                image={`${config.VITE_APP_API_BASE_URL}/${listing.stub.image_url}`}
-                title={listing.stub.title}
-                price={listing.asking_price}
-                currency={listing.currency}
-                date={listing.stub.date}
-                onClick={() => buyTicket(listing.id)}
-                showSeller={true}
-                stub={listing.stub}
-                sellerName={listing?.seller_name}
-                sellerId={listing?.seller_id}
-              />
-            </Grid>
-          ))}
-        </Grid>
-        {/* <Footer /> */}
-      </section>
+          <Filters onSearch={fetchListings} />
+
+          {error && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
+
+          <Grid container spacing={2} justifyContent="center">
+            {listings?.map((listing) => (
+              <Grid
+                item
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                xs={12}
+                sm={6}
+                md={4}
+                lg={3}
+                key={listing.id}
+              >
+                <StubCard
+                  image={`${config.VITE_APP_API_BASE_URL}/${listing.stub.image_url}`}
+                  title={listing.stub.title}
+                  price={listing.asking_price}
+                  currency={listing.currency}
+                  date={listing.stub.date}
+                  onClick={() => buyTicket(listing.id)}
+                  showSeller={true}
+                  stub={listing.stub}
+                  sellerName={listing?.seller_name}
+                  sellerId={listing?.seller_id}
+                />
+              </Grid>
+            ))}
+          </Grid>
+          {/* <Footer /> */}
+        </section>
+      )}
     </Box>
   );
 }
