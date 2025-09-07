@@ -27,13 +27,13 @@ def create_app(config_class=Config):
     # Configure CORS
     CORS(app, resources={
         r"/auth/*": {
-            "origins": ["http://localhost:3000"],  # Assuming React's default port
+            "origins": [f"{os.environ.get('FRONTEND_URL')}"],  # Assuming React's default port
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type"],
             "supports_credentials": True  # Important for session cookies
         },
         r"/api/*": {  # FIXED: Covers both stubs and payments
-            "origins": ["http://localhost:3000"],
+            "origins": [f"{os.environ.get('FRONTEND_URL')}"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type"],
             "supports_credentials": True

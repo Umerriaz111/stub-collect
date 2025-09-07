@@ -10,7 +10,7 @@ import google.generativeai as genai
 from PIL import Image
 import io
 import logging
-
+from app.prompts.agentprompt import chatbot_agent_prompt
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -95,15 +95,7 @@ def build_conversation_context(conversation_history: List[Dict]) -> str:
             role = message.get('role', '')
             content = message.get('content', '')
             if role and content:
-                context_parts.append(f"{role.title()} ({i+1}): {content}")
-        elif 'question' in message and 'response' in message:
-            # New format: question/response
-            question = message.get('question', '')
-            response = message.get('response', '')
-            timestamp = message.get('timestamp', '')
-            if question and response:
-                context_parts.append(f"User ({timestamp}): {question}")
-                context_parts.append(f"Assistant ({timestamp}): {response}")
+                context_parts.append(f"{role} ({i+1}): {content}")
     
     return "\n".join(context_parts)
 
@@ -119,25 +111,7 @@ def generate_ai_response(
         context = build_conversation_context(conversation_history or [])
         
         # Beautiful StubCollector Agent Prompt
-        system_prompt = """🎫 **StubCollector Agent - Your Ticket & Shipping Expert** 🚚
-
-                    I am your dedicated StubCollector AI assistant, designed to help you with all things related to ticket stubs, shipping labels, and logistics documentation. I'm here to make your experience seamless and informative!
-
-                    **What I Can Help You With:**
-                    • 📸 **Image Analysis**: Analyze ticket stubs, shipping labels, receipts, and any related documents
-                    • 💬 **General Questions**: Answer questions about shipping, logistics, ticket management, and more
-                    • 🔍 **Document Understanding**: Help you understand what information is contained in your documents
-                    • 📚 **Knowledge Sharing**: Provide insights about shipping carriers, ticket types, and best practices
-
-                    **My Approach:**
-                    • I'm always helpful, friendly, and professional
-                    • I provide accurate, detailed responses based on the information available
-                    • I consider conversation context to give you the most relevant answers
-                    • I'm here to make complex information simple and understandable
-
-                    **Current Context:**
-
-                    """
+        system_prompt = chatbot_agent_prompt()
         
         if context:
             full_prompt = f"""{system_prompt}

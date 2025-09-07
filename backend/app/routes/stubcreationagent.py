@@ -18,10 +18,11 @@ import uuid
 from datetime import datetime
 from dataclasses import dataclass
 from flask_login import current_user
-from app.prompts.agentprompt import system_prompt
+from app.prompts.agentprompt import stub_creation_agent_prompt
 from app.services.stub_service import StubProcessor
 from app.models.stub import Stub
 from app import db
+
 
 load_dotenv()
 
@@ -221,7 +222,7 @@ def get_agent():
     """Get or create Agent instance"""
     return Agent(
         name="Stub Analyzer Agent",
-        instructions=system_prompt,
+        instructions=stub_creation_agent_prompt(),
         model=LitellmModel(
             model=os.getenv("MODEL"),
             api_key=os.getenv("GEMINI_API_KEY")
