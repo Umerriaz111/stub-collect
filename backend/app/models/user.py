@@ -7,7 +7,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     stripe_account_id = db.Column(db.String(100), unique=True, nullable=True, index=True)
     stripe_account_status = db.Column(db.String(20), default="pending", nullable=True, index=True)  # pending, active, restricted, disabled

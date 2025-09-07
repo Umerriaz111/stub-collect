@@ -9,7 +9,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
  
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///stub_collector.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql+psycopg2://postgres:1234@localhost:5432/stub_collector'
     SQLALCHEMY_TRACK_MODIFICATIONS = False 
 
     # FIXED: Stripe configuration with enhanced settings
