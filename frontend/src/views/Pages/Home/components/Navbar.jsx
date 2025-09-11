@@ -114,7 +114,7 @@ const Navbar = () => {
             },
           }}
         >
-          Browse
+          Sell
         </Button>
 
         {/* Auth Buttons */}

@@ -60,7 +60,7 @@ export default function Login() {
           const redirectURL = localStorage.getItem("redirectURL") || "/";
           localStorage.removeItem("redirectURL");
           // navigate(redirectURL);
-          navigate("/");
+          navigate("/dashboard");
           notyf.success("Login successful!");
         }
       } catch (error) {

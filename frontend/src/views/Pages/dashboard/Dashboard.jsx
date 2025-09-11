@@ -60,7 +60,7 @@ function Dashboard() {
     >
       <Chatbot />
       <AppBar
-        position="fixed"
+        position="relative"
         sx={{
           backgroundImage: `url(${bgImage})`,
           backgroundSize: "cover",
@@ -90,12 +90,14 @@ function Dashboard() {
           </Grid>
           <Grid item xs={4}>
             <Typography
+              onClick={() => navigate("/")}
               variant="body1"
               sx={{
                 color: "rgba(255, 253, 252, 1)",
                 textAlign: "center",
                 fontWeight: 800,
                 fontSize: "30px",
+                cursor: "pointer",
               }}
               gutterBottom
             >
@@ -108,29 +110,47 @@ function Dashboard() {
         </Grid>
       </AppBar>
 
-      <Box sx={{ position: "relative", width: "100%" }}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 15,
-            right: 15,
-            m: 3,
-          }}
-        >
-          <ProfileMenu />
-        </Box>
-      </Box>
-
       {/* Conditionally show StubUploadComponent if showUpload is true */}
       {showUpload && (
         <section style={{ height: "70vh" }}>
           <StubUploadComponent />
           <Box sx={{ textAlign: "center", mt: 2 }}>
             <Button
-              variant="contained"
+              variant="text"
               color="primary"
-              sx={{ borderRadius: "25px", px: 4, py: 1 }}
-              onClick={() => setShowUpload(false)}
+              sx={{
+                border: "none",
+                boxShadow: "none",
+                textTransform: "none",
+                fontWeight: 600,
+                fontSize: "18px",
+                display: "inline-flex",
+                alignItems: "center",
+                px: 0,
+                py: 0,
+                minWidth: 0,
+              }}
+              onClick={() => {
+                navigate("/dashboard");
+                setShowUpload(false);
+              }}
+              endIcon={
+                <span style={{ display: "flex", alignItems: "center" }}>
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </span>
+              }
             >
               Browse Listings
             </Button>
@@ -143,13 +163,12 @@ function Dashboard() {
         <section
           style={{
             minHeight: "100vh",
-            paddingTop: "64px",
+            paddingTop: "30px",
           }}
         >
           <Typography
             variant="h5"
             sx={{
-              mt: 8,
               mb: 4,
               textAlign: "center",
               fontWeight: 800,
