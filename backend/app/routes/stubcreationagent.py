@@ -89,6 +89,42 @@ def get_session(user_id):
     return SQLiteSession(session_id=session_id, db_path=db_path)
 
 
+def clear_user_memory(user_id):
+    """Completely clear all agent memory for a specific user"""
+    try:
+        print(f"Starting memory cleanup for user {user_id}")
+        
+        # Get the database path
+        instance_dir = os.path.join(current_app.root_path, 'agentmemory')
+        db_base_path = os.path.join(instance_dir, f'conversations_{user_id}')
+        
+        # List of SQLite file extensions to clean up
+        sqlite_extensions = ['.db', '.db-wal', '.db-shm']
+        deleted_files = []
+        
+        # Delete all SQLite database files for this user
+        for ext in sqlite_extensions:
+            file_path = db_base_path + ext
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                    deleted_files.append(os.path.basename(file_path))
+                    print(f"Deleted: {file_path}")
+                except Exception as e:
+                    print(f"Could not delete file {file_path}: {e}")
+        
+        if deleted_files:
+            print(f"Successfully deleted memory files for user {user_id}: {deleted_files}")
+        else:
+            print(f"No memory files found to delete for user {user_id}")
+            
+        return True
+        
+    except Exception as e:
+        print(f"Error cleaning up user memory for user {user_id}: {e}")
+        return False
+
+
 def encode_image(image_path):
     """Encode image to base64"""
     try:
@@ -193,26 +229,8 @@ async def draft_listing(
     
     # Clean up user memory after successful listing creation
     try:
-        # Create session for cleanup
-        session_id = f"user_{current_user.id}_session"
-        instance_dir = os.path.join(current_app.root_path, 'agentmemory')
-        db_path = os.path.join(instance_dir, f'conversations_{current_user.id}.db')
-        
-        # Verify database file exists before attempting cleanup
-        if not os.path.exists(db_path):
-            return
-            
-        # Delete all SQLite database files for this user
-        sqlite_extensions = ['.db-wal', '.db-shm', '.db']
-        deleted_files = []
-        for ext in sqlite_extensions:
-            file_path = db_path + ext
-            if os.path.exists(file_path):
-                try:
-                    os.remove(file_path)
-                    deleted_files.append(os.path.basename(file_path))
-                except Exception as e:
-                    print(f"Could not delete file {file_path}: {e}")
+        # Clear all agent memory for this user
+        clear_user_memory(current_user.id)
         
     except Exception as e:
         print(f"Error cleaning up user memory: {e}")
@@ -237,64 +255,50 @@ def stub_creation_agent():
     """Interact with the stub creation agent"""
     temp_dir = None
     saved_image_path = None
-    # Default stub tracking values
     stub_id = None
     stub_created = False
-    
+
     try:
         # Handle both JSON and form data
         if request.content_type and 'application/json' in request.content_type:
             data = request.get_json()
             query = data.get('query', '')
-            # Handle optional queryid - convert to int only if provided
             queryid_raw = data.get('queryid')
             queryid = int(queryid_raw) if queryid_raw is not None else None
         else:
-            # Handle form data (when image is uploaded)
-            query = request.form.get('query', '')  # Make query optional, default to empty string
-            # Handle optional queryid - convert to int only if provided
+            query = request.form.get('query', '')
             queryid_raw = request.form.get('queryid')
             queryid = int(queryid_raw) if queryid_raw is not None else None
-        
+
         image_file = request.files.get('image') if request.files else None
-        
-        # If no image and no query, return error
-        if not image_file and not query:
-            return jsonify({
-                'status': 'error',
-                'message': 'Either an image or a query is required'
-            }), 400
-        
-        # Handle image upload if provided
+
+        # ------------------------
+        # CASE 1: Image uploaded now
+        # ------------------------
         if image_file and image_file.filename != '':
             if not allowed_file(image_file.filename):
                 return jsonify({
                     'status': 'error',
                     'message': 'Invalid file type. Allowed types: PNG, JPG, JPEG'
                 }), 400
-            
-            # Save image using custom method
+
             try:
                 saved_image_path = custom_save_image(image_file, current_user.id)
+                current_app.last_uploaded_image_path = saved_image_path  # persist image
 
-                # Store the image path in app context for the tool function to access
-                current_app.last_uploaded_image_path = saved_image_path
-                
-                # Verify the saved file exists and has content
                 if not os.path.exists(saved_image_path):
                     raise Exception("Saved image file does not exist")
-                    
-                file_size = os.path.getsize(saved_image_path)
-                if file_size == 0:
+
+                if os.path.getsize(saved_image_path) == 0:
                     raise Exception("Saved image file is empty")
-                    
+
             except Exception as e:
                 return jsonify({
                     'status': 'error',
                     'message': f'Failed to save image: {str(e)}'
                 }), 500
-            
-            # Encode image to base64 for agent processing
+
+            # Encode for agent
             try:
                 base64_image = encode_image(saved_image_path)
             except Exception as e:
@@ -302,10 +306,9 @@ def stub_creation_agent():
                     'status': 'error',
                     'message': f'Failed to process image: {str(e)}'
                 }), 500
-            
-            # Create message with image - using the EXACT format from your working reference code
+
             user_query = query if query else "Please analyze this ticket stub and extract all relevant information"
-            
+
             message = [
                 Message(
                     role="user",
@@ -319,45 +322,65 @@ def stub_creation_agent():
                     ],
                 )
             ]
-            
-            # Run agent with image - using session=None like in your working reference
+
             try:
                 result = asyncio.run(Runner.run(
                     get_agent(),
                     input=message,
-                    session=None  # disable session since we're passing structured messages
+                    session=None
                 ))
-                
-                # Create session and add to it
+
                 session = get_session(current_user.id)
                 user_content = f"{query + ' + [image]' if query else '[image only]'}"
                 asyncio.run(session.add_items([
                     {"role": "user", "content": user_content},
                     {"role": "assistant", "content": result.final_output},
                 ]))
-                
+
             except Exception as e:
                 return jsonify({
                     'status': 'error',
                     'message': f'Failed to process with agent: {str(e)}'
                 }), 500
-            
+
+        # ------------------------
+        # CASE 2: Query only (no image in this request)
+        # ------------------------
         else:
-            # Run agent with text only
-            try:
-                session = get_session(current_user.id)
-                result = asyncio.run(Runner.run(
-                    get_agent(),
-                    input=query,
-                    session=session
-                ))
-            except Exception as e:
-                return jsonify({
-                    'status': 'error',
-                    'message': f'Failed to process query: {str(e)}'
-                }), 500
-        
-        # Inspect if a stub was created by the tool during agent run
+            if hasattr(current_app, 'last_uploaded_image_path'):
+                # Reuse previously uploaded image
+                saved_image_path = current_app.last_uploaded_image_path
+                try:
+                    session = get_session(current_user.id)
+                    result = asyncio.run(Runner.run(
+                        get_agent(),
+                        input=query,
+                        session=session
+                    ))
+                except Exception as e:
+                    return jsonify({
+                        'status': 'error',
+                        'message': f'Failed to process query: {str(e)}'
+                    }), 500
+            else:
+                # No image ever uploaded → prepend "no image uploaded" info
+                modified_query = f"{query} (Note: No image uploaded for analysis)"
+                try:
+                    session = get_session(current_user.id)
+                    result = asyncio.run(Runner.run(
+                        get_agent(),
+                        input=modified_query,
+                        session=session
+                    ))
+                except Exception as e:
+                    return jsonify({
+                        'status': 'error',
+                        'message': f'Failed to process query: {str(e)}'
+                    }), 500
+
+        # ------------------------
+        # Stub tracking and cleanup
+        # ------------------------
         try:
             if hasattr(current_app, 'last_created_stub_id'):
                 potential_id = getattr(current_app, 'last_created_stub_id', None)
@@ -371,18 +394,17 @@ def stub_creation_agent():
             except Exception:
                 pass
 
-        # Check if tool was called (listing created)
-        tool_called = hasattr(result, 'tool_calls') and result.tool_calls
-        listing_data = None
-        
-        if tool_called:
-            # Extract listing data from tool calls
-            for tool_call in result.tool_calls:
-                if tool_call.function.name == 'draft_listing':
-                    listing_data = tool_call.function.arguments
-                    break
-        
-        # Return response in the exact structure you specified
+        if stub_created:
+            try:
+                print(f"Stub was created successfully (ID: {stub_id}), clearing agent memory...")
+                clear_user_memory(current_user.id)
+                print(f"Agent memory cleared for user {current_user.id}")
+            except Exception as e:
+                print(f"Warning: Failed to clear agent memory after stub creation: {e}")
+
+        # ------------------------
+        # Final response
+        # ------------------------
         return jsonify({
             'date': datetime.now().strftime('%Y-%m-%d'),
             'question': query if query else '[image only]',
@@ -394,7 +416,7 @@ def stub_creation_agent():
             'stub_id': stub_id,
             'stub_created': stub_created
         }), 200
-        
+
     except Exception as e:
         return jsonify({
             'status': 'error',
