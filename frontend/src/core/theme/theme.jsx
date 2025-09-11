@@ -32,6 +32,26 @@ export const lightTheme = {
       blueGradient: "linear-gradient(92.33deg, #3D4B9C 1.54%, #5369E5 97.7%)",
       lightBlueGradient:
         "linear-gradient(92.33deg, #5B6CCC 1.54%, #5369E5 97.7%)",
+      orangeGradient:
+        "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
+      lightOrangeGradient:
+        "linear-gradient(135deg, #FED7AA 0%, #FDE68A 50%, #FEF3C7 100%)",
+      warmGradient: "linear-gradient(135deg, #FB921D 0%, #DC2626 100%)",
+    },
+    orange: {
+      main: "#FB921D", // rgb(251 146 29)
+      light: "#FED7AA",
+      dark: "#EA580C",
+      50: "#FFF7ED",
+      100: "#FFEDD5",
+      200: "#FED7AA",
+      300: "#FDBA74",
+      400: "#FB923C",
+      500: "#F97316",
+      600: "#EA580C",
+      700: "#C2410C",
+      800: "#9A3412",
+      900: "#7C2D12",
     },
   },
   typography: {
@@ -89,7 +109,7 @@ export const lightTheme = {
       fontWeight: 700,
       fontSize: "48px",
     },
-  }
+  },
 };
 
 export const darkTheme = {
@@ -118,6 +138,31 @@ export const darkTheme = {
       default: "#121212",
       // paper: '#1E1E1E',
       paper: "black",
+    },
+    orange: {
+      main: "#FB921D", // rgb(251 146 29)
+      light: "#FED7AA",
+      dark: "#EA580C",
+      50: "#FFF7ED",
+      100: "#FFEDD5",
+      200: "#FED7AA",
+      300: "#FDBA74",
+      400: "#FB923C",
+      500: "#F97316",
+      600: "#EA580C",
+      700: "#C2410C",
+      800: "#9A3412",
+      900: "#7C2D12",
+    },
+    gradients: {
+      blueGradient: "linear-gradient(92.33deg, #3D4B9C 1.54%, #5369E5 97.7%)",
+      lightBlueGradient:
+        "linear-gradient(92.33deg, #5B6CCC 1.54%, #5369E5 97.7%)",
+      orangeGradient:
+        "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
+      lightOrangeGradient:
+        "linear-gradient(135deg, #FED7AA 0%, #FDE68A 50%, #FEF3C7 100%)",
+      warmGradient: "linear-gradient(135deg, #FB921D 0%, #DC2626 100%)",
     },
   },
   typography: {
@@ -172,5 +217,4 @@ export const darkTheme = {
       fontSize: "12px",
     },
   },
-  
 };

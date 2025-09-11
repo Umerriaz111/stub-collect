@@ -20,7 +20,11 @@ import SellerProfile from "../../views/Pages/sellerProfile/SellerProfile.jsx";
 import SellerOnBoarding from "../../views/Pages/sellerOnBoarding/SellerOnBoarding.jsx";
 import ConnectPayments from "../../views/Pages/connectPayments/ConnectPayments.jsx";
 import ConnectPaymentsCallback from "../../views/Pages/connectPaymentsCallback/ConnectPaymentsCallback.jsx";
+import LandingPage from "../../views/Pages/Home/LandingPage.jsx";
+import PrivacyPolicy from "../../views/Pages/privacy/PrivacyPolicy.jsx";
+import TermsOfService from "../../views/Pages/privacy/TermsOfService.jsx";
 import { checkAuthStatusApi } from "../api/auth.ts";
+import Footer from "../../views/components/footer/Footer.jsx";
 // ********************* Protected PAGES**********
 
 // ********** EXPORT ROUTES *********
@@ -35,6 +39,7 @@ export const routes = [
     ),
     header: null,
     aside: null,
+    footer: <Footer />,
   },
   {
     path: "/signup",
@@ -45,6 +50,7 @@ export const routes = [
     ),
     header: null,
     aside: null,
+    footer: <Footer />,
   },
   {
     path: "/forget-password",
@@ -67,16 +73,39 @@ export const routes = [
     aside: null,
   },
 
-  /*  All protected routes */
+  /*  Landing page and protected routes */
 
   {
     path: "/",
+    page: <LandingPage />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
+  },
+
+  {
+    path: "/privacy-policy",
+    page: <PrivacyPolicy />,
+    header: null,
+    aside: null,
+  },
+
+  {
+    path: "/terms-of-service",
+    page: <TermsOfService />,
+    header: null,
+    aside: null,
+  },
+
+  {
+    path: "/dashboard",
     page: (
-      <ProtectedRoute>
-        <Dashboard />
-      </ProtectedRoute>
+      // <ProtectedRoute>
+      <Dashboard />
+      // </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -89,6 +118,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -99,6 +129,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -109,6 +140,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -119,6 +151,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -129,6 +162,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -139,6 +173,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   {
@@ -149,6 +184,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
+    footer: <Footer />,
   },
 
   /* Page Not Found 404 */
@@ -161,6 +197,7 @@ export const routes = [
     ),
     header: null,
     aside: null,
+    footer: <Footer />,
   },
 ];
 
@@ -179,7 +216,7 @@ export function ProtectedRoute({ children }) {
     setIsCheckingAuth(true);
     try {
       const response = await checkAuthStatusApi();
-      
+
       if (response?.data?.data?.is_authenticated) {
         setIsAuthenticated(true);
       } else {
@@ -190,7 +227,7 @@ export function ProtectedRoute({ children }) {
         navigate("/login", { replace: true });
       }
     } catch (error) {
-      console.error('Error checking auth status:', error);
+      console.error("Error checking auth status:", error);
       setIsAuthenticated(false);
       // Redirect to login on error
       const redirectURL = location.pathname;
@@ -229,19 +266,19 @@ export function AuthRoute({ children }) {
     setIsCheckingAuth(true);
     try {
       const response = await checkAuthStatusApi();
-      
+
       if (response?.data?.data?.is_authenticated) {
         setIsAuthenticated(true);
         // Redirect to dashboard or saved redirect URL if authenticated
         const redirectURL = localStorage.getItem("redirectURL");
         localStorage.removeItem("redirectURL");
-        const redirectRoute = redirectURL || "/";
+        const redirectRoute = redirectURL || "/dashboard";
         navigate(redirectRoute, { replace: true });
       } else {
         setIsAuthenticated(false);
       }
     } catch (error) {
-      console.error('Error checking auth status:', error);
+      console.error("Error checking auth status:", error);
       setIsAuthenticated(false);
     } finally {
       setIsCheckingAuth(false);

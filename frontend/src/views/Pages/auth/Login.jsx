@@ -60,7 +60,7 @@ export default function Login() {
           const redirectURL = localStorage.getItem("redirectURL") || "/";
           localStorage.removeItem("redirectURL");
           // navigate(redirectURL);
-          navigate("/");
+          navigate("/dashboard");
           notyf.success("Login successful!");
         }
       } catch (error) {
@@ -76,8 +76,12 @@ export default function Login() {
     <Grid
       container
       minHeight={"100vh"}
-      maxWidth={isMobile ? "100vw" : "80vw"}
+      px={isMobile ? 0 : 40}
       margin={"auto"}
+      sx={{
+        background:
+          "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
+      }}
     >
       <AuthPageRightSide />
       <Grid
@@ -98,10 +102,27 @@ export default function Login() {
             width: "100%",
             maxWidth: "500px",
             p: 4,
-            borderRadius: 2,
-            backgroundColor: "rgba(255, 255, 255, 0.24)",
+            borderRadius: 3,
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
           }}
         >
+          <Box sx={{ mb: 2, textAlign: "left" }}>
+            <Button
+              variant="text"
+              onClick={() => navigate("/")}
+              sx={{
+                textTransform: "none",
+                color: "#FB921D",
+                fontWeight: 700,
+                px: 0,
+              }}
+            >
+              ← Back to Home
+            </Button>
+          </Box>
           <Grid
             item
             xs={12}
@@ -111,10 +132,21 @@ export default function Login() {
             spacing={3}
           >
             <Grid item xs={12} textAlign={"center"}>
-              <Typography variant="h5" fontWeight={700} color="primary">
+              <Typography
+                variant="h4"
+                fontWeight={800}
+                sx={{
+                  background:
+                    "linear-gradient(135deg, #FB921D 0%, #DC2626 100%)",
+                  backgroundClip: "text",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  mb: 1,
+                }}
+              >
                 Welcome Back!
               </Typography>
-              <Typography variant="body2" color={"text.secondary"} mt={1}>
+              <Typography variant="body1" color={"text.secondary"} mt={1}>
                 Enter your credentials to access your account
               </Typography>
             </Grid>
@@ -182,7 +214,18 @@ export default function Login() {
                 fullWidth
                 size="large"
                 sx={{
-                  borderRadius: 2,
+                  borderRadius: 3,
+                  py: 1.5,
+                  background:
+                    "linear-gradient(135deg, #FB921D 0%, #DC2626 100%)",
+                  fontWeight: 600,
+                  fontSize: "1.1rem",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
+                    transform: "translateY(-1px)",
+                    boxShadow: "0 8px 25px rgba(251,146,29,0.3)",
+                  },
                 }}
                 disabled={loading}
               >
@@ -195,17 +238,49 @@ export default function Login() {
             </Grid>
 
             <Grid item xs={12} display={"flex"} justifyContent={"center"}>
-              <Typography variant="body3" color="text.secondary">
+              <Typography variant="body2" color="text.secondary">
                 Not registered yet?{" "}
                 <Link
                   to={"/signup"}
                   style={{
                     textDecoration: "none",
-                    color: "primary.main",
+                    color: "#FB921D",
                     fontWeight: 600,
                   }}
                 >
                   Create an Account
+                </Link>
+              </Typography>
+            </Grid>
+
+            {/* Privacy Policy Link */}
+            <Grid item xs={12} display={"flex"} justifyContent={"center"}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                textAlign="center"
+              >
+                By signing in, you agree to our{" "}
+                <Link
+                  to={"/privacy-policy"}
+                  style={{
+                    textDecoration: "none",
+                    color: "#FB921D",
+                    fontWeight: 500,
+                  }}
+                >
+                  Privacy Policy
+                </Link>{" "}
+                and{" "}
+                <Link
+                  to={"/terms"}
+                  style={{
+                    textDecoration: "none",
+                    color: "#FB921D",
+                    fontWeight: 500,
+                  }}
+                >
+                  Terms of Service
                 </Link>
               </Typography>
             </Grid>

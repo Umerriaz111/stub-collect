@@ -5,7 +5,11 @@ import { store } from "./core/store/store";
 // @ts-ignore
 import { lightTheme, darkTheme } from "./core/theme/theme.jsx";
 // @ts-ignore
-import { AsideRoutes, PagesRoutes } from "./core/Routes/LayoutRoutes";
+import {
+  AsideRoutes,
+  PagesRoutes,
+  FooterRoutes,
+} from "./core/Routes/LayoutRoutes";
 import { Grid } from "@mui/material";
 import "./App.css";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -27,6 +31,7 @@ function AppContent() {
           <Grid container>
             <AsideRoutes />
             <PagesRoutes />
+            <FooterRoutes />
           </Grid>
         </AppWrapper>
       </BrowserRouter>
