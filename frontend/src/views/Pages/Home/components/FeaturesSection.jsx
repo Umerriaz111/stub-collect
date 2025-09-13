@@ -119,7 +119,7 @@ const FeaturesSection = () => {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Stub Collector
+              StubCollect
             </Box>
           </Typography>
           <Typography
@@ -261,7 +261,7 @@ const FeaturesSection = () => {
               mb: 3,
             }}
           >
-            Join over 10,000+ collectors who trust Stub Collector with their
+            Join over 10,000+ collectors who trust StubCollect with their
             memorabilia
           </Typography>
 

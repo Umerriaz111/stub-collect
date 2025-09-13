@@ -101,7 +101,7 @@ function Dashboard() {
               }}
               gutterBottom
             >
-              Stub Collector
+              StubCollect
             </Typography>
           </Grid>
           <Grid item xs={4} sx={{ textAlign: "right" }}>
