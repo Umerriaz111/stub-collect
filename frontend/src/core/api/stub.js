@@ -1,4 +1,3 @@
-
 // Request interceptor to handle content type for FormData
 
 import { getApi } from "./apiService";
@@ -25,7 +24,6 @@ async function addInterceptors(api) {
   );
 }
 
-
 // Stub data upload function - Simplified version
 
 export const uploadStub = async (formData) => {
@@ -35,10 +33,19 @@ export const uploadStub = async (formData) => {
 };
 
 // Get user's stubs
-export const getUserStubs = async () => {
+export const getUserStubs = async (filters = {}) => {
   const api = await getApi();
   await addInterceptors(api);
-  return api.get("/api/stubs");
+  // Only include keys with non-empty values
+  const params = {};
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      params[key] = value;
+    }
+  });
+  return await api.get("/api/stubs", {
+    params: Object.keys(params).length ? params : undefined,
+  });
 };
 
 // Get specific stub
