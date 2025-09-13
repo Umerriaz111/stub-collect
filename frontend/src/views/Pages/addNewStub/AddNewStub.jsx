@@ -403,6 +403,7 @@ const AddNewStub = () => {
       }}
     >
       <BackToMainButton
+        to={"/home"}
         backgroundColor="rgba(252, 196, 132, 0.9)"
         hoverColor="#ff6b35"
         position={{ top: 10, left: 0 }}

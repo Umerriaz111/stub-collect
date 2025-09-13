@@ -38,7 +38,7 @@ function AuthPageRightSide() {
           fontWeight={300}
           sx={{ color: "white", letterSpacing: 1 }}
         >
-          COLLECTOR
+          COLLECT
         </Typography>
         {/* <Typography
           variant="subtitle1"
