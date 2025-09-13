@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   Box,
   Button,
@@ -59,7 +61,7 @@ const ChatContainer = styled(Paper)(({ theme }) => ({
   },
   [theme.breakpoints.down("sm")]: {
     height: "calc(100vh - 320px)",
-    minHeight: "75vh",
+    minHeight: "70vh",
   },
 }));
 
@@ -224,6 +226,10 @@ const AddNewStub = () => {
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const typingIntervalRef = useRef(null);
+
+  // Detect mobile screen using MUI theme breakpoint
+  const theme = useTheme();
+  const isMobileScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const navigate = useNavigate();
 
@@ -531,7 +537,7 @@ const AddNewStub = () => {
                 >
                   💬 Stub Creator Chat
                 </Typography>
-                {hasUploadedImage && (
+                {hasUploadedImage && !isMobileScreen && (
                   <Chip
                     label="✓ Image Uploaded"
                     size="small"
