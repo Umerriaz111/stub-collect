@@ -19,6 +19,10 @@ function Dashboard() {
   const [listings, setListings] = useState([]);
   const [error, setError] = useState("");
   const [showUpload, setShowUpload] = useState(false);
+  const [page, setPage] = useState(1);
+  const [perPage] = useState(10);
+  const [hasMoreListings, setHasMoreListings] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Check for query param
   useEffect(() => {
@@ -28,19 +32,57 @@ function Dashboard() {
     }
   }, []);
   // Fetch listings with optional filters
-  const fetchListings = async (filters = {}) => {
+  const fetchListings = async (
+    filters = {},
+    currentPage = 1,
+    isLoadMore = false
+  ) => {
     try {
-      const response = await getAllListing(filters);
-      setListings(response.data.data);
+      if (isLoadMore) {
+        setLoadingMore(true);
+      }
+
+      const response = await getAllListing({
+        ...filters,
+        page: currentPage,
+        per_page: perPage,
+      });
+
+      if (isLoadMore) {
+        // Append new listings to existing ones
+        setListings((prevListings) => [...prevListings, ...response.data.data]);
+      } else {
+        // Replace existing listings (for new search/initial load)
+        setListings(response.data.data);
+      }
+
+      // Check if there are more listings available
+      if (response.data.data.length < perPage) {
+        setHasMoreListings(false);
+      } else {
+        setHasMoreListings(true);
+      }
     } catch (err) {
       setError("Failed to fetch listings");
       console.error("Error fetching listings:", err);
+    } finally {
+      if (isLoadMore) {
+        setLoadingMore(false);
+      }
     }
   };
 
   useEffect(() => {
-    fetchListings();
+    fetchListings({}, 1, false);
+    setPage(1);
+    setHasMoreListings(true);
   }, []);
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchListings({}, nextPage, true);
+  };
 
   const buyTicket = async (listingId) => {
     try {
@@ -262,6 +304,54 @@ function Dashboard() {
                 </Grid>
               ))}
             </Grid>
+          )}
+
+          {/* Load More / End of listings section */}
+          {listings?.length > 0 && (
+            <Box sx={{ textAlign: "center", mt: 4, mb: 4 }}>
+              {hasMoreListings ? (
+                <Button
+                  variant="contained"
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  sx={{
+                    backgroundColor: "rgb(250, 185, 71)",
+                    color: "black",
+                    fontWeight: "bold",
+                    fontSize: "16px",
+                    borderRadius: "30px",
+                    px: 4,
+                    py: 1.5,
+                    border: "1px solid black",
+                    textTransform: "none",
+                    "&:hover": {
+                      backgroundColor: "rgb(240, 175, 61)",
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+                    },
+                    "&:disabled": {
+                      backgroundColor: "rgb(220, 155, 51)",
+                      color: "rgba(0,0,0,0.6)",
+                      transform: "none",
+                      boxShadow: "none",
+                    },
+                  }}
+                >
+                  {loadingMore ? "Loading..." : "Load More"}
+                </Button>
+              ) : (
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "rgba(0,0,0,0.7)",
+                    fontWeight: 600,
+                    fontStyle: "italic",
+                  }}
+                >
+                  🎉 That's all the stubs for now!
+                </Typography>
+              )}
+            </Box>
           )}
 
           {/* <Footer /> */}
