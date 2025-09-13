@@ -15,6 +15,7 @@ import {
   IconButton,
   Divider,
   Stack,
+  Tooltip,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
@@ -201,6 +202,7 @@ const AddNewStub = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const [typingMessageId, setTypingMessageId] = useState(null);
+  const [hasUploadedImage, setHasUploadedImage] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const typingIntervalRef = useRef(null);
@@ -274,6 +276,14 @@ const AddNewStub = () => {
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check if user has already uploaded an image in the chat
+      if (hasUploadedImage) {
+        setError(
+          "You can only upload one image at a time. Please restart the chat or remove the previous image to upload a new one."
+        );
+        return;
+      }
+
       // Check file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
         setError("File size too large. Maximum size is 5MB");
@@ -328,9 +338,10 @@ const AddNewStub = () => {
     setInputMessage("");
     setIsLoading(true);
 
-    // Clear file selection after sending
+    // Clear file selection after sending and mark that an image has been uploaded
     if (file) {
       removeSelectedFile();
+      setHasUploadedImage(true);
     }
 
     try {
@@ -394,9 +405,37 @@ const AddNewStub = () => {
 
   const handleSuggestionClick = (suggestion) => {
     if (suggestion === "Upload a stub image to get started") {
+      if (hasUploadedImage) {
+        setError(
+          "Image already uploaded. Please restart the chat to upload a new image."
+        );
+        return;
+      }
       fileInputRef.current?.click();
     } else {
       sendMessage(suggestion);
+    }
+  };
+
+  const restartChat = () => {
+    setChatMessages([
+      {
+        id: 1,
+        isUser: false,
+        content:
+          "👋 **Welcome to StubCollect!**\n\nI'm here to help you create and analyze your ticket stubs. You can:\n\n• **Upload an image** of your ticket stub\n• **Ask questions** about your stub\n• **Get detailed analysis** of event information\n• **Create listings** for your stubs\n\nTo get started, simply upload an image of your stub or ask me anything!",
+        timestamp: new Date().toISOString(),
+        isWelcome: true,
+      },
+    ]);
+    setHasUploadedImage(false);
+    setSelectedFile(null);
+    setFilePreview(null);
+    setInputMessage("");
+    setError("");
+    setSuccess("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -442,27 +481,64 @@ const AddNewStub = () => {
                 "linear-gradient(135deg, rgba(252, 196, 132, 0.67) 0%, rgba(252, 152, 102, 0.71) 100%)",
               borderTopLeftRadius: "20px",
               borderTopRightRadius: "20px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            <Typography
-              variant="h4"
-              component="h1"
-              gutterBottom
-              sx={{
-                background:
-                  "linear-gradient(135deg, #fa844aff 0%, #ff6b35 100%)",
-                backgroundClip: "text",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                fontWeight: 700,
-              }}
-            >
-              💬 Stub Creator Chat
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Upload your ticket stub and chat with our AI to create your
-              listing
-            </Typography>
+            <Box>
+              <Typography
+                variant="h4"
+                component="h1"
+                gutterBottom
+                sx={{
+                  background:
+                    "linear-gradient(135deg, #fa844aff 0%, #ff6b35 100%)",
+                  backgroundClip: "text",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  fontWeight: 700,
+                  mb: 1,
+                }}
+              >
+                💬 Stub Creator Chat
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Upload your ticket stub and chat with our AI to create your
+                listing
+              </Typography>
+              {hasUploadedImage && (
+                <Chip
+                  label="✓ Image Uploaded"
+                  size="small"
+                  sx={{
+                    mt: 1,
+                    bgcolor: "rgba(255, 107, 53, 0.1)",
+                    color: "#ff6b35",
+                    border: "1px solid rgba(255, 107, 53, 0.3)",
+                  }}
+                />
+              )}
+            </Box>
+            {hasUploadedImage && (
+              <Button
+                variant="outlined"
+                onClick={restartChat}
+                sx={{
+                  borderColor: "#ff6b35",
+                  color: "#ff6b35",
+                  "&:hover": {
+                    borderColor: "#ff5722",
+                    backgroundColor: "rgba(255, 107, 53, 0.1)",
+                  },
+                  borderRadius: "12px",
+                  textTransform: "none",
+                  fontWeight: 600,
+                }}
+              >
+                🔄 Restart Chat
+              </Button>
+            )}
           </Box>
 
           {/* Alerts */}
@@ -498,15 +574,43 @@ const AddNewStub = () => {
                   </Avatar>
                   <MessageContent isUser={message.isUser}>
                     {message.hasImage && message.imagePreview && (
-                      <Box sx={{ mb: 1 }}>
+                      <Box
+                        sx={{
+                          mb: 2,
+                          p: 1,
+                          border: "2px solid rgba(255, 255, 255, 0.3)",
+                          borderRadius: "12px",
+                          backgroundColor: message.isUser
+                            ? "rgba(255, 255, 255, 0.1)"
+                            : "rgba(252, 196, 132, 0.1)",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: message.isUser
+                              ? "rgba(255, 255, 255, 0.9)"
+                              : "#ff6b35",
+                            fontWeight: 600,
+                            textAlign: "center",
+                          }}
+                        >
+                          📷 Uploaded Image
+                        </Typography>
                         <img
                           src={message.imagePreview}
                           alt="Uploaded stub"
                           style={{
-                            maxWidth: "200px",
-                            maxHeight: "150px",
+                            maxWidth: "250px",
+                            maxHeight: "200px",
                             borderRadius: "8px",
                             objectFit: "cover",
+                            border: "1px solid rgba(255, 255, 255, 0.2)",
+                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                           }}
                         />
                       </Box>
@@ -591,30 +695,41 @@ const AddNewStub = () => {
               >
                 💡 Quick actions:
               </Typography>
-              {suggestions.map((suggestion, index) => (
-                <Chip
-                  key={index}
-                  label={suggestion}
-                  onClick={() => handleSuggestionClick(suggestion)}
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    cursor: "pointer",
-                    borderColor: "rgba(252, 196, 132, 0.5)",
-                    color: "#ff6b35",
-                    "&:hover": {
-                      background:
-                        "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
-                      color: "white",
-                      borderColor: "#ff6b35",
-                      transform: "translateY(-1px)",
-                      boxShadow: "0 4px 12px rgba(255, 138, 80, 0.3)",
-                    },
-                    transition: "all 0.2s ease-in-out",
-                  }}
-                  disabled={isLoading}
-                />
-              ))}
+              {suggestions
+                .filter((suggestion) => {
+                  // Hide upload suggestion if image already uploaded
+                  if (
+                    hasUploadedImage &&
+                    suggestion === "Upload a stub image to get started"
+                  ) {
+                    return false;
+                  }
+                  return true;
+                })
+                .map((suggestion, index) => (
+                  <Chip
+                    key={index}
+                    label={suggestion}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      cursor: "pointer",
+                      borderColor: "rgba(252, 196, 132, 0.5)",
+                      color: "#ff6b35",
+                      "&:hover": {
+                        background:
+                          "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
+                        color: "white",
+                        borderColor: "#ff6b35",
+                        transform: "translateY(-1px)",
+                        boxShadow: "0 4px 12px rgba(255, 138, 80, 0.3)",
+                      },
+                      transition: "all 0.2s ease-in-out",
+                    }}
+                    disabled={isLoading}
+                  />
+                ))}
             </SuggestionsContainer>
 
             {/* Input Container */}
@@ -700,31 +815,73 @@ const AddNewStub = () => {
                   }}
                 />
 
-                <IconButton
-                  component="label"
-                  disabled={isLoading}
-                  sx={{
-                    bgcolor: "rgba(252, 196, 132, 0.1)",
-                    border: "2px solid rgba(252, 196, 132, 0.3)",
-                    borderRadius: "12px",
-                    color: "#ff6b35",
-                    "&:hover": {
-                      bgcolor: "rgba(252, 196, 132, 0.2)",
-                      borderColor: "#ff6b35",
-                      transform: "translateY(-1px)",
-                      boxShadow: "0 4px 12px rgba(252, 196, 132, 0.3)",
-                    },
-                    transition: "all 0.2s ease-in-out",
-                  }}
+                <Tooltip
+                  title={
+                    hasUploadedImage
+                      ? "Image already uploaded. Restart chat to upload a new image."
+                      : "Upload image"
+                  }
+                  arrow
+                  placement="top"
                 >
-                  <ImageIcon />
-                  <VisuallyHiddenInput
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg"
-                    onChange={handleFileSelect}
-                  />
-                </IconButton>
+                  <span>
+                    <IconButton
+                      component="label"
+                      disabled={isLoading || hasUploadedImage}
+                      sx={{
+                        bgcolor: hasUploadedImage
+                          ? "rgba(189, 189, 189, 0.2)"
+                          : "rgba(252, 196, 132, 0.1)",
+                        border: hasUploadedImage
+                          ? "2px solid rgba(189, 189, 189, 0.3)"
+                          : "2px solid rgba(252, 196, 132, 0.3)",
+                        borderRadius: "12px",
+                        color: hasUploadedImage
+                          ? "rgba(189, 189, 189, 0.7)"
+                          : "#ff6b35",
+                        "&:hover": hasUploadedImage
+                          ? {}
+                          : {
+                              bgcolor: "rgba(252, 196, 132, 0.2)",
+                              borderColor: "#ff6b35",
+                              transform: "translateY(-1px)",
+                              boxShadow: "0 4px 12px rgba(252, 196, 132, 0.3)",
+                            },
+                        transition: "all 0.2s ease-in-out",
+                        position: "relative",
+                      }}
+                    >
+                      <ImageIcon />
+                      {hasUploadedImage && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: -8,
+                            right: -8,
+                            bgcolor: "#ff6b35",
+                            color: "white",
+                            borderRadius: "50%",
+                            width: 20,
+                            height: 20,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "12px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          ✓
+                        </Box>
+                      )}
+                      <VisuallyHiddenInput
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg"
+                        onChange={handleFileSelect}
+                      />
+                    </IconButton>
+                  </span>
+                </Tooltip>
 
                 <IconButton
                   onClick={() => sendMessage()}
