@@ -327,7 +327,7 @@ const PrivacyPolicy = () => {
               Phone: +1 (555) 123-4567
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.8, mt: 2 }}>
-              Stub Collector, Inc. | San Francisco, CA
+              StubCollect, Inc. | San Francisco, CA
             </Typography>
           </Box>
         </Paper>
@@ -335,7 +335,7 @@ const PrivacyPolicy = () => {
         {/* Back to Site */}
         <Box sx={{ textAlign: "center", mt: 4 }}>
           <Chip
-            label="← Back to Stub Collector"
+            label="← Back to StubCollect"
             onClick={() => navigate("/")}
             sx={{
               px: 4,

@@ -79,7 +79,7 @@ const Navbar = () => {
           },
         }}
       >
-        Stub Collector
+        StubCollect
       </Typography>
 
       {/* Navigation Links */}
@@ -186,7 +186,7 @@ const Navbar = () => {
         <Divider />
 
         <ListItem button onClick={handleSellClick}>
-          <ListItemText primary="Browse" />
+          <ListItemText primary="Sell" />
         </ListItem>
 
         <Divider sx={{ my: 2 }} />
@@ -214,7 +214,7 @@ const Navbar = () => {
           cursor: "pointer",
         }}
       >
-        Stub Collector
+        StubCollect
       </Typography>
 
       <IconButton

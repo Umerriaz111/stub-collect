@@ -1,14 +1,10 @@
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 
-import config from './configService';
+const TOKEN = "token";
+const USER = "user";
+const PRINT_BY_APP = "printByApp";
 
-const TOKEN = 'token';
-const USER = 'user';
-const PRINT_BY_APP = 'printByApp';
-
-const REFRESH_TOKEN = 'refreshToken';
-
-const IS_USER_SJ_COMPUTER = 'isUserSJComputers';
+const REFRESH_TOKEN = "refreshToken";
 
 export type DecodedToken = {
   id: number;
@@ -42,15 +38,6 @@ export const getPrintingPreference = () => {
   return pref ? JSON.parse(pref) : false;
 };
 
-export const getUsernameFromLocalStorage = () => {
-  const username = window.localStorage.getItem(IS_USER_SJ_COMPUTER);
-  return username ? JSON.parse(username) : false; // Parse as boolean or false if not found
-};
-
-export const saveUsernameToLocalStorage = (isUserSJComputers: string) => {
-  window.localStorage.setItem(IS_USER_SJ_COMPUTER, JSON.stringify(isUserSJComputers)); // Store as boolean
-};
-
 export const checkExpiry = (token: string | null): boolean => {
   if (!token) {
     return false;
@@ -60,7 +47,7 @@ export const checkExpiry = (token: string | null): boolean => {
     const decodedToken = jwtDecode(token) as DecodedToken;
 
     // Validate token structure
-    if (!decodedToken || typeof decodedToken.exp !== 'number') {
+    if (!decodedToken || typeof decodedToken.exp !== "number") {
       return false;
     }
 
@@ -71,24 +58,7 @@ export const checkExpiry = (token: string | null): boolean => {
     // Token is considered expired if it's within buffer time of expiry
     return decodedToken.exp > currentTime + bufferTime;
   } catch (error) {
-    console.error('Error checking token expiry:', error);
-    return false;
-  }
-};
-
-export const checkUser = (token: string) => {
-  if (!token) return false;
-
-  try {
-    const decodedToken = jwtDecode(token) as DecodedToken;
-    const isUserSJComputers = decodedToken.username === config.VITE_APP_ALLOWED_USER;
-
-    // Store the result in localStorage
-    localStorage.setItem('isUserSJComputers', JSON.stringify(isUserSJComputers));
-
-    return isUserSJComputers;
-  } catch (error) {
-    console.error('Failed to decode token:', error);
+    console.error("Error checking token expiry:", error);
     return false;
   }
 };

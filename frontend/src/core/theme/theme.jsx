@@ -11,7 +11,7 @@ export const lightTheme = {
       darker: grey[900],
     },
     text: {
-      default: "black",
+      default: "rgba(0,0,0,0.7)",
       primary: "#2B3674",
       secondary: "#4318FF",
       light: "#A3AED0",

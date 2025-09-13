@@ -26,7 +26,7 @@ const TermsOfService = () => {
       id: "acceptance",
       title: "Acceptance of Terms",
       content: [
-        "By accessing and using Stub Collector, you accept and agree to be bound by the terms and provision of this agreement.",
+        "By accessing and using StubCollect, you accept and agree to be bound by the terms and provision of this agreement.",
         "If you do not agree to abide by the above, please do not use this service.",
         "These terms may be updated from time to time, and continued use constitutes acceptance of any changes.",
       ],
@@ -35,7 +35,7 @@ const TermsOfService = () => {
       id: "description",
       title: "Service Description",
       content: [
-        "Stub Collector is a digital platform for collecting, trading, and selling ticket stub memorabilia.",
+        "StubCollect is a digital platform for collecting, trading, and selling ticket stub memorabilia.",
         "We provide tools for digitizing physical ticket stubs using AI-powered recognition technology.",
         "Our marketplace facilitates secure transactions between collectors worldwide.",
         "We offer authentication services to verify the legitimacy of listed items.",
@@ -148,7 +148,7 @@ const TermsOfService = () => {
             variant="h6"
             sx={{ opacity: 0.9, maxWidth: "600px", mx: "auto" }}
           >
-            These terms govern your use of Stub Collector and outline the rights
+            These terms govern your use of StubCollect and outline the rights
             and responsibilities of all users on our platform.
           </Typography>
           <Chip
@@ -302,7 +302,7 @@ const TermsOfService = () => {
               Phone: +1 (555) 123-4567
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.8, mt: 2 }}>
-              Stub Collector, Inc. | San Francisco, CA
+              StubCollect, Inc. | San Francisco, CA
             </Typography>
           </Box>
         </Paper>
@@ -310,7 +310,7 @@ const TermsOfService = () => {
         {/* Back to Site */}
         <Box sx={{ textAlign: "center", mt: 4 }}>
           <Chip
-            label="← Back to Stub Collector"
+            label="← Back to StubCollect"
             onClick={() => navigate("/")}
             sx={{
               px: 4,

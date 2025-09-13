@@ -1,13 +1,11 @@
-import ApiService from './apiService'
-import { setUserTracking } from './cookiesService'
+import { setUserTracking } from "./cookiesService";
 
 const initServices = {
-    init(navigate) {
-        setUserTracking() // sets user visit data in cookies
-        ApiService.init(navigate) //initializes api service
-    },
-}
+  init(navigate) {
+    setUserTracking(); // sets user visit data in cookies
+  },
+};
 
-initServices.init()
+initServices.init();
 
-export default initServices
+export default initServices;

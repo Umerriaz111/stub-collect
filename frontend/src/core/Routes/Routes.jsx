@@ -39,7 +39,7 @@ export const routes = [
     ),
     header: null,
     aside: null,
-    footer: <Footer />,
+    // footer: <Footer />,
   },
   {
     path: "/signup",
@@ -50,7 +50,7 @@ export const routes = [
     ),
     header: null,
     aside: null,
-    footer: <Footer />,
+    // footer: <Footer />,
   },
   {
     path: "/forget-password",
@@ -105,7 +105,7 @@ export const routes = [
       // </ProtectedRoute>
     ),
     aside: null,
-    footer: <Footer />,
+    // footer: <Footer />,
   },
 
   {
@@ -118,7 +118,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
-    footer: <Footer />,
+    // footer: <Footer />,
   },
 
   {
@@ -129,7 +129,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
-    footer: <Footer />,
+    // footer: <Footer />,
   },
 
   {
@@ -140,7 +140,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
-    footer: <Footer />,
+    // footer: <Footer />,
   },
 
   {
@@ -151,7 +151,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
-    footer: <Footer />,
+    // footer: <Footer />,
   },
 
   {
@@ -162,7 +162,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
-    footer: <Footer />,
+    // footer: <Footer />,
   },
 
   {
@@ -173,7 +173,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
-    footer: <Footer />,
+    // footer: <Footer />,
   },
 
   {
@@ -184,7 +184,7 @@ export const routes = [
       </ProtectedRoute>
     ),
     aside: null,
-    footer: <Footer />,
+    // footer: <Footer />,
   },
 
   /* Page Not Found 404 */
@@ -197,7 +197,7 @@ export const routes = [
     ),
     header: null,
     aside: null,
-    footer: <Footer />,
+    // footer: <Footer />,
   },
 ];
 
