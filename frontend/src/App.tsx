@@ -9,7 +9,7 @@ import {
   AsideRoutes,
   PagesRoutes,
   FooterRoutes,
-} from "./core/Routes/LayoutRoutes";
+} from "./core/Routes/LayoutRoutes.jsx";
 import { Grid } from "@mui/material";
 import "./App.css";
 import { ThemeProvider, createTheme } from "@mui/material/styles";

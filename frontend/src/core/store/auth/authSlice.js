@@ -1,20 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 import {
-  checkUser,
   destroyToken,
   getToken,
   getUser,
-  saveToken,
   saveUser,
   saveRefreshToken,
   destroyRefreshToken,
 } from "../../services/authService";
 
-import ApiService from "../../services/apiService";
-
 const token = getToken();
-token && ApiService.setAuthToken(token);
 
 const initialState = {
   user: getUser(),
@@ -32,10 +27,6 @@ const authSlice = createSlice({
       saveUser(action.payload?.data?.username);
       //   ApiService.setAuthToken(action.payload?.accessToken);
       //   saveToken(action.payload?.accessToken);
-
-      const isUserSJComputers = checkUser(action.payload?.accessToken);
-      state.isUserSJComputers = isUserSJComputers;
-      saveRefreshToken(action.payload?.refreshToken);
 
       // If not a valid SJComputers user, set printing preference
       if (!isUserSJComputers) {
