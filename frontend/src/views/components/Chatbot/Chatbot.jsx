@@ -25,6 +25,8 @@ import {
   CloseFullscreen as ShrinkIcon,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { v4 as uuidv4 } from "uuid"; // ✅ generate unique IDs
 import { askChatbot } from "../../../core/api/chatBoard";
 
@@ -94,6 +96,72 @@ const MessageBubble = styled(Box)(({ theme, sender }) => ({
   fontSize: "0.875rem",
   lineHeight: 1.4,
   wordBreak: "break-word",
+  // Markdown-specific styles
+  "& p": {
+    margin: "4px 0",
+    "&:first-of-type": {
+      marginTop: 0,
+    },
+    "&:last-of-type": {
+      marginBottom: 0,
+    },
+  },
+  "& ul, & ol": {
+    margin: "4px 0",
+    paddingLeft: "16px",
+  },
+  "& li": {
+    margin: "2px 0",
+  },
+  "& strong": {
+    fontWeight: 600,
+  },
+  "& em": {
+    fontStyle: "italic",
+  },
+  "& code": {
+    backgroundColor:
+      sender === "user" ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.1)",
+    padding: "2px 4px",
+    borderRadius: "4px",
+    fontSize: "0.8em",
+    fontFamily: "monospace",
+  },
+  "& pre": {
+    backgroundColor:
+      sender === "user" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.05)",
+    padding: "8px",
+    borderRadius: "6px",
+    overflow: "auto",
+    margin: "4px 0",
+    "& code": {
+      backgroundColor: "transparent",
+      padding: 0,
+    },
+  },
+  "& blockquote": {
+    borderLeft: `3px solid ${
+      sender === "user" ? "rgba(255,255,255,0.4)" : theme.palette.primary.main
+    }`,
+    paddingLeft: "8px",
+    margin: "4px 0",
+    fontStyle: "italic",
+  },
+  "& h1, & h2, & h3, & h4, & h5, & h6": {
+    margin: "6px 0 4px 0",
+    fontWeight: 600,
+    fontSize: "1em",
+  },
+  "& a": {
+    color:
+      sender === "user"
+        ? theme.palette.primary.contrastText
+        : theme.palette.primary.main,
+    textDecoration: "underline",
+    "&:hover": {
+      textDecoration: "none",
+    },
+  },
 }));
 
 const MessageImage = styled("img")(() => ({
@@ -113,9 +181,9 @@ const Chatbot = () => {
   const [expanded, setExpanded] = useState(false);
   // Inject blinking keyframes for typing dots (only once)
   useEffect(() => {
-    if (!document.head.querySelector('style[data-chatbot-blink]')) {
-      const style = document.createElement('style');
-      style.setAttribute('data-chatbot-blink', 'true');
+    if (!document.head.querySelector("style[data-chatbot-blink]")) {
+      const style = document.createElement("style");
+      style.setAttribute("data-chatbot-blink", "true");
       style.innerHTML = `
         @keyframes blink {
           0% { opacity: 0.2; }
@@ -147,7 +215,6 @@ const Chatbot = () => {
   const [questionId, setQuestionId] = useState(""); // ✅ new state for ID
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
-
 
   // Expand/shrink chat window
   const handleExpandShrink = () => {
@@ -191,11 +258,16 @@ const Chatbot = () => {
     formData.append("question", inputValue || "");
     if (imageFile) formData.append("image", imageFile);
     // Only pass userMessages text and image in conversation_history
-    const conversation_history = [...chatState.userMessages, userMessage].map(msg => ({
-      text: msg.text,
-      image: msg.image || null
-    }));
-    formData.append("conversation_history", JSON.stringify(conversation_history));
+    const conversation_history = [...chatState.userMessages, userMessage].map(
+      (msg) => ({
+        text: msg.text,
+        image: msg.image || null,
+      })
+    );
+    formData.append(
+      "conversation_history",
+      JSON.stringify(conversation_history)
+    );
 
     setInputValue("");
     setImageFile(null);
@@ -205,7 +277,8 @@ const Chatbot = () => {
     setAnimatedBotText("");
     try {
       const res = await askChatbot(formData);
-      const replyText = res.data?.response || "Sorry, I couldn’t understand that.";
+      const replyText =
+        res.data?.response || "Sorry, I couldn’t understand that.";
       // Handwriting effect: animate bot reply text
       let i = 0;
       setAnimatedBotText("");
@@ -218,11 +291,14 @@ const Chatbot = () => {
           // Add bot message to chatState after animation
           setChatState((prev) => ({
             ...prev,
-            botMessages: [...prev.botMessages, {
-              text: replyText,
-              sender: "bot",
-              timestamp: new Date(),
-            }],
+            botMessages: [
+              ...prev.botMessages,
+              {
+                text: replyText,
+                sender: "bot",
+                timestamp: new Date(),
+              },
+            ],
           }));
           setLoading(false);
           setAnimatedBotText("");
@@ -236,7 +312,11 @@ const Chatbot = () => {
         ...prev,
         botMessages: [
           ...prev.botMessages,
-          { text: "Error connecting to chatbot.", sender: "bot", timestamp: new Date() },
+          {
+            text: "Error connecting to chatbot.",
+            sender: "bot",
+            timestamp: new Date(),
+          },
         ],
       }));
       setLoading(false);
@@ -267,17 +347,18 @@ const Chatbot = () => {
       {open && (
         <Slide direction="up" in={open} mountOnEnter unmountOnExit>
           <ChatWindow
-            style={expanded
-              ? {
-                '--chatbot-width': '600px',
-                '--chatbot-minHeight': '600px',
-                '--chatbot-maxHeight': '800px',
-              }
-              : {
-                '--chatbot-width': '320px',
-                '--chatbot-minHeight': '400px',
-                '--chatbot-maxHeight': '600px',
-              }
+            style={
+              expanded
+                ? {
+                    "--chatbot-width": "600px",
+                    "--chatbot-minHeight": "600px",
+                    "--chatbot-maxHeight": "800px",
+                  }
+                : {
+                    "--chatbot-width": "320px",
+                    "--chatbot-minHeight": "400px",
+                    "--chatbot-maxHeight": "600px",
+                  }
             }
           >
             <ChatHeader>
@@ -290,16 +371,25 @@ const Chatbot = () => {
                   size="small"
                   sx={{
                     mr: 1,
-                    transform:  "scaleX(-1)"
+                    transform: "scaleX(-1)",
                   }}
                   aria-label={expanded ? "Shrink" : "Expand"}
                 >
-                  {expanded ? <ShrinkIcon fontSize="small" /> : <ExpandIcon fontSize="small" />}
+                  {expanded ? (
+                    <ShrinkIcon fontSize="small" />
+                  ) : (
+                    <ExpandIcon fontSize="small" />
+                  )}
                 </IconButton>
                 <BotIcon fontSize="small" />
                 <Typography variant="subtitle1">AI Assistant</Typography>
               </Box>
-              <IconButton edge="end" color="inherit" onClick={toggleChat} size="small">
+              <IconButton
+                edge="end"
+                color="inherit"
+                onClick={toggleChat}
+                size="small"
+              >
                 <CloseIcon fontSize="small" />
               </IconButton>
             </ChatHeader>
@@ -308,8 +398,16 @@ const Chatbot = () => {
             <MessageList>
               {/* Render bot and user messages in order */}
               {[
-                ...chatState.botMessages.map((message, index) => ({ ...message, type: "bot", key: `bot-${index}` })),
-                ...chatState.userMessages.map((message, index) => ({ ...message, type: "user", key: `user-${index}` })),
+                ...chatState.botMessages.map((message, index) => ({
+                  ...message,
+                  type: "bot",
+                  key: `bot-${index}`,
+                })),
+                ...chatState.userMessages.map((message, index) => ({
+                  ...message,
+                  type: "user",
+                  key: `user-${index}`,
+                })),
               ]
                 .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
                 .map((message) => (
@@ -318,10 +416,22 @@ const Chatbot = () => {
                       <UserMessage>
                         <MessageContent>
                           {message.image && (
-                            <MessageImage src={message.image} alt="User uploaded" />
+                            <MessageImage
+                              src={message.image}
+                              alt="User uploaded"
+                            />
                           )}
                           {message.text && (
-                            <MessageBubble sender="user">{message.text}</MessageBubble>
+                            <MessageBubble sender="user">
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={{
+                                  p: ({ children }) => <span>{children}</span>,
+                                }}
+                              >
+                                {message.text}
+                              </ReactMarkdown>
+                            </MessageBubble>
                           )}
                         </MessageContent>
                         <ListItemAvatar sx={{ minWidth: 32 }}>
@@ -333,12 +443,27 @@ const Chatbot = () => {
                     ) : (
                       <BotMessage>
                         <ListItemAvatar sx={{ minWidth: 32 }}>
-                          <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
+                          <Avatar
+                            sx={{
+                              width: 32,
+                              height: 32,
+                              bgcolor: "primary.main",
+                            }}
+                          >
                             <BotIcon fontSize="small" />
                           </Avatar>
                         </ListItemAvatar>
                         <MessageContent>
-                          <MessageBubble sender="bot">{message.text}</MessageBubble>
+                          <MessageBubble sender="bot">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={{
+                                p: ({ children }) => <span>{children}</span>,
+                              }}
+                            >
+                              {message.text}
+                            </ReactMarkdown>
+                          </MessageBubble>
                         </MessageContent>
                       </BotMessage>
                     )}
@@ -348,19 +473,35 @@ const Chatbot = () => {
               {loading && (
                 <BotMessage>
                   <ListItemAvatar sx={{ minWidth: 32 }}>
-                    <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
+                    <Avatar
+                      sx={{ width: 32, height: 32, bgcolor: "primary.main" }}
+                    >
                       <BotIcon fontSize="small" />
                     </Avatar>
                   </ListItemAvatar>
                   <MessageContent>
                     <MessageBubble sender="bot">
-                      {animatedBotText}
-                      {!animatedBotText && (
+                      {animatedBotText ? (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            p: ({ children }) => <span>{children}</span>,
+                          }}
+                        >
+                          {animatedBotText}
+                        </ReactMarkdown>
+                      ) : (
                         <span style={{ fontSize: "1.2em", letterSpacing: 2 }}>
                           <span className="typing-dots">
-                            <span style={{ animation: "blink 1s infinite" }}>.</span>
-                            <span style={{ animation: "blink 1.2s infinite" }}>.</span>
-                            <span style={{ animation: "blink 1.4s infinite" }}>.</span>
+                            <span style={{ animation: "blink 1s infinite" }}>
+                              .
+                            </span>
+                            <span style={{ animation: "blink 1.2s infinite" }}>
+                              .
+                            </span>
+                            <span style={{ animation: "blink 1.4s infinite" }}>
+                              .
+                            </span>
                           </span>
                         </span>
                       )}
@@ -386,7 +527,10 @@ const Chatbot = () => {
                 </Box>
               )}
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <IconButton size="small" onClick={() => fileInputRef.current.click()}>
+                <IconButton
+                  size="small"
+                  onClick={() => fileInputRef.current.click()}
+                >
                   <AttachFileIcon fontSize="small" />
                 </IconButton>
                 <input
@@ -443,7 +587,7 @@ const Chatbot = () => {
               height: 48,
             }}
           >
-             <ChatIcon fontSize="small" />
+            <ChatIcon fontSize="small" />
           </IconButton>
         </Badge>
       </Box>

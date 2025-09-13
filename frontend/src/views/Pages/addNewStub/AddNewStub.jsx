@@ -22,6 +22,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import ImageIcon from "@mui/icons-material/Image";
 import CloseIcon from "@mui/icons-material/Close";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { stubCreationAgent } from "../../../core/api/stub";
 import { useNavigate } from "react-router-dom";
 import BackToMainButton from "../../components/BackToMainButton/BackToMainButton";
@@ -95,6 +97,7 @@ const MessageContent = styled(Paper)(({ theme, isUser }) => ({
     ? "0 4px 12px rgba(255, 138, 80, 0.3)"
     : "0 2px 8px rgba(0,0,0,0.1)",
   border: isUser ? "none" : "1px solid rgba(252, 196, 132, 0.2)",
+  // Markdown-specific styles
   "& p": {
     margin: "8px 0",
     "&:first-of-type": {
@@ -125,6 +128,38 @@ const MessageContent = styled(Paper)(({ theme, isUser }) => ({
     borderRadius: "6px",
     fontSize: "0.9em",
     fontFamily: "monospace",
+  },
+  "& pre": {
+    backgroundColor: isUser
+      ? "rgba(255,255,255,0.15)"
+      : "rgba(252, 196, 132, 0.1)",
+    padding: "12px",
+    borderRadius: "8px",
+    overflow: "auto",
+    margin: "8px 0",
+    "& code": {
+      backgroundColor: "transparent",
+      padding: 0,
+    },
+  },
+  "& blockquote": {
+    borderLeft: `4px solid ${
+      isUser ? "rgba(255,255,255,0.4)" : "rgba(252, 196, 132, 0.6)"
+    }`,
+    paddingLeft: "12px",
+    margin: "8px 0",
+    fontStyle: "italic",
+  },
+  "& h1, & h2, & h3, & h4, & h5, & h6": {
+    margin: "12px 0 8px 0",
+    fontWeight: 600,
+  },
+  "& a": {
+    color: isUser ? "#ffffff" : "#ff6b35",
+    textDecoration: "underline",
+    "&:hover": {
+      textDecoration: "none",
+    },
   },
 }));
 
@@ -268,29 +303,6 @@ const AddNewStub = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  };
-
-  const formatMessageContent = (content) => {
-    // Convert markdown-like formatting to JSX
-    const parts = content.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
-
-    return parts.map((part, index) => {
-      if (part.startsWith("**") && part.endsWith("**")) {
-        return <strong key={index}>{part.slice(2, -2)}</strong>;
-      } else if (part.startsWith("*") && part.endsWith("*")) {
-        return <em key={index}>{part.slice(1, -1)}</em>;
-      } else if (part.startsWith("`") && part.endsWith("`")) {
-        return <code key={index}>{part.slice(1, -1)}</code>;
-      } else {
-        // Handle line breaks
-        return part.split("\n").map((line, lineIndex, arr) => (
-          <React.Fragment key={`${index}-${lineIndex}`}>
-            {line}
-            {lineIndex < arr.length - 1 && <br />}
-          </React.Fragment>
-        ));
-      }
-    });
   };
 
   const sendMessage = async (message = inputMessage, file = selectedFile) => {
@@ -499,28 +511,38 @@ const AddNewStub = () => {
                         />
                       </Box>
                     )}
-                    <Typography variant="body1" component="div">
-                      {formatMessageContent(message.content)}
-                      {typingMessageId === message.id && (
-                        <Box
-                          component="span"
-                          sx={{
-                            display: "inline-block",
-                            width: "3px",
-                            height: "1em",
-                            backgroundColor: message.isUser
-                              ? "rgba(255,255,255,0.8)"
-                              : "#ff6b35",
-                            ml: 0.5,
-                            animation: "blink 1s infinite",
-                            "@keyframes blink": {
-                              "0%, 50%": { opacity: 1 },
-                              "51%, 100%": { opacity: 0 },
-                            },
-                          }}
-                        />
-                      )}
-                    </Typography>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        // Custom component to ensure Typography variant consistency
+                        p: ({ children }) => (
+                          <Typography variant="body1" component="p">
+                            {children}
+                          </Typography>
+                        ),
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                    {typingMessageId === message.id && (
+                      <Box
+                        component="span"
+                        sx={{
+                          display: "inline-block",
+                          width: "3px",
+                          height: "1em",
+                          backgroundColor: message.isUser
+                            ? "rgba(255,255,255,0.8)"
+                            : "#ff6b35",
+                          ml: 0.5,
+                          animation: "blink 1s infinite",
+                          "@keyframes blink": {
+                            "0%, 50%": { opacity: 1 },
+                            "51%, 100%": { opacity: 0 },
+                          },
+                        }}
+                      />
+                    )}
                   </MessageContent>
                 </MessageBubble>
               ))}
