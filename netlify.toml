@@ -1,0 +1,10 @@
+[build]
+  base = "frontend"
+  command = "pnpm run build"
+  publish = "frontend/dist"
+
+[dev]
+  base = "frontend"
+  command = "pnpm run dev"
+  port = 5173
+  publish = "frontend/dist"
