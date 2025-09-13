@@ -396,23 +396,26 @@ const AddNewStub = () => {
   };
 
   return (
-    <Box sx={{ position: "relative", minHeight: "95vh" }}>
+    <Box
+      sx={{
+        position: "relative",
+        minHeight: "100vh",
+      }}
+    >
       <BackToMainButton
         backgroundColor="rgba(252, 196, 132, 0.9)"
         hoverColor="#ff6b35"
+        position={{ top: 10, left: 0 }}
       />
 
       <Card
         sx={{
-          maxWidth: 900,
+          maxWidth: "90vw",
           m: "auto",
-          mt: 3,
-          mb: 3,
-          background:
-            "linear-gradient(135deg, rgba(252, 196, 132, 0.1) 0%, rgba(255, 138, 80, 0.05) 100%)",
-          border: "1px solid rgba(252, 196, 132, 0.3)",
+          pt: 8,
           borderRadius: "20px",
-          boxShadow: "0 8px 32px rgba(252, 196, 132, 0.2)",
+          boxShadow: "0",
+          backgroundColor: "transparent",
         }}
       >
         <CardContent sx={{ p: 0 }}>
