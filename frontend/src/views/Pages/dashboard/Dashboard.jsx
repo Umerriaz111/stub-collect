@@ -172,10 +172,8 @@ function Dashboard() {
               mb: 4,
               textAlign: "center",
               fontWeight: 800,
-              color: "Black",
+              color: "text.default",
               pt: 0,
-              textShadow:
-                "-1px -1px 0 orange, 1px -1px 0 orange, -1px 1px 0 orange, 1px 1px 0 orange",
             }}
           >
             Browse Famous Event Stubs
@@ -183,42 +181,89 @@ function Dashboard() {
 
           <Filters onSearch={fetchListings} />
 
-          {error && (
-            <Typography color="error" sx={{ mb: 2 }}>
-              {error}
-            </Typography>
+          {listings?.length === 0 ? (
+            <Box sx={{ margin: "auto", textAlign: "center", py: 8 }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  mb: 2,
+                  color: "rgba(0,0,0,0.7)",
+                  fontWeight: 600,
+                }}
+              >
+                🎫 No Stubs Available Right Now
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  mb: 3,
+                  color: "rgba(0,0,0,0.6)",
+                  fontSize: "18px",
+                  maxWidth: "500px",
+                  margin: "0 auto 24px auto",
+                }}
+              >
+                Be the first to share your memorable event stubs with the
+                community! Upload your concert tickets, movie stubs, or sports
+                tickets to get started.
+              </Typography>
+              <Button
+                variant="contained"
+                size="large"
+                sx={{
+                  backgroundColor: "rgb(250, 185, 71)",
+                  color: "black",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  borderRadius: "30px",
+                  px: 4,
+                  py: 1.5,
+                  border: "1px solid black",
+                  textTransform: "none",
+                  "&:hover": {
+                    backgroundColor: "rgb(240, 175, 61)",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+                  },
+                }}
+                onClick={() => navigate("/add-new-stub")}
+              >
+                Upload Your First Stub
+              </Button>
+            </Box>
+          ) : (
+            <Grid container spacing={2} justifyContent="center">
+              {listings?.map((listing) => (
+                <Grid
+                  item
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  lg={3}
+                  key={listing.id}
+                >
+                  <StubCard
+                    image={`${config.VITE_APP_API_BASE_URL}/${listing.stub.image_url}`}
+                    title={listing.stub.title}
+                    price={listing.asking_price}
+                    currency={listing.currency}
+                    date={listing.stub.date}
+                    onClick={() => buyTicket(listing.id)}
+                    showSeller={true}
+                    stub={listing.stub}
+                    sellerName={listing?.seller_name}
+                    sellerId={listing?.seller_id}
+                  />
+                </Grid>
+              ))}
+            </Grid>
           )}
 
-          <Grid container spacing={2} justifyContent="center">
-            {listings?.map((listing) => (
-              <Grid
-                item
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-                xs={12}
-                sm={6}
-                md={4}
-                lg={3}
-                key={listing.id}
-              >
-                <StubCard
-                  image={`${config.VITE_APP_API_BASE_URL}/${listing.stub.image_url}`}
-                  title={listing.stub.title}
-                  price={listing.asking_price}
-                  currency={listing.currency}
-                  date={listing.stub.date}
-                  onClick={() => buyTicket(listing.id)}
-                  showSeller={true}
-                  stub={listing.stub}
-                  sellerName={listing?.seller_name}
-                  sellerId={listing?.seller_id}
-                />
-              </Grid>
-            ))}
-          </Grid>
           {/* <Footer /> */}
         </section>
       )}
