@@ -224,9 +224,9 @@ const Chatbot = () => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 300);
   };
-  // Generate a unique question ID when component mounts
+  // Generate a unique integer question ID when component mounts
   useEffect(() => {
-    const newId = uuidv4();
+    const newId = Date.now(); // Unique integer based on timestamp
     setQuestionId(newId);
     console.log("Generated Question ID:", newId);
   }, []);
