@@ -101,7 +101,7 @@ const Footer = () => {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                Stub Collector
+                StubCollect
               </Typography>
               <Typography
                 variant="body1"
@@ -280,7 +280,7 @@ const Footer = () => {
           }}
         >
           <Typography variant="body2" sx={{ opacity: 0.8 }}>
-            © 2024 Stub Collector. All rights reserved.
+            © 2024 StubCollect. All rights reserved.
           </Typography>
 
           <Box sx={{ display: "flex", gap: 3 }}>

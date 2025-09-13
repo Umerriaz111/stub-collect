@@ -1,4 +1,4 @@
-## Stub Collector
+## StubCollect
 
 ## Getting Started
 
@@ -31,7 +31,7 @@ Add the following environment variables to the config.json file:'
 {
     "VITE_APP_API_BASE_URL": "http://localhost:3000/v1", # API URL
     "VITE_APP_VERSION": "1.0.0",
-    "PROJECT_NAME": "Stub Collector"
+    "PROJECT_NAME": "StubCollect"
 }
 ```
 

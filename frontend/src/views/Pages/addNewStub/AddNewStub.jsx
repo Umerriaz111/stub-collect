@@ -82,17 +82,17 @@ const MessageBubble = styled(Box)(({ theme, isUser }) => ({
 const MessageContent = styled(Paper)(({ theme, isUser }) => ({
   padding: theme.spacing(1.5, 2),
   maxWidth: "75%",
-  backgroundColor: isUser 
-    ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)" 
+  backgroundColor: isUser
+    ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)"
     : "#ffffff",
-  background: isUser 
-    ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)" 
+  background: isUser
+    ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)"
     : "#ffffff",
   color: isUser ? "#ffffff" : theme.palette.text.primary,
   borderRadius: isUser ? "20px 20px 4px 20px" : "20px 20px 20px 4px",
   wordBreak: "break-word",
-  boxShadow: isUser 
-    ? "0 4px 12px rgba(255, 138, 80, 0.3)" 
+  boxShadow: isUser
+    ? "0 4px 12px rgba(255, 138, 80, 0.3)"
     : "0 2px 8px rgba(0,0,0,0.1)",
   border: isUser ? "none" : "1px solid rgba(252, 196, 132, 0.2)",
   "& p": {
@@ -118,7 +118,9 @@ const MessageContent = styled(Paper)(({ theme, isUser }) => ({
     fontStyle: "italic",
   },
   "& code": {
-    backgroundColor: isUser ? "rgba(255,255,255,0.25)" : "rgba(252, 196, 132, 0.2)",
+    backgroundColor: isUser
+      ? "rgba(255,255,255,0.25)"
+      : "rgba(252, 196, 132, 0.2)",
     padding: "2px 6px",
     borderRadius: "6px",
     fontSize: "0.9em",
@@ -178,7 +180,7 @@ const AddNewStub = () => {
     "Describe the event details",
     "What venue information do you see?",
     "When is this event?",
-    "Help me understand the ticket details"
+    "Help me understand the ticket details",
   ];
 
   // Auto-scroll to bottom when new messages arrive
@@ -201,10 +203,11 @@ const AddNewStub = () => {
       {
         id: 1,
         isUser: false,
-        content: "👋 **Welcome to Stub Collector!**\n\nI'm here to help you create and analyze your ticket stubs. You can:\n\n• **Upload an image** of your ticket stub\n• **Ask questions** about your stub\n• **Get detailed analysis** of event information\n• **Create listings** for your stubs\n\nTo get started, simply upload an image of your stub or ask me anything!",
+        content:
+          "👋 **Welcome to StubCollect!**\n\nI'm here to help you create and analyze your ticket stubs. You can:\n\n• **Upload an image** of your ticket stub\n• **Ask questions** about your stub\n• **Get detailed analysis** of event information\n• **Create listings** for your stubs\n\nTo get started, simply upload an image of your stub or ask me anything!",
         timestamp: new Date().toISOString(),
         isWelcome: true,
-      }
+      },
     ]);
   }, []);
 
@@ -212,12 +215,12 @@ const AddNewStub = () => {
   const typeMessage = (messageId, fullContent, onComplete) => {
     let currentIndex = 0;
     setTypingMessageId(messageId);
-    
+
     const typeNextChar = () => {
       if (currentIndex <= fullContent.length) {
-        setChatMessages(prev => 
-          prev.map(msg => 
-            msg.id === messageId 
+        setChatMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId
               ? { ...msg, content: fullContent.substring(0, currentIndex) }
               : msg
           )
@@ -270,7 +273,7 @@ const AddNewStub = () => {
   const formatMessageContent = (content) => {
     // Convert markdown-like formatting to JSX
     const parts = content.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
-    
+
     return parts.map((part, index) => {
       if (part.startsWith("**") && part.endsWith("**")) {
         return <strong key={index}>{part.slice(2, -2)}</strong>;
@@ -280,7 +283,7 @@ const AddNewStub = () => {
         return <code key={index}>{part.slice(1, -1)}</code>;
       } else {
         // Handle line breaks
-        return part.split('\n').map((line, lineIndex, arr) => (
+        return part.split("\n").map((line, lineIndex, arr) => (
           <React.Fragment key={`${index}-${lineIndex}`}>
             {line}
             {lineIndex < arr.length - 1 && <br />}
@@ -309,10 +312,10 @@ const AddNewStub = () => {
       imagePreview: file ? filePreview : null,
     };
 
-    setChatMessages(prev => [...prev, userMessage]);
+    setChatMessages((prev) => [...prev, userMessage]);
     setInputMessage("");
     setIsLoading(true);
-    
+
     // Clear file selection after sending
     if (file) {
       removeSelectedFile();
@@ -326,7 +329,7 @@ const AddNewStub = () => {
       formData.append("query", message || "Please analyze this image");
 
       const response = await stubCreationAgent(formData);
-      
+
       if (response.data.success) {
         const botMessageId = Date.now() + 1;
         const botMessage = {
@@ -337,15 +340,17 @@ const AddNewStub = () => {
         };
 
         // Add the message to chat first
-        setChatMessages(prev => [...prev, botMessage]);
+        setChatMessages((prev) => [...prev, botMessage]);
         setIsLoading(false);
 
         // Start typing animation
         typeMessage(botMessageId, response.data.response, () => {
           // Check if stub was created and navigate after typing is complete
           if (response.data.stub_created && response.data.stub_id) {
-            setSuccess("🎉 Stub created successfully! Redirecting to preview...");
-            
+            setSuccess(
+              "🎉 Stub created successfully! Redirecting to preview..."
+            );
+
             // Navigate to stub preview page
             setTimeout(() => {
               navigate(`/stub-preview/${response.data.stub_id}`);
@@ -362,11 +367,16 @@ const AddNewStub = () => {
         content: "",
         timestamp: new Date().toISOString(),
       };
-      
-      setChatMessages(prev => [...prev, errorMessage]);
-      
+
+      setChatMessages((prev) => [...prev, errorMessage]);
+
       // Type the error message
-      typeMessage(errorMessageId, `❌ **Error:** ${error.response?.data?.message || "Failed to process request"}`);
+      typeMessage(
+        errorMessageId,
+        `❌ **Error:** ${
+          error.response?.data?.message || "Failed to process request"
+        }`
+      );
     }
   };
 
@@ -386,324 +396,345 @@ const AddNewStub = () => {
   };
 
   return (
-    <Box sx={{ position: "relative", minHeight: "95vh" }}>
+    <Box
+      sx={{
+        position: "relative",
+        minHeight: "100vh",
+      }}
+    >
       <BackToMainButton
         backgroundColor="rgba(252, 196, 132, 0.9)"
         hoverColor="#ff6b35"
+        position={{ top: 10, left: 0 }}
       />
-      
+
       <Card
         sx={{
-          maxWidth: 900,
+          maxWidth: "90vw",
           m: "auto",
-          mt: 3,
-          mb: 3,
-          background: "linear-gradient(135deg, rgba(252, 196, 132, 0.1) 0%, rgba(255, 138, 80, 0.05) 100%)",
-          border: "1px solid rgba(252, 196, 132, 0.3)",
+          pt: 8,
           borderRadius: "20px",
-          boxShadow: "0 8px 32px rgba(252, 196, 132, 0.2)",
+          boxShadow: "0",
+          backgroundColor: "transparent",
         }}
       >
-      <CardContent sx={{ p: 0 }}>
-        {/* Header */}
-        <Box sx={{ 
-          p: 3, 
-          borderBottom: 1, 
-          borderColor: "rgba(252, 228, 200, 0.62)",
-          background: "linear-gradient(135deg, rgba(252, 196, 132, 0.67) 0%, rgba(252, 152, 102, 0.71) 100%)",
-          borderTopLeftRadius: "20px",
-          borderTopRightRadius: "20px",
-        }}>
-          <Typography 
-            variant="h4" 
-            component="h1" 
-            gutterBottom
+        <CardContent sx={{ p: 0 }}>
+          {/* Header */}
+          <Box
             sx={{
-              background: "linear-gradient(135deg, #fa844aff 0%, #ff6b35 100%)",
-              backgroundClip: "text",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              fontWeight: 700,
+              p: 3,
+              borderBottom: 1,
+              borderColor: "rgba(252, 228, 200, 0.62)",
+              background:
+                "linear-gradient(135deg, rgba(252, 196, 132, 0.67) 0%, rgba(252, 152, 102, 0.71) 100%)",
+              borderTopLeftRadius: "20px",
+              borderTopRightRadius: "20px",
             }}
           >
-            💬 Stub Creator Chat
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Upload your ticket stub and chat with our AI to create your listing
-          </Typography>
-        </Box>
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              sx={{
+                background:
+                  "linear-gradient(135deg, #fa844aff 0%, #ff6b35 100%)",
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                fontWeight: 700,
+              }}
+            >
+              💬 Stub Creator Chat
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Upload your ticket stub and chat with our AI to create your
+              listing
+            </Typography>
+          </Box>
 
-        {/* Alerts */}
-        {error && (
-          <Alert severity="error">
-            {error}
-          </Alert>
-        )}
+          {/* Alerts */}
+          {error && <Alert severity="error">{error}</Alert>}
 
-        {success  && (
-          <Alert severity="success" >
-            {success}
-          </Alert>
-        )}
+          {success && <Alert severity="success">{success}</Alert>}
 
-        {/* Chat Interface */}
-        <ChatContainer sx={{borderRadius: "0px 0px 20px 20px"}} elevation={0}>
-          <MessagesContainer>
-            {chatMessages.map((message) => (
-              <MessageBubble key={message.id} isUser={message.isUser}>
-                <Avatar 
-                  sx={{ 
-                    width: 40, 
-                    height: 40,
-                    bgcolor: message.isUser 
-                      ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)" 
-                      : "linear-gradient(135deg, rgba(252, 196, 132, 0.8) 0%, rgba(255, 138, 80, 0.6) 100%)",
-                    background: message.isUser 
-                      ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)" 
-                      : "linear-gradient(135deg, rgba(252, 196, 132, 0.8) 0%, rgba(255, 138, 80, 0.6) 100%)",
-                    color: "#ffffff",
-                    boxShadow: message.isUser 
-                      ? "0 4px 12px rgba(255, 138, 80, 0.3)" 
-                      : "0 2px 8px rgba(252, 196, 132, 0.3)",
+          {/* Chat Interface */}
+          <ChatContainer
+            sx={{ borderRadius: "0px 0px 20px 20px" }}
+            elevation={0}
+          >
+            <MessagesContainer>
+              {chatMessages.map((message) => (
+                <MessageBubble key={message.id} isUser={message.isUser}>
+                  <Avatar
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      bgcolor: message.isUser
+                        ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)"
+                        : "linear-gradient(135deg, rgba(252, 196, 132, 0.8) 0%, rgba(255, 138, 80, 0.6) 100%)",
+                      background: message.isUser
+                        ? "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)"
+                        : "linear-gradient(135deg, rgba(252, 196, 132, 0.8) 0%, rgba(255, 138, 80, 0.6) 100%)",
+                      color: "#ffffff",
+                      boxShadow: message.isUser
+                        ? "0 4px 12px rgba(255, 138, 80, 0.3)"
+                        : "0 2px 8px rgba(252, 196, 132, 0.3)",
+                    }}
+                  >
+                    {message.isUser ? <PersonIcon /> : <SmartToyIcon />}
+                  </Avatar>
+                  <MessageContent isUser={message.isUser}>
+                    {message.hasImage && message.imagePreview && (
+                      <Box sx={{ mb: 1 }}>
+                        <img
+                          src={message.imagePreview}
+                          alt="Uploaded stub"
+                          style={{
+                            maxWidth: "200px",
+                            maxHeight: "150px",
+                            borderRadius: "8px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </Box>
+                    )}
+                    <Typography variant="body1" component="div">
+                      {formatMessageContent(message.content)}
+                      {typingMessageId === message.id && (
+                        <Box
+                          component="span"
+                          sx={{
+                            display: "inline-block",
+                            width: "3px",
+                            height: "1em",
+                            backgroundColor: message.isUser
+                              ? "rgba(255,255,255,0.8)"
+                              : "#ff6b35",
+                            ml: 0.5,
+                            animation: "blink 1s infinite",
+                            "@keyframes blink": {
+                              "0%, 50%": { opacity: 1 },
+                              "51%, 100%": { opacity: 0 },
+                            },
+                          }}
+                        />
+                      )}
+                    </Typography>
+                  </MessageContent>
+                </MessageBubble>
+              ))}
+
+              {isLoading && (
+                <MessageBubble isUser={false}>
+                  <Avatar
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      background:
+                        "linear-gradient(135deg, rgba(252, 196, 132, 0.8) 0%, rgba(255, 138, 80, 0.6) 100%)",
+                      color: "#ffffff",
+                      boxShadow: "0 2px 8px rgba(252, 196, 132, 0.3)",
+                    }}
+                  >
+                    <SmartToyIcon />
+                  </Avatar>
+                  <MessageContent isUser={false}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <CircularProgress size={16} />
+                      <Typography variant="body1">
+                        Analyzing your stub...
+                      </Typography>
+                    </Box>
+                  </MessageContent>
+                </MessageBubble>
+              )}
+              <div ref={messagesEndRef} />
+            </MessagesContainer>
+
+            {/* Suggestions */}
+            <SuggestionsContainer>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "#ff6b35",
+                  mr: 1,
+                  fontWeight: 600,
+                  background:
+                    "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
+                  backgroundClip: "text",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                💡 Quick actions:
+              </Typography>
+              {suggestions.map((suggestion, index) => (
+                <Chip
+                  key={index}
+                  label={suggestion}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    cursor: "pointer",
+                    borderColor: "rgba(252, 196, 132, 0.5)",
+                    color: "#ff6b35",
+                    "&:hover": {
+                      background:
+                        "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
+                      color: "white",
+                      borderColor: "#ff6b35",
+                      transform: "translateY(-1px)",
+                      boxShadow: "0 4px 12px rgba(255, 138, 80, 0.3)",
+                    },
+                    transition: "all 0.2s ease-in-out",
+                  }}
+                  disabled={isLoading}
+                />
+              ))}
+            </SuggestionsContainer>
+
+            {/* Input Container */}
+            <InputContainer>
+              {/* File Preview */}
+              {filePreview && (
+                <ImagePreview>
+                  <Paper
+                    sx={{
+                      p: 1,
+                      mb: 1,
+                      display: "inline-block",
+                      border: "1px solid rgba(252, 196, 132, 0.3)",
+                      borderRadius: "12px",
+                      background:
+                        "linear-gradient(135deg, #fff8f0 0%, #fef5e7 100%)",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <img
+                        src={filePreview}
+                        alt="Preview"
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                          border: "2px solid rgba(252, 196, 132, 0.3)",
+                        }}
+                      />
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          {selectedFile?.name}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: "#ff6b35" }}>
+                          {(selectedFile?.size / 1024 / 1024).toFixed(2)} MB
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        size="small"
+                        onClick={removeSelectedFile}
+                        sx={{
+                          ml: 1,
+                          color: "#ff6b35",
+                          "&:hover": {
+                            backgroundColor: "rgba(255, 107, 53, 0.1)",
+                          },
+                        }}
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Paper>
+                </ImagePreview>
+              )}
+
+              {/* Input Row */}
+              <Stack direction="row" spacing={1} alignItems="flex-end">
+                <TextField
+                  fullWidth
+                  multiline
+                  maxRows={4}
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type a message or upload an image..."
+                  disabled={isLoading}
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "12px",
+                      backgroundColor: "#fff8f0",
+                      border: "1px solid rgba(252, 196, 132, 0.3)",
+                      "&:hover": {
+                        borderColor: "rgba(255, 138, 80, 0.5)",
+                      },
+                      "&.Mui-focused": {
+                        borderColor: "#ff6b35",
+                        boxShadow: "0 0 0 2px rgba(255, 138, 80, 0.2)",
+                      },
+                    },
+                  }}
+                />
+
+                <IconButton
+                  component="label"
+                  disabled={isLoading}
+                  sx={{
+                    bgcolor: "rgba(252, 196, 132, 0.1)",
+                    border: "2px solid rgba(252, 196, 132, 0.3)",
+                    borderRadius: "12px",
+                    color: "#ff6b35",
+                    "&:hover": {
+                      bgcolor: "rgba(252, 196, 132, 0.2)",
+                      borderColor: "#ff6b35",
+                      transform: "translateY(-1px)",
+                      boxShadow: "0 4px 12px rgba(252, 196, 132, 0.3)",
+                    },
+                    transition: "all 0.2s ease-in-out",
                   }}
                 >
-                  {message.isUser ? <PersonIcon /> : <SmartToyIcon />}
-                </Avatar>
-                <MessageContent isUser={message.isUser}>
-                  {message.hasImage && message.imagePreview && (
-                    <Box sx={{ mb: 1 }}>
-                      <img
-                        src={message.imagePreview}
-                        alt="Uploaded stub"
-                        style={{
-                          maxWidth: "200px",
-                          maxHeight: "150px",
-                          borderRadius: "8px",
-                          objectFit: "cover",
-                        }}
-                      />
-                    </Box>
-                  )}
-                  <Typography variant="body1" component="div">
-                    {formatMessageContent(message.content)}
-                    {typingMessageId === message.id && (
-                      <Box 
-                        component="span" 
-                        sx={{ 
-                          display: 'inline-block',
-                          width: '3px',
-                          height: '1em',
-                          backgroundColor: message.isUser ? 'rgba(255,255,255,0.8)' : '#ff6b35',
-                          ml: 0.5,
-                          animation: 'blink 1s infinite',
-                          '@keyframes blink': {
-                            '0%, 50%': { opacity: 1 },
-                            '51%, 100%': { opacity: 0 }
-                          }
-                        }}
-                      />
-                    )}
-                  </Typography>
-                </MessageContent>
-              </MessageBubble>
-            ))}
-            
-            {isLoading && (
-              <MessageBubble isUser={false}>
-                <Avatar sx={{ 
-                  width: 40, 
-                  height: 40, 
-                  background: "linear-gradient(135deg, rgba(252, 196, 132, 0.8) 0%, rgba(255, 138, 80, 0.6) 100%)",
-                  color: "#ffffff",
-                  boxShadow: "0 2px 8px rgba(252, 196, 132, 0.3)",
-                }}>
-                  <SmartToyIcon />
-                </Avatar>
-                <MessageContent isUser={false}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <CircularProgress size={16} />
-                    <Typography variant="body1">
-                      Analyzing your stub...
-                    </Typography>
-                  </Box>
-                </MessageContent>
-              </MessageBubble>
-            )}
-            <div ref={messagesEndRef} />
-          </MessagesContainer>
+                  <ImageIcon />
+                  <VisuallyHiddenInput
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg"
+                    onChange={handleFileSelect}
+                  />
+                </IconButton>
 
-          {/* Suggestions */}
-          <SuggestionsContainer>
-            <Typography variant="body2" sx={{ 
-              color: "#ff6b35", 
-              mr: 1, 
-              fontWeight: 600,
-              background: "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
-              backgroundClip: "text",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}>
-              💡 Quick actions:
-            </Typography>
-            {suggestions.map((suggestion, index) => (
-              <Chip
-                key={index}
-                label={suggestion}
-                onClick={() => handleSuggestionClick(suggestion)}
-                variant="outlined"
-                size="small"
-                sx={{ 
-                  cursor: "pointer",
-                  borderColor: "rgba(252, 196, 132, 0.5)",
-                  color: "#ff6b35",
-                  "&:hover": {
-                    background: "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
+                <IconButton
+                  onClick={() => sendMessage()}
+                  disabled={
+                    isLoading || (!inputMessage.trim() && !selectedFile)
+                  }
+                  sx={{
+                    background:
+                      "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
                     color: "white",
-                    borderColor: "#ff6b35",
-                    transform: "translateY(-1px)",
-                    boxShadow: "0 4px 12px rgba(255, 138, 80, 0.3)",
-                  },
-                  transition: "all 0.2s ease-in-out",
-                }}
-                disabled={isLoading}
-              />
-            ))}
-          </SuggestionsContainer>
-
-          {/* Input Container */}
-          <InputContainer>
-            {/* File Preview */}
-            {filePreview && (
-              <ImagePreview>
-                <Paper sx={{ 
-                  p: 1, 
-                  mb: 1, 
-                  display: "inline-block",
-                  border: "1px solid rgba(252, 196, 132, 0.3)",
-                  borderRadius: "12px",
-                  background: "linear-gradient(135deg, #fff8f0 0%, #fef5e7 100%)",
-                }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <img
-                      src={filePreview}
-                      alt="Preview"
-                      style={{
-                        width: "60px",
-                        height: "60px",
-                        objectFit: "cover",
-                        borderRadius: "8px",
-                        border: "2px solid rgba(252, 196, 132, 0.3)",
-                      }}
-                    />
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">
-                        {selectedFile?.name}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: "#ff6b35" }}>
-                        {(selectedFile?.size / 1024 / 1024).toFixed(2)} MB
-                      </Typography>
-                    </Box>
-                    <IconButton
-                      size="small"
-                      onClick={removeSelectedFile}
-                      sx={{ 
-                        ml: 1,
-                        color: "#ff6b35",
-                        "&:hover": {
-                          backgroundColor: "rgba(255, 107, 53, 0.1)",
-                        }
-                      }}
-                    >
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </Paper>
-              </ImagePreview>
-            )}
-
-            {/* Input Row */}
-            <Stack direction="row" spacing={1} alignItems="flex-end">
-              <TextField
-                fullWidth
-                multiline
-                maxRows={4}
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type a message or upload an image..."
-                disabled={isLoading}
-                variant="outlined"
-                size="small"
-                sx={{
-                  "& .MuiOutlinedInput-root": {
                     borderRadius: "12px",
-                    backgroundColor: "#fff8f0",
-                    border: "1px solid rgba(252, 196, 132, 0.3)",
+                    minWidth: "48px",
+                    minHeight: "48px",
                     "&:hover": {
-                      borderColor: "rgba(255, 138, 80, 0.5)",
+                      background:
+                        "linear-gradient(135deg, #ff6b35 0%, #ff5722 100%)",
+                      transform: "translateY(-1px)",
+                      boxShadow: "0 6px 16px rgba(255, 138, 80, 0.4)",
                     },
-                    "&.Mui-focused": {
-                      borderColor: "#ff6b35",
-                      boxShadow: "0 0 0 2px rgba(255, 138, 80, 0.2)",
+                    "&:disabled": {
+                      background: "rgba(189, 189, 189, 0.5)",
+                      color: "rgba(255, 255, 255, 0.5)",
                     },
-                  },
-                }}
-              />
-              
-              <IconButton
-                component="label"
-                disabled={isLoading}
-                sx={{ 
-                  bgcolor: "rgba(252, 196, 132, 0.1)",
-                  border: "2px solid rgba(252, 196, 132, 0.3)",
-                  borderRadius: "12px",
-                  color: "#ff6b35",
-                  "&:hover": { 
-                    bgcolor: "rgba(252, 196, 132, 0.2)",
-                    borderColor: "#ff6b35",
-                    transform: "translateY(-1px)",
-                    boxShadow: "0 4px 12px rgba(252, 196, 132, 0.3)",
-                  },
-                  transition: "all 0.2s ease-in-out",
-                }}
-              >
-                <ImageIcon />
-                <VisuallyHiddenInput
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={handleFileSelect}
-                />
-              </IconButton>
-
-              <IconButton
-                onClick={() => sendMessage()}
-                disabled={isLoading || (!inputMessage.trim() && !selectedFile)}
-                sx={{
-                  background: "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
-                  color: "white",
-                  borderRadius: "12px",
-                  minWidth: "48px",
-                  minHeight: "48px",
-                  "&:hover": { 
-                    background: "linear-gradient(135deg, #ff6b35 0%, #ff5722 100%)",
-                    transform: "translateY(-1px)",
-                    boxShadow: "0 6px 16px rgba(255, 138, 80, 0.4)",
-                  },
-                  "&:disabled": { 
-                    background: "rgba(189, 189, 189, 0.5)",
-                    color: "rgba(255, 255, 255, 0.5)",
-                  },
-                  transition: "all 0.2s ease-in-out",
-                }}
-              >
-                <SendIcon />
-              </IconButton>
-            </Stack>
-          </InputContainer>
-        </ChatContainer>
-      </CardContent>
-    </Card>
+                    transition: "all 0.2s ease-in-out",
+                  }}
+                >
+                  <SendIcon />
+                </IconButton>
+              </Stack>
+            </InputContainer>
+          </ChatContainer>
+        </CardContent>
+      </Card>
     </Box>
   );
 };

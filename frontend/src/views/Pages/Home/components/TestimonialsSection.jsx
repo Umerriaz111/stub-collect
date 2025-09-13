@@ -24,7 +24,7 @@ const TestimonialsSection = () => {
       avatar: "/api/placeholder/60/60",
       rating: 5,
       content:
-        "I've been collecting concert stubs for 15 years, and Stub Collector finally gave me a way to organize and monetize my collection. I've already sold several rare stubs for amazing prices!",
+        "I've been collecting concert stubs for 15 years, and StubCollect finally gave me a way to organize and monetize my collection. I've already sold several rare stubs for amazing prices!",
       highlight: "Sold $3,200 worth",
       color: "#4318FF",
     },
@@ -35,7 +35,7 @@ const TestimonialsSection = () => {
       avatar: "/api/placeholder/60/60",
       rating: 5,
       content:
-        "The verification process is incredibly thorough. As someone who's dealt with counterfeits before, I trust Stub Collector to authenticate every piece in their marketplace.",
+        "The verification process is incredibly thorough. As someone who's dealt with counterfeits before, I trust StubCollect to authenticate every piece in their marketplace.",
       highlight: "Verified Expert",
       color: "#10B981",
     },
