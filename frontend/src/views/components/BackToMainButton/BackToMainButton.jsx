@@ -1,15 +1,15 @@
-import React from 'react';
-import { Box, Typography, IconButton } from '@mui/material';
-import { Link } from 'react-router-dom';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import React from "react";
+import { Box, Typography, IconButton } from "@mui/material";
+import { Link } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-const BackToMainButton = ({ 
-  to = "/", 
+const BackToMainButton = ({
+  to = "/dashboard",
   label = "Home",
   backgroundColor = "rgb(249, 194, 100)",
   color = "black",
   hoverColor = "blue",
-  position = { top: 10, left: 0 }
+  position = { top: 10, left: 0 },
 }) => {
   return (
     <Box
@@ -31,7 +31,7 @@ const BackToMainButton = ({
         "&:hover": {
           transform: "translateX(3px)",
           boxShadow: "0 3px 10px rgba(249, 194, 100, 0.4)",
-        }
+        },
       }}
     >
       <Typography
@@ -48,13 +48,13 @@ const BackToMainButton = ({
           },
         }}
       >
-        <IconButton 
+        <IconButton
           size="small"
-          sx={{ 
+          sx={{
             color: "inherit",
             "&:hover": {
               backgroundColor: "rgba(255, 255, 255, 0.1)",
-            }
+            },
           }}
         >
           <ArrowBackIcon />
