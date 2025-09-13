@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from config import Config
 import os
 
@@ -11,6 +13,13 @@ db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 
+# FIXED: Consolidated rate limiter configuration
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"  # Use Redis in production: "redis://localhost:6379"
+)
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -18,27 +27,15 @@ def create_app(config_class=Config):
     # Configure CORS
     CORS(app, resources={
         r"/auth/*": {
-            "origins": ["http://localhost:3000"],  # Assuming React's default port
+            "origins": [f"{os.environ.get('FRONTEND_URL')}"],  # Assuming React's default port
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type"],
             "supports_credentials": True  # Important for session cookies
         },
-        r"/api/stubs/*": {  # Add CORS for stub endpoints
-            "origins": ["http://localhost:3000"],
+        r"/api/*": {  # FIXED: Covers both stubs and payments
+            "origins": [f"{os.environ.get('FRONTEND_URL')}"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type"],
-            "supports_credentials": True
-        },
-        r"/api/marketplace/*": {  # Add CORS for marketplace endpoints
-            "origins": ["http://localhost:3000"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type"],
-            "supports_credentials": True
-        },
-        r"/api/purchases/*": {  # Add CORS for purchase endpoints
-            "origins": ["http://localhost:3000"],
-            "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Stripe-Signature"],
             "supports_credentials": True
         }
     })
@@ -51,13 +48,21 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)  # Initialize Flask-Migrate
     login_manager.init_app(app)
+    
+    # FIXED: Initialize rate limiter
+    limiter.init_app(app)
+
+    # FIXED: Import all models for Flask-Migrate to detect them
+    from app import models
 
     # Import and register blueprints
-    from app.routes import auth, stubs, marketplace, purchases
+    from app.routes import auth, stubs, marketplace, direct_charges_payments, chatbot, stubcreationagent
     app.register_blueprint(auth.bp, url_prefix='/auth')
     app.register_blueprint(stubs.bp, url_prefix='/api')
     app.register_blueprint(marketplace.bp, url_prefix='/api')
-    app.register_blueprint(purchases.purchases)  # Purchase routes are already prefixed with /api
+    app.register_blueprint(direct_charges_payments.bp, url_prefix='/api')  # NEW: Payment routes
+    app.register_blueprint(chatbot.bp, url_prefix='/api/chatbot')  # NEW: Chatbot routes
+    app.register_blueprint(stubcreationagent.bp, url_prefix='/api')  # NEW: Stub creation agent routes
 
     # Setup login manager
     @login_manager.user_loader

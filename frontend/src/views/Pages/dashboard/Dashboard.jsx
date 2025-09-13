@@ -1,70 +1,227 @@
-import { Typography, Grid } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import { Typography, Grid, AppBar, Toolbar, Button } from "@mui/material";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import MainHeader from "../../components/Headers/MainHeader";
 import { Box } from "@mui/material";
 import StubCard from "../../components/Cards/StubCard";
 import { getAllListing } from "../../../core/api/marketplace";
 import config from "../../../core/services/configService";
+import StubUploadComponent from "../../components/StubUploadComponent/StubUploadComponent";
+import ProfileMenu from "../../components/Headers/ProfileMenu";
+import { createPaymentIntent } from "../../../core/api/paymentmethods";
+import Filters from "./components/Filters";
+import Chatbot from "../../components/Chatbot/Chatbot.jsx";
+import Footer from "../../components/footer/Footer.jsx";
+import bgImage from "../../../assets/doodles-bg.png";
 
 function Dashboard() {
   const navigate = useNavigate();
   const [listings, setListings] = useState([]);
   const [error, setError] = useState("");
+  const [showUpload, setShowUpload] = useState(false);
+
+  // Check for query param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("showUpload") === "true") {
+      setShowUpload(true);
+    }
+  }, []);
+  // Fetch listings with optional filters
+  const fetchListings = async (filters = {}) => {
+    try {
+      const response = await getAllListing(filters);
+      setListings(response.data.data);
+    } catch (err) {
+      setError("Failed to fetch listings");
+      console.error("Error fetching listings:", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        const response = await getAllListing();
-        setListings(response.data.data);
-      } catch (err) {
-        setError("Failed to fetch listings");
-        console.error("Error fetching listings:", err);
-      }
-    };
     fetchListings();
   }, []);
 
+  const buyTicket = async (listingId) => {
+    try {
+      const response = await createPaymentIntent(listingId);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <Box sx={{ p: 3, pt: 12 }}>
-      <MainHeader />
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: "rgb(251 146 29)",
+      }}
+    >
+      <Chatbot />
+      <AppBar
+        position="relative"
+        sx={{
+          backgroundImage: `url(${bgImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <Grid container p={2} display={"flex"} alignItems="center">
+          <Grid item xs={4}>
+            <Button
+              variant="outlined"
+              color="primary"
+              size="large"
+              sx={{
+                backgroundColor: "rgb(250, 185, 71)",
+                fontWeight: "bold",
+                fontSize: "16px",
+                borderRadius: "30px",
+                width: "50%",
+                p: "0px",
+                border: "1px solid black",
+                color: "black",
+              }}
+              onClick={() => navigate("/add-new-stub")}
+            >
+              Upload
+            </Button>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography
+              onClick={() => navigate("/")}
+              variant="body1"
+              sx={{
+                color: "rgba(255, 253, 252, 1)",
+                textAlign: "center",
+                fontWeight: 800,
+                fontSize: "30px",
+                cursor: "pointer",
+              }}
+              gutterBottom
+            >
+              Stub Collector
+            </Typography>
+          </Grid>
+          <Grid item xs={4} sx={{ textAlign: "right" }}>
+            <ProfileMenu />
+          </Grid>
+        </Grid>
+      </AppBar>
 
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        Available Stubs
-      </Typography>
-
-      {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          {error}
-        </Typography>
+      {/* Conditionally show StubUploadComponent if showUpload is true */}
+      {showUpload && (
+        <section style={{ height: "70vh" }}>
+          <StubUploadComponent />
+          <Box sx={{ textAlign: "center", mt: 2 }}>
+            <Button
+              variant="text"
+              color="primary"
+              sx={{
+                border: "none",
+                boxShadow: "none",
+                textTransform: "none",
+                fontWeight: 600,
+                fontSize: "18px",
+                display: "inline-flex",
+                alignItems: "center",
+                px: 0,
+                py: 0,
+                minWidth: 0,
+              }}
+              onClick={() => {
+                navigate("/dashboard");
+                setShowUpload(false);
+              }}
+              endIcon={
+                <span style={{ display: "flex", alignItems: "center" }}>
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </span>
+              }
+            >
+              Browse Listings
+            </Button>
+          </Box>
+        </section>
       )}
 
-      <Grid container>
-        {listings.map((listing) => (
-          <Grid
-            item
+      {/* Show normal dashboard if not showing upload */}
+      {!showUpload && (
+        <section
+          style={{
+            minHeight: "100vh",
+            paddingTop: "30px",
+          }}
+        >
+          <Typography
+            variant="h5"
             sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              mb: 1,
+              mb: 4,
+              textAlign: "center",
+              fontWeight: 800,
+              color: "Black",
+              pt: 0,
+              textShadow:
+                "-1px -1px 0 orange, 1px -1px 0 orange, -1px 1px 0 orange, 1px 1px 0 orange",
             }}
-            xs={12}
-            sm={4}
-            md={3}
-            lg={3}
-            key={listing.id}
           >
-            <StubCard
-              image={`${config.VITE_APP_API_BASE_URL}/${listing.stub.image_url}`}
-              title={listing.stub.title}
-              price={listing.asking_price}
-              currency={listing.currency}
-              onClick={() => navigate(`/marketplace/listings/${listing.id}`)}
-            />
+            Browse Famous Event Stubs
+          </Typography>
+
+          <Filters onSearch={fetchListings} />
+
+          {error && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
+
+          <Grid container spacing={2} justifyContent="center">
+            {listings?.map((listing) => (
+              <Grid
+                item
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                xs={12}
+                sm={6}
+                md={4}
+                lg={3}
+                key={listing.id}
+              >
+                <StubCard
+                  image={`${config.VITE_APP_API_BASE_URL}/${listing.stub.image_url}`}
+                  title={listing.stub.title}
+                  price={listing.asking_price}
+                  currency={listing.currency}
+                  date={listing.stub.date}
+                  onClick={() => buyTicket(listing.id)}
+                  showSeller={true}
+                  stub={listing.stub}
+                  sellerName={listing?.seller_name}
+                  sellerId={listing?.seller_id}
+                />
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
+          {/* <Footer /> */}
+        </section>
+      )}
     </Box>
   );
 }

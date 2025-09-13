@@ -1,21 +1,15 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
 import os
-from app import db
+from app import db, limiter
 from app.models.stub import Stub, SUPPORTED_CURRENCIES
 from app.services.stub_service import StubProcessor
 from datetime import datetime
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+from sqlalchemy.orm import joinedload
 
 bp = Blueprint('stubs', __name__)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-
-limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]
-)
 
 def get_stub_processor():
     """Get or create StubProcessor instance"""
@@ -26,7 +20,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @bp.route('/stubs/upload', methods=['POST'])
-@limiter.limit("10 per minute")  # Adjust as needed
+@limiter.limit("10 per minute")
 @login_required
 def upload_stub():
     """Upload and process a new stub image"""
@@ -176,15 +170,157 @@ def update_stub(stub_id):
             'message': str(e)
         }), 400
 
+@bp.route('/stubs/<int:stub_id>', methods=['DELETE'])
+@login_required
+def delete_stub(stub_id):
+    """Delete a stub and its associated image file"""
+    stub = Stub.query.filter_by(id=stub_id, user_id=current_user.id).first()
+    
+    if not stub:
+        return jsonify({
+            'status': 'error',
+            'message': 'Stub not found'
+        }), 404
+
+    try:
+        # Delete the associated image file if it exists
+        if stub.image_path and os.path.exists(stub.image_path):
+            os.remove(stub.image_path)
+        
+        # Remove the stub from database
+        db.session.delete(stub)
+        db.session.commit()
+
+        return jsonify({
+            'status': 'success',
+            'message': 'Stub deleted successfully'
+        })
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting stub: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': 'An error occurred while deleting the stub',
+            'error': str(e)
+        }), 500
+
 @bp.route('/stubs', methods=['GET'])
 @login_required
 def get_stubs():
-    """Get all stubs for the current user"""
-    stubs = Stub.query.filter_by(user_id=current_user.id).order_by(Stub.created_at.desc()).all()
-    return jsonify({
-        'status': 'success',
-        'data': [stub.to_dict() for stub in stubs]
-    })
+    """
+    Get all stubs for the current user with optional filtering
+    
+    Query Parameters (all optional):
+    - title: Search in stub titles (case-insensitive partial match)
+    - min_price: Minimum ticket price (number)
+    - max_price: Maximum ticket price (number)
+    - start_date: Start date for stubs (YYYY-MM-DD format)
+    - end_date: End date for stubs (YYYY-MM-DD format)
+    
+    Examples:
+    - /stubs?title=concert&min_price=50&max_price=200
+    - /stubs?start_date=2024-01-01&end_date=2024-12-31
+    - /stubs?title=stadium&min_price=100
+    """
+    try:
+        # Get query parameters for filtering
+        title_search = request.args.get('title', None)
+        min_price = request.args.get('min_price', None)
+        max_price = request.args.get('max_price', None)
+        start_date = request.args.get('start_date', None)
+        end_date = request.args.get('end_date', None)
+        
+        # Build query
+        query = Stub.query.filter_by(user_id=current_user.id)
+        
+        # Filter by title search (case-insensitive partial match)
+        if title_search:
+            query = query.filter(Stub.title.ilike(f'%{title_search}%'))
+        
+        # Filter by price range
+        if min_price is not None:
+            try:
+                min_price_float = float(min_price)
+                query = query.filter(Stub.ticket_price >= min_price_float)
+            except ValueError:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Invalid min_price parameter. Must be a number.'
+                }), 400
+        
+        if max_price is not None:
+            try:
+                max_price_float = float(max_price)
+                query = query.filter(Stub.ticket_price <= max_price_float)
+            except ValueError:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Invalid max_price parameter. Must be a number.'
+                }), 400
+        
+        # Filter by date range (using created_at date)
+        if start_date:
+            try:
+                start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+                query = query.filter(Stub.created_at >= start_date_obj)
+            except ValueError:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Invalid start_date parameter. Use YYYY-MM-DD format.'
+                }), 400
+        
+        if end_date:
+            try:
+                end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+                # Add one day to include the entire end date
+                from datetime import timedelta
+                end_date_obj = end_date_obj + timedelta(days=1)
+                query = query.filter(Stub.created_at < end_date_obj)
+            except ValueError:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Invalid end_date parameter. Use YYYY-MM-DD format.'
+                }), 400
+        try:
+            page = int(request.args.get('page', 1))
+            per_page = int(request.args.get('per_page', 4))
+        except (TypeError, ValueError):
+            return jsonify({
+                'status': 'error',
+                'message': 'Page and per_page must be integers.'
+            }), 400
+        stubs = query.order_by(Stub.created_at.desc()).paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+        
+        return jsonify({
+            'status': 'success',
+            'data': [stub.to_dict() for stub in stubs.items],
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': stubs.total,
+                'pages': stubs.pages,
+                'has_next': stubs.has_next,
+                'has_prev': stubs.has_prev
+            }
+            # 'filters_applied': {
+            #     'title_search': title_search,
+            #     'min_price': min_price,
+            #     'max_price': max_price,
+            #     'start_date': start_date,
+            #     'end_date': end_date
+            # }
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': 'An error occurred while fetching stubs',
+            'error': str(e)
+        }), 500
 
 @bp.route('/stubs/<int:stub_id>', methods=['GET'])
 @login_required

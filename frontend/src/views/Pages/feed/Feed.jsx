@@ -1,16 +1,22 @@
-import { Typography, Grid } from "@mui/material";
+import { Typography, Grid, IconButton } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { SET_HEADING } from "../../../core/store/App/appSlice";
-import { getUserStubs } from "../../../core/api/stub";
+import { getUserStubs, deleteStub } from "../../../core/api/stub";
 import StubCard from "../../components/Cards/StubCard";
 import { Box } from "@mui/system";
 import config from "../../../core/services/configService";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MainHeader from "../../components/Headers/MainHeader";
+import ProfileMenu from "../../components/Headers/ProfileMenu";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import notyf from "../../components/NotificationMessage/notyfInstance";
+import { createListing } from "../../../core/api/marketplace";
+import BackToMainButton from "../../components/BackToMainButton/BackToMainButton";
 
 function Feed() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [stubs, setStubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,17 +37,65 @@ function Feed() {
     }
   };
 
+  const handleListingSubmit = async (data) => {
+    try {
+      const response = await createListing(data);
+
+      notyf.success("listed on marketplace successfully");
+    } catch (error) {
+      // setError(error.response?.data?.message || "Failed to create listing");
+      notyf.error("something went wrong");
+    }
+  };
+
+  const handleDeleteStub = async (stubId) => {
+    try {
+      await deleteStub(stubId);
+      notyf.success("Stub deleted successfully");
+      // Remove the deleted stub from the state
+      setStubs(stubs.filter(stub => stub.id !== stubId));
+    } catch (error) {
+      console.error("Error deleting stub:", error);
+      notyf.error("Failed to delete stub");
+    }
+  };
+
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
 
   return (
-    <Box p={3} pt={12}>
-      <MainHeader />
+    <Box
+      sx={{
+        p: 3,
+        minHeight: "95vh",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundBlendMode: "multiply",
+      }}
+    >
+      {/* <MainHeader /> */}
+      <Box sx={{ position: "relative", width: "100%" }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: 15,
+            right: 15,
+          }}
+        >
+          <ProfileMenu />
+        </Box>
+      </Box>
 
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        My Stubs
-      </Typography>
-      <Grid container>
+      <BackToMainButton
+        backgroundColor="rgba(252, 196, 132, 0.9)"
+        label="Home/My Stubs"
+        hoverColor="#ff6b35"
+        position={{ top: 30, left: 0 }}
+      />
+
+
+      <Grid container margin={"auto"} mt={8}>
+
         {stubs.length === 0 ? (
           <Grid item xs={12}>
             <Typography component={Link} to={"/add-new-stub"}>
@@ -53,8 +107,9 @@ function Feed() {
             <Grid
               item
               xs={12}
-              sm={4}
-              md={3}
+              sm={6}
+              md={4}
+              lg={3}
               key={stub.id}
               sx={{
                 display: "flex",
@@ -70,6 +125,11 @@ function Feed() {
                 currency={stub.currency}
                 link={`/stub-preview/${stub.id}`}
                 ticketPrice={stub.ticket_price}
+                listingStatus={stub.listing_status}
+                handleListingSubmit={handleListingSubmit}
+                isMyStubsPage={true}
+                onEdit={(stub) => navigate(`/stub-preview/${stub.id}`)}
+                onDelete={(stub) => handleDeleteStub(stub.id)}
               />
             </Grid>
           ))
