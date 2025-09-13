@@ -41,6 +41,7 @@ import {
   Description,
 } from "@mui/icons-material";
 import { orange } from "@mui/material/colors";
+import notyf from "../NotificationMessage/notyfInstance";
 
 const StubCard = ({
   stub,
@@ -77,8 +78,10 @@ const StubCard = ({
   const darkBackground = "#121212"; // Dark background
   const cardBackground = "#173d5cff"; // Slightly lighter dark for cards
   const accentColor = "rgb(191 59 54)"; // Coral accent
-  const stubGradient = "linear-gradient(135deg, #1a365d 0%, #2d3748 50%, #1a202c 100%)";
-  const perforatedBorder = "repeating-linear-gradient(90deg, transparent, transparent 8px, #fb8a1c 8px, #fb8a1c 12px)";
+  const stubGradient =
+    "linear-gradient(135deg, #1a365d 0%, #2d3748 50%, #1a202c 100%)";
+  const perforatedBorder =
+    "repeating-linear-gradient(90deg, transparent, transparent 8px, #fb8a1c 8px, #fb8a1c 12px)";
 
   // Extract stub information
   const eventName = stub?.event_name || title;
@@ -139,16 +142,22 @@ const StubCard = ({
     setNewPrice("");
   };
 
-  const handleDialogSubmit = () => {
+  const handleDialogSubmit = async () => {
     if (newPrice && !isNaN(newPrice)) {
-      setChecked(true);
-      handleListingSubmit({
-        stub_id: stub?.id,
-        asking_price: newPrice,
-        currency: "USD",
-      });
-      // onListWithNewPrice && onListWithNewPrice(newPrice);
-      handleDialogClose();
+      try {
+        await handleListingSubmit({
+          stub_id: stub?.id,
+          asking_price: newPrice,
+          currency: "USD",
+        });
+        // Only set checked to true if the listing submission was successful
+        setChecked(true);
+        handleDialogClose();
+      } catch (error) {
+        // Handle error - don't set checked to true
+        console.error("Failed to list stub:", error);
+        // Optionally, you could show an error message to the user here
+      }
     }
   };
 
@@ -386,7 +395,10 @@ const StubCard = ({
             {/* Venue Information */}
             {venueName && (
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                <LocationOn fontSize="small" sx={{ mr: 1, color: primaryColor }} />
+                <LocationOn
+                  fontSize="small"
+                  sx={{ mr: 1, color: primaryColor }}
+                />
                 <Typography
                   variant="body2"
                   sx={{
@@ -403,7 +415,10 @@ const StubCard = ({
             {/* Event Date */}
             {eventDate && (
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                <CalendarToday fontSize="small" sx={{ mr: 1, color: primaryColor }} />
+                <CalendarToday
+                  fontSize="small"
+                  sx={{ mr: 1, color: primaryColor }}
+                />
                 <Typography
                   variant="body2"
                   sx={{
@@ -425,7 +440,10 @@ const StubCard = ({
             {/* Seat Information */}
             {seatInfo && (
               <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
-                <EventSeat fontSize="small" sx={{ mr: 1, color: primaryColor }} />
+                <EventSeat
+                  fontSize="small"
+                  sx={{ mr: 1, color: primaryColor }}
+                />
                 <Typography
                   variant="body2"
                   sx={{
@@ -462,15 +480,18 @@ const StubCard = ({
                   },
                 }}
               >
-                <Box 
-                  sx={{ 
-                    display: "flex", 
-                    alignItems: "flex-start", 
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "flex-start",
                     mb: 1.5,
                     height: "72px", // Fixed height for 3 lines of description
                   }}
                 >
-                  <Description fontSize="small" sx={{ mr: 1, color: primaryColor, mt: 0.2 }} />
+                  <Description
+                    fontSize="small"
+                    sx={{ mr: 1, color: primaryColor, mt: 0.2 }}
+                  />
                   <Typography
                     variant="body2"
                     sx={{
@@ -485,7 +506,10 @@ const StubCard = ({
                       textOverflow: "ellipsis",
                       cursor: rawText.length > 100 ? "help" : "default",
                       "&:hover": {
-                        color: rawText.length > 100 ? secondaryColor : `${secondaryColor}CC`,
+                        color:
+                          rawText.length > 100
+                            ? secondaryColor
+                            : `${secondaryColor}CC`,
                       },
                       transition: "color 0.2s ease",
                     }}
@@ -498,8 +522,8 @@ const StubCard = ({
 
             {/* Description Placeholder - when no raw text */}
             {!rawText && (
-              <Box 
-                sx={{ 
+              <Box
+                sx={{
                   height: "72px", // Same height as description to maintain consistent spacing
                   minHeight: "72px",
                   mb: 1.5,
@@ -559,7 +583,7 @@ const StubCard = ({
                   <Typography
                     variant="body2"
                     fontWeight={600}
-                    sx={{ 
+                    sx={{
                       color: secondaryColor,
                       fontSize: "0.85rem",
                     }}
@@ -662,7 +686,9 @@ const StubCard = ({
                   </Box>
                 </Box>
                 <Tooltip
-                  title={checked ? "Remove from marketplace" : "List in marketplace"}
+                  title={
+                    checked ? "Remove from marketplace" : "List in marketplace"
+                  }
                 >
                   <Switch
                     checked={checked}
@@ -671,7 +697,9 @@ const StubCard = ({
                     sx={{
                       "& .MuiSwitch-thumb": {
                         color: checked ? primaryColor : secondaryColor,
-                        boxShadow: `0 2px 4px ${checked ? primaryColor : secondaryColor}40`,
+                        boxShadow: `0 2px 4px ${
+                          checked ? primaryColor : secondaryColor
+                        }40`,
                       },
                       "& .MuiSwitch-track": {
                         backgroundColor: checked
@@ -761,8 +789,8 @@ const StubCard = ({
           },
         }}
       >
-        <DialogTitle 
-          sx={{ 
+        <DialogTitle
+          sx={{
             color: "white",
             fontSize: "1.3rem",
             fontWeight: 700,
@@ -774,8 +802,8 @@ const StubCard = ({
           ⚠️ Delete Event Ticket
         </DialogTitle>
         <DialogContent sx={{ padding: "24px" }}>
-          <Typography 
-            sx={{ 
+          <Typography
+            sx={{
               color: secondaryColor,
               fontSize: "1rem",
               lineHeight: 1.6,
@@ -790,10 +818,10 @@ const StubCard = ({
           </Typography>
         </DialogContent>
         <DialogActions sx={{ padding: "16px 24px 24px", gap: 2 }}>
-          <Button 
+          <Button
             onClick={handleDeleteCancel}
             variant="outlined"
-            sx={{ 
+            sx={{
               color: secondaryColor,
               borderColor: secondaryColor,
               fontWeight: 600,
@@ -801,15 +829,15 @@ const StubCard = ({
               "&:hover": {
                 backgroundColor: `${secondaryColor}15`,
                 borderColor: primaryColor,
-              }
+              },
             }}
           >
             Keep Ticket
           </Button>
-          <Button 
+          <Button
             onClick={handleDeleteConfirm}
             variant="contained"
-            sx={{ 
+            sx={{
               backgroundColor: accentColor,
               color: "white",
               fontWeight: 700,
@@ -817,7 +845,7 @@ const StubCard = ({
               "&:hover": {
                 backgroundColor: `${accentColor}CC`,
                 boxShadow: `0 4px 8px ${accentColor}40`,
-              }
+              },
             }}
           >
             Delete Forever
@@ -842,8 +870,8 @@ const StubCard = ({
           },
         }}
       >
-        <DialogTitle 
-          sx={{ 
+        <DialogTitle
+          sx={{
             color: "white",
             fontSize: "1.3rem",
             fontWeight: 700,
@@ -855,8 +883,8 @@ const StubCard = ({
           💰 Set Listing Price
         </DialogTitle>
         <DialogContent sx={{ padding: "24px" }}>
-          <Typography 
-            sx={{ 
+          <Typography
+            sx={{
               color: secondaryColor,
               mb: 3,
               textAlign: "center",
@@ -875,7 +903,9 @@ const StubCard = ({
             onChange={(e) => setNewPrice(e.target.value)}
             InputProps={{
               startAdornment: (
-                <Typography sx={{ mr: 1, color: primaryColor, fontWeight: 700 }}>
+                <Typography
+                  sx={{ mr: 1, color: primaryColor, fontWeight: 700 }}
+                >
                   {currency} $
                 </Typography>
               ),
@@ -908,10 +938,10 @@ const StubCard = ({
           />
         </DialogContent>
         <DialogActions sx={{ padding: "16px 24px 24px", gap: 2 }}>
-          <Button 
+          <Button
             onClick={handleDialogClose}
             variant="outlined"
-            sx={{ 
+            sx={{
               color: secondaryColor,
               borderColor: secondaryColor,
               fontWeight: 600,
@@ -919,15 +949,15 @@ const StubCard = ({
               "&:hover": {
                 backgroundColor: `${secondaryColor}15`,
                 borderColor: primaryColor,
-              }
+              },
             }}
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={handleDialogSubmit}
             variant="contained"
-            sx={{ 
+            sx={{
               backgroundColor: primaryColor,
               color: darkBlue,
               fontWeight: 700,
@@ -935,7 +965,7 @@ const StubCard = ({
               "&:hover": {
                 backgroundColor: secondaryColor,
                 boxShadow: `0 4px 8px ${primaryColor}40`,
-              }
+              },
             }}
           >
             List Ticket

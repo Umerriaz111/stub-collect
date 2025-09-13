@@ -84,8 +84,10 @@ function Feed() {
 
       notyf.success("listed on marketplace successfully");
     } catch (error) {
-      // setError(error.response?.data?.message || "Failed to create listing");
       notyf.error("something went wrong");
+      console.log(error);
+
+      throw new Error(error);
     }
   };
 
