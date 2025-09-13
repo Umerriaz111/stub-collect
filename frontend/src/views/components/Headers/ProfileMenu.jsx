@@ -17,7 +17,6 @@ import {
   CollectionsBookmark,
   Settings,
 } from "@mui/icons-material";
-import LogoutHandler from "./LogoutHandler";
 import { TOGGLE_THEME } from "../../../core/store/App/appSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
