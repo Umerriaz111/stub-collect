@@ -257,13 +257,19 @@ const Chatbot = () => {
     formData.append("question_id", questionId); // ✅ use generated ID
     formData.append("question", inputValue || "");
     if (imageFile) formData.append("image", imageFile);
-    // Only pass userMessages text and image in conversation_history
-    const conversation_history = [...chatState.userMessages, userMessage].map(
-      (msg) => ({
-        text: msg.text,
-        image: msg.image || null,
-      })
-    );
+
+    // Create conversation history with all messages (user and bot) in chronological order
+    const allMessages = [
+      ...chatState.botMessages.map((msg) => ({ ...msg, type: "bot" })),
+      ...chatState.userMessages.map((msg) => ({ ...msg, type: "user" })),
+      { ...userMessage, type: "user" }, // Include current message
+    ].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    const conversation_history = allMessages.map((msg) => ({
+      role: msg.type === "user" ? "user" : "assistant",
+      content: msg.text,
+    }));
+
     formData.append(
       "conversation_history",
       JSON.stringify(conversation_history)
