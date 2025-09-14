@@ -296,7 +296,7 @@ const AddNewStub = () => {
       }
     };
 
-    typingIntervalRef.current = setInterval(typeNextChar, 10); // Adjust speed here (lower = faster)
+    typingIntervalRef.current = setInterval(typeNextChar, 3); // Adjust speed here (lower = faster)
   };
 
   const handleFileSelect = (e) => {
