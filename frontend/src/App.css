@@ -27,3 +27,8 @@ body {
 html {
   scroll-snap-type: y mandatory;
 }
+
+/* background color for date picker */
+.MuiPickersLayout-root {
+  background-color: rgb(247, 146, 52);
+}
