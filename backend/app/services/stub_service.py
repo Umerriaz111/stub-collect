@@ -2,8 +2,8 @@ import os
 from PIL import Image
 from datetime import datetime
 from werkzeug.utils import secure_filename
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import HumanMessage
+#from langchain_google_genai import ChatGoogleGenerativeAI
+#from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
 from typing import Optional, Literal
 import base64
