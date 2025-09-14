@@ -146,7 +146,12 @@ function Dashboard() {
             >
               StubCollect
             </Typography> */}
-            <img src={logo} alt="StubCollect" />
+            <img
+              src={logo}
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/")}
+              alt="StubCollect"
+            />
           </Grid>
           <Grid item xs={4} sx={{ textAlign: "right" }}>
             <ProfileMenu />

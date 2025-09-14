@@ -10,13 +10,10 @@ import {
   useTheme,
 } from "@mui/material";
 import {
-  Facebook as FacebookIcon,
   Twitter as TwitterIcon,
   Instagram as InstagramIcon,
-  LinkedIn as LinkedInIcon,
   Email as EmailIcon,
-  Phone as PhoneIcon,
-  LocationOn as LocationIcon,
+  MusicNote as TikTokIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -27,13 +24,6 @@ const Footer = () => {
   const handleNavigate = (path) => {
     navigate(path);
   };
-
-  const socialLinks = [
-    { icon: <FacebookIcon />, href: "#", label: "Facebook" },
-    { icon: <TwitterIcon />, href: "#", label: "Twitter" },
-    { icon: <InstagramIcon />, href: "#", label: "Instagram" },
-    { icon: <LinkedInIcon />, href: "#", label: "LinkedIn" },
-  ];
 
   const footerLinks = {
     Product: [
@@ -46,19 +36,19 @@ const Footer = () => {
         label: "Seller Guide",
         action: () => handleNavigate("/seller-onboarding"),
       },
-      { label: "Pricing", action: () => {} },
+      { label: "Pricing", action: () => handleNavigate("/pricing") },
     ],
     Company: [
-      { label: "About Us", action: () => {} },
-      { label: "Careers", action: () => {} },
-      { label: "Press", action: () => {} },
-      { label: "Blog", action: () => {} },
+      { label: "About Us", action: () => handleNavigate("/about") },
+      { label: "Careers", action: () => handleNavigate("/careers") },
+      { label: "Press", action: () => handleNavigate("/press") },
+      { label: "Blog", action: () => handleNavigate("/blog") },
     ],
     Support: [
-      { label: "Help Center", action: () => {} },
-      { label: "Contact Us", action: () => {} },
-      { label: "Community", action: () => {} },
-      { label: "API Docs", action: () => {} },
+      { label: "Help Center", action: () => handleNavigate("/help") },
+      { label: "Contact Us", action: () => handleNavigate("/contact") },
+      { label: "Community", action: () => handleNavigate("/community") },
+      { label: "API Docs", action: () => handleNavigate("/api-docs") },
     ],
     Legal: [
       {
@@ -69,8 +59,11 @@ const Footer = () => {
         label: "Terms of Service",
         action: () => handleNavigate("/terms-of-service"),
       },
-      { label: "Cookie Policy", action: () => {} },
-      { label: "GDPR", action: () => {} },
+      {
+        label: "Cookie Policy",
+        action: () => handleNavigate("/cookie-policy"),
+      },
+      { label: "GDPR", action: () => handleNavigate("/gdpr") },
     ],
   };
 
@@ -121,47 +114,80 @@ const Footer = () => {
               <Box
                 sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 3 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  component="a"
+                  href="mailto:support@stubcollect.com"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    color: "inherit",
+                    textDecoration: "none",
+                    "&:hover": { opacity: 1 },
+                  }}
+                >
                   <EmailIcon sx={{ fontSize: "1rem", opacity: 0.8 }} />
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                    hello@stubcollector.com
+                    support@stubcollect.com
                   </Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <PhoneIcon sx={{ fontSize: "1rem", opacity: 0.8 }} />
+                <Box
+                  component="a"
+                  href="https://instagram.com/stubcollect"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    color: "inherit",
+                    textDecoration: "none",
+                    "&:hover": { opacity: 1 },
+                  }}
+                >
+                  <InstagramIcon sx={{ fontSize: "1rem", opacity: 0.8 }} />
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                    +1 (555) 123-4567
+                    @stubcollect
                   </Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <LocationIcon sx={{ fontSize: "1rem", opacity: 0.8 }} />
+                <Box
+                  component="a"
+                  href="https://tiktok.com/@stubcollect"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    color: "inherit",
+                    textDecoration: "none",
+                    "&:hover": { opacity: 1 },
+                  }}
+                >
+                  <TikTokIcon sx={{ fontSize: "1rem", opacity: 0.8 }} />
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                    San Francisco, CA
+                    @stubcollect
                   </Typography>
                 </Box>
-              </Box>
-
-              {/* Social Icons */}
-              <Box sx={{ display: "flex", gap: 1 }}>
-                {socialLinks.map((social, index) => (
-                  <IconButton
-                    key={index}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                      color: "white",
-                      backgroundColor: "rgba(255,255,255,0.1)",
-                      "&:hover": {
-                        backgroundColor: "rgba(255,255,255,0.2)",
-                        transform: "translateY(-2px)",
-                      },
-                    }}
-                    aria-label={social.label}
-                  >
-                    {social.icon}
-                  </IconButton>
-                ))}
+                <Box
+                  component="a"
+                  href="https://twitter.com/stubcollect"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    color: "inherit",
+                    textDecoration: "none",
+                    "&:hover": { opacity: 1 },
+                  }}
+                >
+                  <TwitterIcon sx={{ fontSize: "1rem", opacity: 0.8 }} />
+                  <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                    @stubcollect
+                  </Typography>
+                </Box>
               </Box>
             </Box>
           </Grid>
@@ -285,7 +311,7 @@ const Footer = () => {
 
           <Box sx={{ display: "flex", gap: 3 }}>
             <Button
-              onClick={() => {}}
+              onClick={() => handleNavigate("/privacy-policy")}
               sx={{
                 color: "white",
                 textTransform: "none",
@@ -300,7 +326,7 @@ const Footer = () => {
               Privacy
             </Button>
             <Button
-              onClick={() => {}}
+              onClick={() => handleNavigate("/terms-of-service")}
               sx={{
                 color: "white",
                 textTransform: "none",
@@ -315,7 +341,7 @@ const Footer = () => {
               Terms
             </Button>
             <Button
-              onClick={() => {}}
+              onClick={() => handleNavigate("/cookie-policy")}
               sx={{
                 color: "white",
                 textTransform: "none",
