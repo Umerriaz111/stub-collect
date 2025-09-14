@@ -29,9 +29,6 @@ const authSlice = createSlice({
       //   saveToken(action.payload?.accessToken);
 
       // If not a valid SJComputers user, set printing preference
-      if (!isUserSJComputers) {
-        state.printByNativeApp = true;
-      }
     },
     LOGOUT: (state) => {
       state.isAuthenticated = false;

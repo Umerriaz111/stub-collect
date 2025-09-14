@@ -88,7 +88,8 @@ const Signup = () => {
           if (loginResponse?.data?.status === "success") {
             dispatch(LOGIN(loginResponse.data)); // Store auth state
 
-            const redirectURL = localStorage.getItem("redirectURL") || "/";
+            const redirectURL =
+              localStorage.getItem("redirectURL") || "/dashboard";
             localStorage.removeItem("redirectURL");
 
             navigate(redirectURL);

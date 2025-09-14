@@ -229,7 +229,7 @@ function Dashboard() {
             Browse Famous Event Stubs
           </Typography>
 
-          <Filters onSearch={fetchListings} />
+          {listings?.length !== 0 && <Filters onSearch={fetchListings} />}
 
           {listings?.length === 0 ? (
             <Box sx={{ margin: "auto", textAlign: "center", py: 8 }}>
