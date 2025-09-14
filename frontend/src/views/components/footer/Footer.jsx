@@ -36,19 +36,19 @@ const Footer = () => {
         label: "Seller Guide",
         action: () => handleNavigate("/seller-onboarding"),
       },
-      { label: "Pricing", action: () => {} },
+      { label: "Pricing", action: () => handleNavigate("/pricing") },
     ],
     Company: [
-      { label: "About Us", action: () => {} },
-      { label: "Careers", action: () => {} },
-      { label: "Press", action: () => {} },
-      { label: "Blog", action: () => {} },
+      { label: "About Us", action: () => handleNavigate("/about") },
+      { label: "Careers", action: () => handleNavigate("/careers") },
+      { label: "Press", action: () => handleNavigate("/press") },
+      { label: "Blog", action: () => handleNavigate("/blog") },
     ],
     Support: [
-      { label: "Help Center", action: () => {} },
-      { label: "Contact Us", action: () => {} },
-      { label: "Community", action: () => {} },
-      { label: "API Docs", action: () => {} },
+      { label: "Help Center", action: () => handleNavigate("/help") },
+      { label: "Contact Us", action: () => handleNavigate("/contact") },
+      { label: "Community", action: () => handleNavigate("/community") },
+      { label: "API Docs", action: () => handleNavigate("/api-docs") },
     ],
     Legal: [
       {
@@ -59,8 +59,11 @@ const Footer = () => {
         label: "Terms of Service",
         action: () => handleNavigate("/terms-of-service"),
       },
-      { label: "Cookie Policy", action: () => {} },
-      { label: "GDPR", action: () => {} },
+      {
+        label: "Cookie Policy",
+        action: () => handleNavigate("/cookie-policy"),
+      },
+      { label: "GDPR", action: () => handleNavigate("/gdpr") },
     ],
   };
 
@@ -308,7 +311,7 @@ const Footer = () => {
 
           <Box sx={{ display: "flex", gap: 3 }}>
             <Button
-              onClick={() => {}}
+              onClick={() => handleNavigate("/privacy-policy")}
               sx={{
                 color: "white",
                 textTransform: "none",
@@ -323,7 +326,7 @@ const Footer = () => {
               Privacy
             </Button>
             <Button
-              onClick={() => {}}
+              onClick={() => handleNavigate("/terms-of-service")}
               sx={{
                 color: "white",
                 textTransform: "none",
@@ -338,7 +341,7 @@ const Footer = () => {
               Terms
             </Button>
             <Button
-              onClick={() => {}}
+              onClick={() => handleNavigate("/cookie-policy")}
               sx={{
                 color: "white",
                 textTransform: "none",

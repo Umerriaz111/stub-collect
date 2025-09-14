@@ -25,6 +25,7 @@ import PrivacyPolicy from "../../views/Pages/privacy/PrivacyPolicy.jsx";
 import TermsOfService from "../../views/Pages/privacy/TermsOfService.jsx";
 import { checkAuthStatusApi } from "../api/auth.ts";
 import Footer from "../../views/components/footer/Footer.jsx";
+import ComingSoon from "../../views/Pages/comingSoon/ComingSoon.jsx";
 // ********************* Protected PAGES**********
 
 // ********** EXPORT ROUTES *********
@@ -185,6 +186,85 @@ export const routes = [
     ),
     aside: null,
     // footer: <Footer />,
+  },
+
+  /* Coming Soon Pages for Footer Links */
+  {
+    path: "/about",
+    page: <ComingSoon />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
+  },
+  {
+    path: "/careers",
+    page: <ComingSoon />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
+  },
+  {
+    path: "/press",
+    page: <ComingSoon />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
+  },
+  {
+    path: "/blog",
+    page: <ComingSoon />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
+  },
+  {
+    path: "/help",
+    page: <ComingSoon />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
+  },
+  {
+    path: "/contact",
+    page: <ComingSoon />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
+  },
+  {
+    path: "/community",
+    page: <ComingSoon />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
+  },
+  {
+    path: "/api-docs",
+    page: <ComingSoon />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
+  },
+  {
+    path: "/cookie-policy",
+    page: <ComingSoon />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
+  },
+  {
+    path: "/gdpr",
+    page: <ComingSoon />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
+  },
+  {
+    path: "/pricing",
+    page: <ComingSoon />,
+    header: null,
+    aside: null,
+    footer: <Footer />,
   },
 
   /* Page Not Found 404 */
