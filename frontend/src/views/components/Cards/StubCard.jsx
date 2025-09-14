@@ -177,7 +177,7 @@ const StubCard = ({
           border: `2px solid ${primaryColor}40`,
           position: "relative",
           overflow: "hidden",
-          transform: isHovered ? "translateY(-8px) scale(1.02)" : "none",
+          // transform: isHovered ? "translateY(-8px) scale(1.02)" : "none",
           "&:hover": {
             boxShadow: `0 16px 32px ${primaryColor}60, 0 0 30px ${primaryColor}30`,
             borderColor: primaryColor,

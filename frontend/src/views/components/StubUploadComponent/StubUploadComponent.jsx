@@ -5,8 +5,7 @@ import CameraAltOutlinedIcon from "@mui/icons-material/CameraAltOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import { useNavigate } from "react-router-dom";
-import bgImage from "../../../assets/doodles-bg.png"
-
+import bgImage from "../../../assets/doodles-bg.png";
 
 const StubUploadComponent = () => {
   const boxBorderRadius = "10px";
@@ -20,8 +19,7 @@ const StubUploadComponent = () => {
         alignItems: "center",
         justifyContent: "center",
         // backgroundColor: "rgb(251 134 28)",
-        backgroundImage:
-                      `url(${bgImage})`,
+        backgroundImage: `url(${bgImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -76,6 +74,11 @@ const StubUploadComponent = () => {
             p: "0px",
             border: "2px solid black",
             color: "black",
+            "&:hover": {
+              backgroundColor: "rgb(240, 175, 61)",
+              transform: "translateY(-2px)",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+            },
           }}
           onClick={() => navigate("/add-new-stub")}
         >
@@ -169,87 +172,103 @@ const StubUploadComponent = () => {
       <Grid xs={0} md={2.5}></Grid>
 
       {/* another section */}
-      <Grid item xs={12} py={2} sx={{ backgroundColor: "rgb(251 146 29)" }}>
-        <Box sx={{ width: "500px", m: "auto" }}>
-          <Typography
-            variant="h5"
-            fontWeight={800}
-            sx={{ letterSpacing: "-0.5px" }}
-          >
-            How It Works
-          </Typography>
-          <Box sx={{ display: "flex" }}>
-            <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
-              <Box
-                sx={{
-                  border: "2px solid black",
-                  p: 1,
-                  borderRadius: "50px",
-                  mr: 1,
-                }}
-              >
-                <CameraAltOutlinedIcon />
-              </Box>
-              <Typography
-                variant="body1"
-                fontWeight={800}
-                sx={{
-                  letterSpacing: "-0.5px",
-                  p: 1,
-                  lineHeight: "1.3rem",
-                }}
-              >
-                Upload a Stub
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
-              <Box
-                sx={{
-                  border: "2px solid black",
-                  p: 1,
-                  borderRadius: "50px",
-                  mr: 1,
-                }}
-              >
-                <SearchIcon />
-              </Box>
-              <Typography
-                variant="body1"
-                fontWeight={800}
-                sx={{
-                  letterSpacing: "-0.5px",
-                  p: 1,
-                  lineHeight: "1.3rem",
-                }}
-              >
-                Identify the Event
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
-              <Box
-                sx={{
-                  border: "2px solid black",
-                  p: 1,
-                  borderRadius: "50px",
-                  mr: 1,
-                }}
-              >
-                <SellOutlinedIcon />
-              </Box>
-              <Typography
-                variant="body1"
-                fontWeight={800}
-                sx={{
-                  letterSpacing: "-0.5px",
-                  p: 1,
-                  lineHeight: "1.3rem",
-                }}
-              >
-                Sell or Browse
-              </Typography>
-            </Box>
+      <Grid
+        item
+        xs={12}
+        py={2}
+        px={1}
+        sx={{ backgroundColor: "rgb(251 146 29)" }}
+        container
+        justifyContent="center"
+      >
+        <Grid item xs={12} md={8}>
+          <Box sx={{ width: "100%", maxWidth: "500px", m: "auto" }}>
+            <Typography
+              variant="h5"
+              fontWeight={800}
+              sx={{ letterSpacing: "-0.5px" }}
+            >
+              How It Works
+            </Typography>
+            <Grid container spacing={2} mt={1}>
+              <Grid item xs={12} md={4}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box
+                    sx={{
+                      border: "2px solid black",
+                      p: 1,
+                      borderRadius: "50px",
+                      mr: 1,
+                    }}
+                  >
+                    <CameraAltOutlinedIcon />
+                  </Box>
+                  <Typography
+                    variant="body1"
+                    fontWeight={800}
+                    sx={{
+                      letterSpacing: "-0.5px",
+                      p: 1,
+                      lineHeight: "1.3rem",
+                    }}
+                  >
+                    Upload a Stub
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box
+                    sx={{
+                      border: "2px solid black",
+                      p: 1,
+                      borderRadius: "50px",
+                      mr: 1,
+                    }}
+                  >
+                    <SearchIcon />
+                  </Box>
+                  <Typography
+                    variant="body1"
+                    fontWeight={800}
+                    sx={{
+                      letterSpacing: "-0.5px",
+                      p: 1,
+                      lineHeight: "1.3rem",
+                    }}
+                  >
+                    Identify the Event
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box
+                    sx={{
+                      border: "2px solid black",
+                      p: 1,
+                      borderRadius: "50px",
+                      mr: 1,
+                    }}
+                  >
+                    <SellOutlinedIcon />
+                  </Box>
+                  <Typography
+                    variant="body1"
+                    fontWeight={800}
+                    sx={{
+                      letterSpacing: "-0.5px",
+                      p: 1,
+                      lineHeight: "1.3rem",
+                    }}
+                  >
+                    Sell or Browse
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
           </Box>
-        </Box>
+        </Grid>
       </Grid>
     </Grid>
   );

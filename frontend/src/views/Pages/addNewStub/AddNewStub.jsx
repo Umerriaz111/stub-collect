@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   Box,
   Button,
@@ -15,6 +17,8 @@ import {
   IconButton,
   Divider,
   Stack,
+  Tooltip,
+  Collapse,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
@@ -22,6 +26,10 @@ import PersonIcon from "@mui/icons-material/Person";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import ImageIcon from "@mui/icons-material/Image";
 import CloseIcon from "@mui/icons-material/Close";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { stubCreationAgent } from "../../../core/api/stub";
 import { useNavigate } from "react-router-dom";
 import BackToMainButton from "../../components/BackToMainButton/BackToMainButton";
@@ -39,13 +47,22 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 const ChatContainer = styled(Paper)(({ theme }) => ({
-  height: "70vh",
+  height: "calc(100vh - 280px)",
+  minHeight: "400px",
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
   backgroundColor: "#fff8f0",
   border: "2px solid rgba(252, 196, 132, 0.3)",
   borderRadius: "16px",
+  [theme.breakpoints.up("sm")]: {
+    height: "70vh",
+    minHeight: "500px",
+  },
+  [theme.breakpoints.down("sm")]: {
+    height: "calc(100vh - 320px)",
+    minHeight: "70vh",
+  },
 }));
 
 const MessagesContainer = styled(Box)(({ theme }) => ({
@@ -95,6 +112,7 @@ const MessageContent = styled(Paper)(({ theme, isUser }) => ({
     ? "0 4px 12px rgba(255, 138, 80, 0.3)"
     : "0 2px 8px rgba(0,0,0,0.1)",
   border: isUser ? "none" : "1px solid rgba(252, 196, 132, 0.2)",
+  // Markdown-specific styles
   "& p": {
     margin: "8px 0",
     "&:first-of-type": {
@@ -126,23 +144,60 @@ const MessageContent = styled(Paper)(({ theme, isUser }) => ({
     fontSize: "0.9em",
     fontFamily: "monospace",
   },
+  "& pre": {
+    backgroundColor: isUser
+      ? "rgba(255,255,255,0.15)"
+      : "rgba(252, 196, 132, 0.1)",
+    padding: "12px",
+    borderRadius: "8px",
+    overflow: "auto",
+    margin: "8px 0",
+    "& code": {
+      backgroundColor: "transparent",
+      padding: 0,
+    },
+  },
+  "& blockquote": {
+    borderLeft: `4px solid ${
+      isUser ? "rgba(255,255,255,0.4)" : "rgba(252, 196, 132, 0.6)"
+    }`,
+    paddingLeft: "12px",
+    margin: "8px 0",
+    fontStyle: "italic",
+  },
+  "& h1, & h2, & h3, & h4, & h5, & h6": {
+    margin: "12px 0 8px 0",
+    fontWeight: 600,
+  },
+  "& a": {
+    color: isUser ? "#ffffff" : "#ff6b35",
+    textDecoration: "underline",
+    "&:hover": {
+      textDecoration: "none",
+    },
+  },
 }));
 
 const InputContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(1.5),
   borderTop: `1px solid rgba(252, 196, 132, 0.3)`,
   backgroundColor: "#ffffff",
   borderBottomLeftRadius: "16px",
   borderBottomRightRadius: "16px",
+  [theme.breakpoints.up("sm")]: {
+    padding: theme.spacing(2),
+  },
 }));
 
 const SuggestionsContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(1.5, 2),
+  padding: theme.spacing(1, 1.5),
   display: "flex",
-  gap: theme.spacing(1),
-  flexWrap: "wrap",
+  flexDirection: "column",
   borderTop: `1px solid rgba(252, 196, 132, 0.2)`,
   backgroundColor: "#fef9f5",
+  [theme.breakpoints.up("sm")]: {
+    padding: theme.spacing(1.5, 2),
+  },
 }));
 
 const ImagePreview = styled(Box)(({ theme }) => ({
@@ -166,9 +221,15 @@ const AddNewStub = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const [typingMessageId, setTypingMessageId] = useState(null);
+  const [hasUploadedImage, setHasUploadedImage] = useState(false);
+  const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(true);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const typingIntervalRef = useRef(null);
+
+  // Detect mobile screen using MUI theme breakpoint
+  const theme = useTheme();
+  const isMobileScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const navigate = useNavigate();
 
@@ -185,8 +246,10 @@ const AddNewStub = () => {
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages, isLoading]);
+    if (typingMessageId === null) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages, isLoading, typingMessageId]);
 
   // Cleanup typing interval on unmount
   useEffect(() => {
@@ -233,12 +296,20 @@ const AddNewStub = () => {
       }
     };
 
-    typingIntervalRef.current = setInterval(typeNextChar, 10); // Adjust speed here (lower = faster)
+    typingIntervalRef.current = setInterval(typeNextChar, 3); // Adjust speed here (lower = faster)
   };
 
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check if user has already uploaded an image in the chat
+      if (hasUploadedImage) {
+        setError(
+          "You can only upload one image at a time. Please restart the chat or remove the previous image to upload a new one."
+        );
+        return;
+      }
+
       // Check file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
         setError("File size too large. Maximum size is 5MB");
@@ -270,29 +341,6 @@ const AddNewStub = () => {
     }
   };
 
-  const formatMessageContent = (content) => {
-    // Convert markdown-like formatting to JSX
-    const parts = content.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
-
-    return parts.map((part, index) => {
-      if (part.startsWith("**") && part.endsWith("**")) {
-        return <strong key={index}>{part.slice(2, -2)}</strong>;
-      } else if (part.startsWith("*") && part.endsWith("*")) {
-        return <em key={index}>{part.slice(1, -1)}</em>;
-      } else if (part.startsWith("`") && part.endsWith("`")) {
-        return <code key={index}>{part.slice(1, -1)}</code>;
-      } else {
-        // Handle line breaks
-        return part.split("\n").map((line, lineIndex, arr) => (
-          <React.Fragment key={`${index}-${lineIndex}`}>
-            {line}
-            {lineIndex < arr.length - 1 && <br />}
-          </React.Fragment>
-        ));
-      }
-    });
-  };
-
   const sendMessage = async (message = inputMessage, file = selectedFile) => {
     if (!message.trim() && !file) return;
 
@@ -316,9 +364,10 @@ const AddNewStub = () => {
     setInputMessage("");
     setIsLoading(true);
 
-    // Clear file selection after sending
+    // Clear file selection after sending and mark that an image has been uploaded
     if (file) {
       removeSelectedFile();
+      setHasUploadedImage(true);
     }
 
     try {
@@ -382,9 +431,37 @@ const AddNewStub = () => {
 
   const handleSuggestionClick = (suggestion) => {
     if (suggestion === "Upload a stub image to get started") {
+      if (hasUploadedImage) {
+        setError(
+          "Image already uploaded. Please restart the chat to upload a new image."
+        );
+        return;
+      }
       fileInputRef.current?.click();
     } else {
       sendMessage(suggestion);
+    }
+  };
+
+  const restartChat = () => {
+    setChatMessages([
+      {
+        id: 1,
+        isUser: false,
+        content:
+          "👋 **Welcome to StubCollect!**\n\nI'm here to help you create and analyze your ticket stubs. You can:\n\n• **Upload an image** of your ticket stub\n• **Ask questions** about your stub\n• **Get detailed analysis** of event information\n• **Create listings** for your stubs\n\nTo get started, simply upload an image of your stub or ask me anything!",
+        timestamp: new Date().toISOString(),
+        isWelcome: true,
+      },
+    ]);
+    setHasUploadedImage(false);
+    setSelectedFile(null);
+    setFilePreview(null);
+    setInputMessage("");
+    setError("");
+    setSuccess("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -403,6 +480,7 @@ const AddNewStub = () => {
       }}
     >
       <BackToMainButton
+        to={"/dashboard"}
         backgroundColor="rgba(252, 196, 132, 0.9)"
         hoverColor="#ff6b35"
         position={{ top: 10, left: 0 }}
@@ -422,34 +500,114 @@ const AddNewStub = () => {
           {/* Header */}
           <Box
             sx={{
-              p: 3,
+              p: { xs: 2, sm: 3 },
               borderBottom: 1,
               borderColor: "rgba(252, 228, 200, 0.62)",
               background:
                 "linear-gradient(135deg, rgba(252, 196, 132, 0.67) 0%, rgba(252, 152, 102, 0.71) 100%)",
               borderTopLeftRadius: "20px",
               borderTopRightRadius: "20px",
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              justifyContent: "space-between",
+              alignItems: { xs: "flex-start", sm: "center" },
+              gap: { xs: 2, sm: 0 },
             }}
           >
-            <Typography
-              variant="h4"
-              component="h1"
-              gutterBottom
-              sx={{
-                background:
-                  "linear-gradient(135deg, #fa844aff 0%, #ff6b35 100%)",
-                backgroundClip: "text",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                fontWeight: 700,
-              }}
-            >
-              💬 Stub Creator Chat
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Upload your ticket stub and chat with our AI to create your
-              listing
-            </Typography>
+            <Box sx={{ flex: 1, position: "relative" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  flexWrap: "wrap",
+                }}
+              >
+                <Typography
+                  variant={{ xs: "h5", sm: "h4" }}
+                  component="h1"
+                  sx={{
+                    background:
+                      "linear-gradient(135deg, #fa844aff 0%, #ff6b35 100%)",
+                    backgroundClip: "text",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    fontWeight: 700,
+                    fontSize: { xs: "1.5rem", sm: "2.125rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  💬 Stub Creator Chat
+                </Typography>
+                {hasUploadedImage && !isMobileScreen && (
+                  <Chip
+                    label="✓ Image Uploaded"
+                    size="small"
+                    sx={{
+                      bgcolor: "#4caf50",
+                      color: "white",
+                      fontWeight: 600,
+                      height: { xs: "28px", sm: "32px" },
+                      fontSize: { xs: "0.75rem", sm: "0.8125rem" },
+                      boxShadow: "0 2px 8px rgba(76, 175, 80, 0.3)",
+                      animation: "pulse 2s infinite",
+                      "@keyframes pulse": {
+                        "0%": {
+                          boxShadow: "0 2px 8px rgba(76, 175, 80, 0.3)",
+                        },
+                        "50%": {
+                          boxShadow: "0 4px 16px rgba(76, 175, 80, 0.5)",
+                        },
+                        "100%": {
+                          boxShadow: "0 2px 8px rgba(76, 175, 80, 0.3)",
+                        },
+                      },
+                    }}
+                  />
+                )}
+              </Box>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                  mt: 0.5,
+                }}
+              >
+                Upload your ticket stub and chat with our AI to create your
+                listing
+              </Typography>
+            </Box>
+            {hasUploadedImage && (
+              <Button
+                variant="outlined"
+                onClick={restartChat}
+                sx={{
+                  background:
+                    "linear-gradient(135deg, #ff6b35 0%, #ff5722 100%)",
+                  borderColor: "transparent",
+                  color: "white",
+                  minWidth: { xs: "120px", sm: "140px" },
+                  height: { xs: "36px", sm: "40px" },
+                  fontSize: { xs: "0.8rem", sm: "0.875rem" },
+                  "&:hover": {
+                    background:
+                      "linear-gradient(135deg, #ff5722 0%, #e64a19 100%)",
+                    borderColor: "transparent",
+                    transform: "translateY(-1px)",
+                    boxShadow: "0 6px 20px rgba(255, 107, 53, 0.4)",
+                  },
+                  borderRadius: "12px",
+                  textTransform: "none",
+                  fontWeight: 600,
+                  boxShadow: "0 4px 12px rgba(255, 107, 53, 0.2)",
+                  transition: "all 0.3s ease-in-out",
+                  alignSelf: { xs: "flex-start", sm: "center" },
+                }}
+              >
+                🔄 Restart Chat
+              </Button>
+            )}
           </Box>
 
           {/* Alerts */}
@@ -485,41 +643,79 @@ const AddNewStub = () => {
                   </Avatar>
                   <MessageContent isUser={message.isUser}>
                     {message.hasImage && message.imagePreview && (
-                      <Box sx={{ mb: 1 }}>
+                      <Box
+                        sx={{
+                          mb: 2,
+                          p: 1,
+                          border: "2px solid rgba(255, 255, 255, 0.3)",
+                          borderRadius: "12px",
+                          backgroundColor: message.isUser
+                            ? "rgba(255, 255, 255, 0.1)"
+                            : "rgba(252, 196, 132, 0.1)",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: message.isUser
+                              ? "rgba(255, 255, 255, 0.9)"
+                              : "#ff6b35",
+                            fontWeight: 600,
+                            textAlign: "center",
+                          }}
+                        >
+                          📷 Uploaded Image
+                        </Typography>
                         <img
                           src={message.imagePreview}
                           alt="Uploaded stub"
                           style={{
-                            maxWidth: "200px",
-                            maxHeight: "150px",
+                            maxWidth: "250px",
+                            maxHeight: "200px",
                             borderRadius: "8px",
                             objectFit: "cover",
+                            border: "1px solid rgba(255, 255, 255, 0.2)",
+                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                           }}
                         />
                       </Box>
                     )}
-                    <Typography variant="body1" component="div">
-                      {formatMessageContent(message.content)}
-                      {typingMessageId === message.id && (
-                        <Box
-                          component="span"
-                          sx={{
-                            display: "inline-block",
-                            width: "3px",
-                            height: "1em",
-                            backgroundColor: message.isUser
-                              ? "rgba(255,255,255,0.8)"
-                              : "#ff6b35",
-                            ml: 0.5,
-                            animation: "blink 1s infinite",
-                            "@keyframes blink": {
-                              "0%, 50%": { opacity: 1 },
-                              "51%, 100%": { opacity: 0 },
-                            },
-                          }}
-                        />
-                      )}
-                    </Typography>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        // Custom component to ensure Typography variant consistency
+                        p: ({ children }) => (
+                          <Typography variant="body1" component="p">
+                            {children}
+                          </Typography>
+                        ),
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                    {typingMessageId === message.id && (
+                      <Box
+                        component="span"
+                        sx={{
+                          display: "inline-block",
+                          width: "3px",
+                          height: "1em",
+                          backgroundColor: message.isUser
+                            ? "rgba(255,255,255,0.8)"
+                            : "#ff6b35",
+                          ml: 0.5,
+                          animation: "blink 1s infinite",
+                          "@keyframes blink": {
+                            "0%, 50%": { opacity: 1 },
+                            "51%, 100%": { opacity: 0 },
+                          },
+                        }}
+                      />
+                    )}
                   </MessageContent>
                 </MessageBubble>
               ))}
@@ -553,45 +749,104 @@ const AddNewStub = () => {
 
             {/* Suggestions */}
             <SuggestionsContainer>
-              <Typography
-                variant="body2"
+              <Box
                 sx={{
-                  color: "#ff6b35",
-                  mr: 1,
-                  fontWeight: 600,
-                  background:
-                    "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
-                  backgroundClip: "text",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  mb: isQuickActionsExpanded ? 1 : 0,
                 }}
               >
-                💡 Quick actions:
-              </Typography>
-              {suggestions.map((suggestion, index) => (
-                <Chip
-                  key={index}
-                  label={suggestion}
-                  onClick={() => handleSuggestionClick(suggestion)}
-                  variant="outlined"
-                  size="small"
+                <Typography
+                  variant="body2"
                   sx={{
-                    cursor: "pointer",
-                    borderColor: "rgba(252, 196, 132, 0.5)",
                     color: "#ff6b35",
-                    "&:hover": {
-                      background:
-                        "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
-                      color: "white",
-                      borderColor: "#ff6b35",
-                      transform: "translateY(-1px)",
-                      boxShadow: "0 4px 12px rgba(255, 138, 80, 0.3)",
-                    },
-                    transition: "all 0.2s ease-in-out",
+                    fontWeight: 600,
+                    background:
+                      "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
+                    backgroundClip: "text",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    lineHeight: { xs: "1.2", sm: "1.43" },
                   }}
-                  disabled={isLoading}
-                />
-              ))}
+                >
+                  💡 Quick actions
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={() =>
+                    setIsQuickActionsExpanded(!isQuickActionsExpanded)
+                  }
+                  sx={{
+                    color: "#ff6b35",
+                    width: { xs: "24px", sm: "32px" },
+                    height: { xs: "24px", sm: "32px" },
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 107, 53, 0.1)",
+                    },
+                  }}
+                >
+                  {isQuickActionsExpanded ? (
+                    <ExpandLessIcon fontSize="small" />
+                  ) : (
+                    <ExpandMoreIcon fontSize="small" />
+                  )}
+                </IconButton>
+              </Box>
+
+              <Collapse in={isQuickActionsExpanded}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: { xs: 0.5, sm: 1 },
+                    flexWrap: "wrap",
+                    width: "100%",
+                  }}
+                >
+                  {suggestions
+                    .filter((suggestion) => {
+                      // Hide upload suggestion if image already uploaded
+                      if (
+                        hasUploadedImage &&
+                        suggestion === "Upload a stub image to get started"
+                      ) {
+                        return false;
+                      }
+                      return true;
+                    })
+                    .map((suggestion, index) => (
+                      <Chip
+                        key={index}
+                        label={suggestion}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          cursor: "pointer",
+                          borderColor: "rgba(252, 196, 132, 0.5)",
+                          color: "#ff6b35",
+                          fontSize: { xs: "0.7rem", sm: "0.8125rem" },
+                          height: { xs: "24px", sm: "32px" },
+                          "& .MuiChip-label": {
+                            px: { xs: 1, sm: 1.5 },
+                          },
+                          "&:hover": {
+                            background:
+                              "linear-gradient(135deg, #ff8a50 0%, #ff6b35 100%)",
+                            color: "white",
+                            borderColor: "#ff6b35",
+                            transform: "translateY(-1px)",
+                            boxShadow: "0 4px 12px rgba(255, 138, 80, 0.3)",
+                          },
+                          transition: "all 0.2s ease-in-out",
+                        }}
+                        disabled={isLoading}
+                      />
+                    ))}
+                </Box>
+              </Collapse>
             </SuggestionsContainer>
 
             {/* Input Container */}
@@ -677,31 +932,73 @@ const AddNewStub = () => {
                   }}
                 />
 
-                <IconButton
-                  component="label"
-                  disabled={isLoading}
-                  sx={{
-                    bgcolor: "rgba(252, 196, 132, 0.1)",
-                    border: "2px solid rgba(252, 196, 132, 0.3)",
-                    borderRadius: "12px",
-                    color: "#ff6b35",
-                    "&:hover": {
-                      bgcolor: "rgba(252, 196, 132, 0.2)",
-                      borderColor: "#ff6b35",
-                      transform: "translateY(-1px)",
-                      boxShadow: "0 4px 12px rgba(252, 196, 132, 0.3)",
-                    },
-                    transition: "all 0.2s ease-in-out",
-                  }}
+                <Tooltip
+                  title={
+                    hasUploadedImage
+                      ? "Image already uploaded. Restart chat to upload a new image."
+                      : "Upload image"
+                  }
+                  arrow
+                  placement="top"
                 >
-                  <ImageIcon />
-                  <VisuallyHiddenInput
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg"
-                    onChange={handleFileSelect}
-                  />
-                </IconButton>
+                  <span>
+                    <IconButton
+                      component="label"
+                      disabled={isLoading || hasUploadedImage}
+                      sx={{
+                        bgcolor: hasUploadedImage
+                          ? "rgba(189, 189, 189, 0.2)"
+                          : "rgba(252, 196, 132, 0.1)",
+                        border: hasUploadedImage
+                          ? "2px solid rgba(189, 189, 189, 0.3)"
+                          : "2px solid rgba(252, 196, 132, 0.3)",
+                        borderRadius: "12px",
+                        color: hasUploadedImage
+                          ? "rgba(189, 189, 189, 0.7)"
+                          : "#ff6b35",
+                        "&:hover": hasUploadedImage
+                          ? {}
+                          : {
+                              bgcolor: "rgba(252, 196, 132, 0.2)",
+                              borderColor: "#ff6b35",
+                              transform: "translateY(-1px)",
+                              boxShadow: "0 4px 12px rgba(252, 196, 132, 0.3)",
+                            },
+                        transition: "all 0.2s ease-in-out",
+                        position: "relative",
+                      }}
+                    >
+                      <ImageIcon />
+                      {hasUploadedImage && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: -8,
+                            right: -8,
+                            bgcolor: "#ff6b35",
+                            color: "white",
+                            borderRadius: "50%",
+                            width: 20,
+                            height: 20,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "12px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          ✓
+                        </Box>
+                      )}
+                      <VisuallyHiddenInput
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg"
+                        onChange={handleFileSelect}
+                      />
+                    </IconButton>
+                  </span>
+                </Tooltip>
 
                 <IconButton
                   onClick={() => sendMessage()}

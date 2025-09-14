@@ -52,7 +52,7 @@ export default function MainHeader() {
                   },
                 }}
               >
-                STUB COLLECTER
+                STUBCOLLECT
               </Typography>
             </Grid>
 

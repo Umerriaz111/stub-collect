@@ -33,8 +33,6 @@ export default function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-
   const handleTogglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
@@ -76,7 +74,7 @@ export default function Login() {
     <Grid
       container
       minHeight={"100vh"}
-      px={isMobile ? 0 : 40}
+      // px={isMobile ? 0 : isTab ? 20 : 40}
       margin={"auto"}
       sx={{
         background:
@@ -88,6 +86,7 @@ export default function Login() {
         item
         xs={12}
         sm={6}
+        md={6}
         container
         sx={{
           display: "flex",

@@ -23,6 +23,7 @@ import {
   Close as CloseIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import logo from "../../../../assets/StubCollect_Logo/Transparent/StubCollect_Logo_Clean_100x100.png";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const Navbar = () => {
   const DesktopNavbar = () => (
     <Toolbar sx={{ justifyContent: "space-between", py: 1 }}>
       {/* Logo/Brand */}
-      <Typography
+      {/* <Typography
         variant="h4"
         component="div"
         onClick={handleLogoClick}
@@ -80,7 +81,13 @@ const Navbar = () => {
         }}
       >
         StubCollect
-      </Typography>
+      </Typography> */}
+      <img
+        src={logo}
+        style={{ cursor: "pointer" }}
+        onClick={() => navigate("/")}
+        alt="StubCollect"
+      />
 
       {/* Navigation Links */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -204,7 +211,7 @@ const Navbar = () => {
   // Mobile Navbar
   const MobileNavbar = () => (
     <Toolbar sx={{ justifyContent: "space-between" }}>
-      <Typography
+      {/* <Typography
         variant="h5"
         component="div"
         onClick={handleLogoClick}
@@ -215,7 +222,13 @@ const Navbar = () => {
         }}
       >
         StubCollect
-      </Typography>
+      </Typography> */}
+      <img
+        src={logo}
+        style={{ cursor: "pointer" }}
+        onClick={() => navigate("/")}
+        alt="StubCollect"
+      />
 
       <IconButton
         color="inherit"
