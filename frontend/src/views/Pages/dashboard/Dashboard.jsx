@@ -177,6 +177,7 @@ function Dashboard() {
                 alignItems: "center",
                 px: 0,
                 py: 0,
+                mb: 2,
                 minWidth: 0,
               }}
               onClick={() => {
