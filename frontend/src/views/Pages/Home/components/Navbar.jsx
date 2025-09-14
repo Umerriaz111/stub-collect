@@ -82,7 +82,12 @@ const Navbar = () => {
       >
         StubCollect
       </Typography> */}
-      <img src={logo} alt="StubCollect" />
+      <img
+        src={logo}
+        style={{ cursor: "pointer" }}
+        onClick={() => navigate("/")}
+        alt="StubCollect"
+      />
 
       {/* Navigation Links */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -218,7 +223,12 @@ const Navbar = () => {
       >
         StubCollect
       </Typography> */}
-      <img src={logo} alt="StubCollect" />
+      <img
+        src={logo}
+        style={{ cursor: "pointer" }}
+        onClick={() => navigate("/")}
+        alt="StubCollect"
+      />
 
       <IconButton
         color="inherit"
