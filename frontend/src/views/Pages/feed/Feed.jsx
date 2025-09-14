@@ -148,7 +148,7 @@ function Feed() {
         My Stubs Collection
       </Typography>
 
-      <Filters onSearch={fetchStubs} />
+      {stubs?.length !== 0 && <Filters onSearch={fetchStubs} />}
 
       {stubs?.length === 0 ? (
         <Box sx={{ margin: "auto", textAlign: "center", py: 8 }}>
