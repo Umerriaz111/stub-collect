@@ -246,8 +246,10 @@ const AddNewStub = () => {
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages, isLoading]);
+    if (typingMessageId === null) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages, isLoading, typingMessageId]);
 
   // Cleanup typing interval on unmount
   useEffect(() => {
