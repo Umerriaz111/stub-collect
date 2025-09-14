@@ -13,6 +13,7 @@ import Filters from "./components/Filters";
 import Chatbot from "../../components/Chatbot/Chatbot.jsx";
 import Footer from "../../components/footer/Footer.jsx";
 import bgImage from "../../../assets/doodles-bg.png";
+import logo from "../../../assets/StubCollect_Logo/Transparent/StubCollect_Logo_Clean_100x100.png";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -109,7 +110,7 @@ function Dashboard() {
           backgroundPosition: "center",
         }}
       >
-        <Grid container p={2} display={"flex"} alignItems="center">
+        <Grid container px={2} display={"flex"} alignItems="center">
           <Grid item xs={4}>
             <Button
               variant="outlined"
@@ -130,8 +131,8 @@ function Dashboard() {
               Upload
             </Button>
           </Grid>
-          <Grid item xs={4}>
-            <Typography
+          <Grid item xs={4} sx={{ textAlign: "center" }}>
+            {/* <Typography
               onClick={() => navigate("/")}
               variant="body1"
               sx={{
@@ -144,7 +145,8 @@ function Dashboard() {
               gutterBottom
             >
               StubCollect
-            </Typography>
+            </Typography> */}
+            <img src={logo} alt="StubCollect" />
           </Grid>
           <Grid item xs={4} sx={{ textAlign: "right" }}>
             <ProfileMenu />

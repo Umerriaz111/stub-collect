@@ -2,6 +2,9 @@ import React from "react";
 import { Grid, Typography, Box } from "@mui/material";
 import authRightBg from "../../../assets/authrightbg.png";
 import { useMediaQuery } from "@mui/material";
+import logo from "../../../assets/StubCollect_Logo/Transparent/StubCollect_Logo_Clean_400x400.png";
+import tabLogo from "../../../assets/StubCollect_Logo/Transparent/StubCollect_Logo_Clean_200x200.png";
+import mobileLogo from "../../../assets/StubCollect_Logo/Transparent/StubCollect_Logo_Clean_100x100.png";
 
 function AuthPageRightSide() {
   const isTab = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -22,11 +25,11 @@ function AuthPageRightSide() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "right",
-        p: 4,
+        px: 2,
       }}
     >
       <Box textAlign="center">
-        <Typography
+        {/* <Typography
           variant={isMobile ? "h4" : isTab ? "h3" : "h2"}
           fontWeight={700}
           sx={{ color: "white", letterSpacing: 2 }}
@@ -39,19 +42,11 @@ function AuthPageRightSide() {
           sx={{ color: "white", letterSpacing: 1 }}
         >
           COLLECT
-        </Typography>
-        {/* <Typography
-          variant="subtitle1"
-          sx={{
-            color: "white",
-            opacity: 0.8,
-            mt: 2,
-            maxWidth: "400px",
-            mx: "auto",
-          }}
-        >
-          Streamline your document collection and management process
         </Typography> */}
+        <img
+          src={isMobile ? mobileLogo : isTab ? tabLogo : logo}
+          alt="StubCollect"
+        />
       </Box>
     </Grid>
   );
