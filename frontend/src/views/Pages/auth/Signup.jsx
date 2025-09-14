@@ -43,8 +43,6 @@ const Signup = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-
   const validationSchema = Yup.object().shape({
     username: Yup.string().required("name is required"),
     email: Yup.string().required("Email is required"),
@@ -110,7 +108,6 @@ const Signup = () => {
     <Grid
       container
       minHeight={"100vh"}
-      px={isMobile ? 0 : 40}
       margin={"auto"}
       sx={{
         background:
