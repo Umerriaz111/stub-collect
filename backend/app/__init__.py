@@ -29,13 +29,13 @@ def create_app(config_class=Config):
         r"/auth/*": {
             "origins": [f"{os.environ.get('FRONTEND_URL')}"],  # Assuming React's default port
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type"],
+            "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
             "supports_credentials": True  # Important for session cookies
         },
         r"/api/*": {  # FIXED: Covers both stubs and payments
             "origins": [f"{os.environ.get('FRONTEND_URL')}"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type"],
+            "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
             "supports_credentials": True
         }
     })
@@ -65,6 +65,9 @@ def create_app(config_class=Config):
     app.register_blueprint(stubcreationagent.bp, url_prefix='/api')  # NEW: Stub creation agent routes
 
     # Setup login manager
+    login_manager.session_protection = "strong"
+    login_manager.login_view = "auth.login"
+    
     @login_manager.user_loader
     def load_user(id):
         from app.models.user import User

@@ -116,4 +116,14 @@ def user_auth_status_check():
             'data': {
                 'is_authenticated': False
             }
-        }), 200 
+        }), 200
+
+@bp.route('/debug/session', methods=['GET'])
+def debug_session():
+    from flask import session
+    return jsonify({
+        'session_data': dict(session),
+        'current_user_authenticated': current_user.is_authenticated,
+        'current_user_id': current_user.id if current_user.is_authenticated else None,
+        'cookies': dict(request.cookies)
+    }), 200 
