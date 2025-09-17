@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   IconButton,
@@ -10,6 +10,8 @@ import {
   ListItemIcon,
   Tooltip,
   Badge,
+  Button,
+  useTheme,
 } from "@mui/material";
 import {
   Logout,
@@ -21,7 +23,7 @@ import { TOGGLE_THEME } from "../../../core/store/App/appSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import notyf from "../NotificationMessage/notyfInstance";
-import { logoutApi } from "../../../core/api/auth";
+import { checkAuthStatusApi, logoutApi } from "../../../core/api/auth";
 import PaidIcon from "@mui/icons-material/Paid";
 
 export default function ProfileMenu() {
@@ -39,6 +41,26 @@ export default function ProfileMenu() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const response = await checkAuthStatusApi();
+
+        if (response?.data?.data?.is_authenticated) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.error("Error checking auth status:", error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -52,6 +74,60 @@ export default function ProfileMenu() {
       notyf.error("Logout failed. Please try again.");
     }
   };
+
+  if (!isAuthenticated) {
+    const theme = useTheme();
+
+    const handleLoginClick = () => {
+      navigate("/login");
+    };
+
+    const handleSignupClick = () => {
+      navigate("/signup");
+    };
+    return (
+      <Box sx={{ display: "flex", gap: 2 }}>
+        <Button
+          variant="outlined"
+          onClick={handleLoginClick}
+          sx={{
+            borderRadius: "25px",
+            px: 3,
+            py: 1,
+            borderColor: theme.palette.orange?.dark || "#FB921D",
+            color: theme.palette.orange?.dark || "#FB921D",
+            "&:hover": {
+              backgroundColor: theme.palette.orange?.dark || "#FB921D",
+              color: "white",
+            },
+          }}
+        >
+          Login
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleSignupClick}
+          sx={{
+            borderRadius: "25px",
+            px: 3,
+            py: 1,
+            background:
+              theme.palette.gradients?.warmGradient ||
+              "linear-gradient(135deg, #FB921D 0%, #DC2626 100%)",
+            "&:hover": {
+              background:
+                theme.palette.gradients?.orangeGradient ||
+                "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
+              transform: "translateY(-1px)",
+              boxShadow: "0 4px 12px rgba(251,146,29,0.3)",
+            },
+          }}
+        >
+          Sign Up
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <>
