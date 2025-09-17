@@ -163,7 +163,7 @@ const ConnectPayments = () => {
                 </Box>
 
                 <Box mt={5}>
-                  {!status?.hasAccount ? (
+                  {!status?.hasAccount || !status.onboarding_completed ? (
                     <Button
                       disabled={boardingLoading}
                       onClick={startOnBoarding}

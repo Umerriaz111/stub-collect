@@ -26,19 +26,56 @@ connect_service = StripeConnectService()
 @limiter.limit("3 per minute")  # PHASE 5: Stricter limit for account creation
 @login_required
 def create_stripe_connect_account():
-    """Create Stripe Connect Express account for seller"""
+    """Create Stripe Connect Express account for seller or resume incomplete onboarding"""
     try:
+        # If user already has an account, check if onboarding is complete
         if current_user.stripe_account_id:
-            direct_charges_service.log_security_event("duplicate_onboard_attempt", {
-                'user_id': current_user.id,
-                'existing_account_id': current_user.stripe_account_id
-            }, "WARNING")
-            return jsonify({
-                'status': 'error',
-                'message': 'User already has a Stripe account'
-            }), 400
+            # Check current account status
+            result = connect_service.check_account_status(current_user.id)
+            
+            if result['success'] and result.get('onboarding_completed'):
+                direct_charges_service.log_security_event("duplicate_onboard_attempt", {
+                    'user_id': current_user.id,
+                    'existing_account_id': current_user.stripe_account_id
+                }, "WARNING")
+                return jsonify({
+                    'status': 'error',
+                    'message': 'User already has a completed Stripe account',
+                    'account_status': result.get('status'),
+                    'can_accept_payments': result.get('can_accept_payments', False)
+                }), 400
+            else:
+                # Onboarding is incomplete, generate new onboarding link
+                direct_charges_service.log_security_event("resume_onboard_initiated", {
+                    'user_id': current_user.id,
+                    'existing_account_id': current_user.stripe_account_id,
+                    'current_status': result.get('status', 'unknown')
+                }, "INFO")
+                
+                return_url = url_for('direct_charges_payments.onboard_return', _external=True)
+                refresh_url = url_for('direct_charges_payments.onboard_refresh', _external=True)
+                
+                # Generate new account link for existing account
+                resume_result = connect_service.refresh_account_link(
+                    user_id=current_user.id,
+                    return_url=return_url,
+                    refresh_url=refresh_url
+                )
+                
+                if resume_result['success']:
+                    return jsonify({
+                        'status': 'success',
+                        'onboarding_url': resume_result['onboarding_url'],
+                        'account_id': current_user.stripe_account_id,
+                        'message': 'Resuming incomplete onboarding'
+                    })
+                else:
+                    return jsonify({
+                        'status': 'error',
+                        'message': f'Failed to resume onboarding: {resume_result["error"]}'
+                    }), 400
         
-        # Log onboarding attempt
+        # Original logic for new account creation
         direct_charges_service.log_security_event("stripe_onboard_initiated", {
             'user_id': current_user.id,
             'username': current_user.username
@@ -176,9 +213,47 @@ def onboard_refresh():
             'message': f'Onboarding refresh failed: {str(e)}'
         }), 500
 
-### PAYMENT PROCESSING ROUTES ###
+@bp.route('/payments/connect/onboard-status', methods=['GET'])
+@limiter.limit("10 per minute")
+@login_required
+def get_onboarding_status():
+    """Check if user needs to complete onboarding"""
+    try:
+        if not current_user.stripe_account_id:
+            return jsonify({
+                'status': 'success',
+                'needs_onboarding': True,
+                'has_account': False,
+                'message': 'No Stripe account found'
+            })
+        
+        result = connect_service.check_account_status(current_user.id)
+        
+        if result['success']:
+            needs_onboarding = not result.get('onboarding_completed', False)
+            
+            return jsonify({
+                'status': 'success',
+                'needs_onboarding': needs_onboarding,
+                'has_account': True,
+                'account_status': result.get('status'),
+                'can_accept_payments': result.get('can_accept_payments', False),
+                'onboarding_completed': result.get('onboarding_completed', False),
+                'requirements_due': result.get('requirements_due', [])
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': result['error']
+            }), 400
+            
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Status check failed: {str(e)}'
+        }), 500
 
-@bp.route('/payments/create-payment-intent', methods=['POST'])
+### PAYMENT PROCESSING ROUTES ###@bp.route('/payments/create-payment-intent', methods=['POST'])
 @limiter.limit("5 per minute")  # PHASE 5: Stricter limit for payment creation
 @login_required
 def create_payment_intent():
