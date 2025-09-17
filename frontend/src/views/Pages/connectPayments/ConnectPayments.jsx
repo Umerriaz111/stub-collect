@@ -233,7 +233,7 @@ const ConnectPayments = () => {
                   mb: 3,
                   backgroundColor:
                     getStatusColor() === "success"
-                      ? "#d4edda"
+                      ? "transparent"
                       : getStatusColor() === "warning"
                       ? "#fff3cd"
                       : "#f8d7da",

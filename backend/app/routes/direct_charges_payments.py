@@ -1,5 +1,5 @@
 # backend/app/routes/direct_charges_payments.py - Phase 4 API Routes Implementation
-from flask import Blueprint, request, jsonify, url_for
+from flask import Blueprint, request, jsonify, url_for, redirect
 from flask_login import login_required, current_user
 import stripe
 import os
@@ -7,6 +7,7 @@ import json
 import time
 from datetime import datetime
 from app import db, limiter
+from config import Config
 from app.services.direct_charges_service import DirectChargesService
 from app.services.stripe_connect_service import StripeConnectService
 from app.models.stub_order import StubOrder
@@ -140,32 +141,29 @@ def onboard_return():
                 'user_id': current_user.id,
                 'account_status': result.get('status')
             }, "INFO")
-            return jsonify({
-                'status': 'success',
-                'message': 'Account onboarding completed successfully',
-                'account_status': result.get('status'),
-                'can_accept_payments': result.get('can_accept_payments', False)
-            })
+            
+            # Redirect to frontend callback with success status
+            callback_url = f"{Config.FRONTEND_URL}/connect-payments/callback?status=success&message=Account%20onboarding%20completed%20successfully"
+            return redirect(callback_url)
         else:
             direct_charges_service.log_security_event("onboard_incomplete", {
                 'user_id': current_user.id,
                 'account_status': result.get('status', 'unknown')
             }, "WARNING")
-            return jsonify({
-                'status': 'error',
-                'message': 'Onboarding not completed or failed',
-                'account_status': result.get('status', 'unknown')
-            }), 400
+            
+            # Redirect to frontend callback with error status
+            callback_url = f"{Config.FRONTEND_URL}/connect-payments/callback?status=error&message=Onboarding%20not%20completed%20or%20failed"
+            return redirect(callback_url)
             
     except Exception as e:
         direct_charges_service.log_security_event("onboard_return_error", {
             'user_id': current_user.id,
             'error': str(e)
         }, "ERROR")
-        return jsonify({
-            'status': 'error',
-            'message': f'Onboarding return failed: {str(e)}'
-        }), 500
+        
+        # Redirect to frontend callback with error status
+        callback_url = f"{Config.FRONTEND_URL}/connect-payments/callback?status=error&message=Onboarding%20return%20failed"
+        return redirect(callback_url)
 
 @bp.route('/payments/onboard/refresh', methods=['GET'])
 @limiter.limit("5 per minute")  # PHASE 5: Moderate limit for refresh
@@ -189,29 +187,27 @@ def onboard_refresh():
         )
         
         if result['success']:
-            return jsonify({
-                'status': 'success',
-                'onboarding_url': result['onboarding_url']
-            })
+            # Redirect to the new onboarding URL from Stripe
+            return redirect(result['onboarding_url'])
         else:
             direct_charges_service.log_security_event("onboard_refresh_failed", {
                 'user_id': current_user.id,
                 'error': result['error']
             }, "ERROR")
-            return jsonify({
-                'status': 'error',
-                'message': result['error']
-            }), 400
+            
+            # Redirect to frontend callback with error status
+            callback_url = f"{Config.FRONTEND_URL}/connect-payments/callback?status=error&message=Onboarding%20refresh%20failed"
+            return redirect(callback_url)
             
     except Exception as e:
         direct_charges_service.log_security_event("onboard_refresh_error", {
             'user_id': current_user.id,
             'error': str(e)
         }, "ERROR")
-        return jsonify({
-            'status': 'error',
-            'message': f'Onboarding refresh failed: {str(e)}'
-        }), 500
+        
+        # Redirect to frontend callback with error status
+        callback_url = f"{Config.FRONTEND_URL}/connect-payments/callback?status=error&message=Onboarding%20refresh%20failed"
+        return redirect(callback_url)
 
 @bp.route('/payments/connect/onboard-status', methods=['GET'])
 @limiter.limit("10 per minute")
