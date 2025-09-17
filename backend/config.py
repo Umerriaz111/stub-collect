@@ -28,3 +28,7 @@ class Config:
     # Chatbot configuration
     GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
     SAVE_CHATBOT_IMAGES = os.environ.get('SAVE_CHATBOT_IMAGES', 'false').lower() == 'true' 
+    
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = "None"
+    SESSION_COOKIE_HTTPONLY = True
