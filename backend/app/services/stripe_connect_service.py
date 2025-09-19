@@ -24,6 +24,12 @@ class StripeConnectService:
     def create_express_account(self, user_id: int, return_url: str, refresh_url: str) -> Dict:
         """Create Stripe Express account for seller onboarding"""
         try:
+            # Ensure clean session state
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
+
             user = User.query.get(user_id)
             if not user:
                 return {'success': False, 'error': 'User not found'}
@@ -60,10 +66,14 @@ class StripeConnectService:
             )
             
             # Save account ID to user
-            user.stripe_account_id = account.id
-            user.is_seller = True
-            user.stripe_account_status = 'pending'
-            db.session.commit()
+            try:
+                user.stripe_account_id = account.id
+                user.is_seller = True
+                user.stripe_account_status = 'pending'
+                db.session.commit()
+            except Exception as db_error:
+                db.session.rollback()
+                return {'success': False, 'error': f'Failed to persist account: {str(db_error)}'}
             
             return {
                 'success': True,
@@ -148,6 +158,12 @@ class StripeConnectService:
     def check_account_status(self, user_id: int) -> Dict:
         """Check and update user's Stripe account status"""
         try:
+            # Ensure clean session state
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
+
             user = User.query.get(user_id)
             if not user or not user.stripe_account_id:
                 return {
@@ -188,7 +204,11 @@ class StripeConnectService:
             else:
                 user.stripe_requirements_due = None
             
-            db.session.commit()
+            try:
+                db.session.commit()
+            except Exception as db_error:
+                db.session.rollback()
+                return {'success': False, 'error': f'Failed to save account status: {str(db_error)}'}
             
             return {
                 'success': True,
@@ -322,6 +342,12 @@ class StripeConnectService:
     def delete_account(self, user_id: int) -> Dict:
         """Delete seller's Stripe account (use with caution)"""
         try:
+            # Ensure clean session state
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
+
             user = User.query.get(user_id)
             if not user or not user.stripe_account_id:
                 return {'success': False, 'error': 'No Stripe account found'}
@@ -330,15 +356,18 @@ class StripeConnectService:
             stripe.Account.delete(user.stripe_account_id)
             
             # Update user record
-            user.stripe_account_id = None
-            user.stripe_account_status = 'pending'
-            user.stripe_onboarding_completed = False
-            user.stripe_capabilities_enabled = False
-            user.seller_verification_level = 'unverified'
-            user.stripe_requirements_due = None
-            user.is_seller = False
-            
-            db.session.commit()
+            try:
+                user.stripe_account_id = None
+                user.stripe_account_status = 'pending'
+                user.stripe_onboarding_completed = False
+                user.stripe_capabilities_enabled = False
+                user.seller_verification_level = 'unverified'
+                user.stripe_requirements_due = None
+                user.is_seller = False
+                db.session.commit()
+            except Exception as db_error:
+                db.session.rollback()
+                return {'success': False, 'error': f'Failed to persist deletion: {str(db_error)}'}
             
             return {
                 'success': True,

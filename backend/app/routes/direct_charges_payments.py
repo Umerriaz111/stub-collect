@@ -477,15 +477,20 @@ def mark_order_completed(order_id):
                 'message': 'Only the buyer can mark order as completed'
             }), 403
         
-        # Use transaction for order completion
+        # Use explicit commit/rollback for order completion
         try:
-            with db.session.begin():
-                order.order_status = 'completed'
-                order.completed_at = datetime.utcnow()
-                
-                if order.payment:
-                    order.payment.completion_method = 'buyer_confirmed'
-            
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
+
+            order.order_status = 'completed'
+            order.completed_at = datetime.utcnow()
+            if order.payment:
+                order.payment.completion_method = 'buyer_confirmed'
+
+            db.session.commit()
+
             return jsonify({
                 'status': 'success',
                 'message': 'Order marked as completed',
@@ -493,6 +498,7 @@ def mark_order_completed(order_id):
                 'payout_note': f'Seller will receive payout in {direct_charges_service.PAYOUT_HOLD_DAYS} days'
             })
         except Exception as e:
+            db.session.rollback()
             return jsonify({
                 'status': 'error',
                 'message': f'Failed to complete order: {str(e)}'

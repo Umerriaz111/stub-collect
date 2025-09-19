@@ -243,19 +243,25 @@ class DirectChargesService:
             
             # FIXED: Create database records first, then Stripe PaymentIntent
             try:
+                # Ensure we start from a clean session state
+                try:
+                    db.session.rollback()
+                except Exception:
+                    pass
+
                 # First, create the order and payment records in database
                 order = None
                 payment = None
-                
-                with db.session.begin():
+
+                try:
                     # Create order (this also reserves the listing)
                     order = StubOrder.from_listing(listing, buyer_id, self.PLATFORM_FEE_PERCENTAGE)
                     db.session.add(order)
                     db.session.flush()  # Get order ID
-                    
+
                     # Set seller payout schedule
                     order.set_seller_payout_schedule(self.PAYOUT_HOLD_DAYS)
-                    
+
                     # Create payment record with temporary status
                     payment = StubPayment(
                         order_id=order.id,
@@ -267,13 +273,16 @@ class DirectChargesService:
                         liability_shift_status='shifted_to_seller' if self.ENABLE_LIABILITY_SHIFT and seller_eligible else 'platform_liable',
                         hold_reason='buyer_protection'
                     )
-                    
+
                     db.session.add(payment)
-                    # Transaction commits here - database records are now saved
-                
+                    db.session.commit()
+                except Exception as db_error:
+                    db.session.rollback()
+                    return {'success': False, 'error': f'Order creation failed: {str(db_error)}'}
+
                 # Now create the Stripe PaymentIntent (outside transaction)
                 seller = User.query.get(listing.seller_id)
-                
+
                 intent_params = {
                     'amount': order.total_amount_cents,
                     'currency': self.SUPPORTED_CURRENCY.lower(),
@@ -301,23 +310,27 @@ class DirectChargesService:
                 # Create the PaymentIntent (this might fail)
                 try:
                     intent = stripe.PaymentIntent.create(**intent_params)
-                    
+
                     # Update payment record with actual PaymentIntent ID
-                    with db.session.begin():
+                    try:
                         payment.payment_intent_id = intent.id
                         payment.payment_status = 'pending'
-                        # Transaction commits - PaymentIntent ID is now saved
-                    
+                        db.session.commit()
+                    except Exception as db_error:
+                        db.session.rollback()
+                        return {'success': False, 'error': f'Failed to save payment intent: {str(db_error)}'}
+
                 except stripe.error.StripeError as stripe_error:
                     # Stripe call failed - clean up database records
-                    with db.session.begin():
-                        # Release the listing reservation
+                    try:
                         listing.release_reservation()
-                        # Delete the payment and order records
                         db.session.delete(payment)
                         db.session.delete(order)
-                        # Transaction commits - cleanup complete
-                    
+                        db.session.commit()
+                    except Exception as cleanup_error:
+                        db.session.rollback()
+                        return {'success': False, 'error': f'Stripe payment creation failed and cleanup error: {stripe_error)}; {str(cleanup_error)}'}
+
                     return {'success': False, 'error': f'Stripe payment creation failed: {str(stripe_error)}'}
                 
                 return {
@@ -343,58 +356,63 @@ class DirectChargesService:
     def handle_successful_payment(self, payment_intent_id: str) -> Dict:
         """FIXED: Handle successful payment with proper listing status sync"""
         try:
-            with db.session.begin():  # Use transaction for consistency
-                payment = StubPayment.query.filter_by(
-                    payment_intent_id=payment_intent_id
-                ).first()
-                
-                if not payment:
-                    return {'success': False, 'error': 'Payment record not found'}
-                
-                # Check for duplicate processing (idempotency)
-                if payment.payment_status == 'completed':
-                    return {
-                        'success': True,
-                        'message': 'Payment already processed',
-                        'payment_status': 'completed'
-                    }
-                
-                # Retrieve PaymentIntent details
-                intent = stripe.PaymentIntent.retrieve(
-                    payment_intent_id,
-                    expand=['latest_charge']
-                )
-                
-                if intent.status == 'succeeded':
-                    # Update payment record
-                    payment.payment_status = 'completed'
-                    payment.processed_at = datetime.utcnow()
-                    payment.charge_id = intent.latest_charge.id if intent.latest_charge else None
-                    
-                    # Record Stripe processing fee
-                    if intent.latest_charge and hasattr(intent.latest_charge, 'balance_transaction'):
-                        payment.stripe_processing_fee_cents = intent.latest_charge.balance_transaction.fee
-                    
-                    # Update order
-                    order = payment.order
-                    order.order_status = 'payment_completed'
-                    order.payment_confirmed_at = datetime.utcnow()
-                    
-                    # FIXED: Sync listing status properly
-                    order.sync_with_listing_status()
-                    
-                    # Transaction commits automatically
-                    
-                    return {
-                        'success': True,
-                        'payment_status': 'completed',
-                        'order_status': order.order_status,
-                        'liability_shifted': payment.liability_shift_status == 'shifted_to_seller',
-                        'payout_note': f'Funds in seller Stripe balance, will payout in {self.PAYOUT_HOLD_DAYS} days'
-                    }
-                
-                return {'success': False, 'error': f'Payment status is {intent.status}, not succeeded'}
-                
+            # Ensure clean session
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
+
+            payment = StubPayment.query.filter_by(
+                payment_intent_id=payment_intent_id
+            ).first()
+
+            if not payment:
+                return {'success': False, 'error': 'Payment record not found'}
+
+            # Check for duplicate processing (idempotency)
+            if payment.payment_status == 'completed':
+                return {
+                    'success': True,
+                    'message': 'Payment already processed',
+                    'payment_status': 'completed'
+                }
+
+            # Retrieve PaymentIntent details
+            intent = stripe.PaymentIntent.retrieve(
+                payment_intent_id,
+                expand=['latest_charge']
+            )
+
+            if intent.status == 'succeeded':
+                # Update payment and order
+                payment.payment_status = 'completed'
+                payment.processed_at = datetime.utcnow()
+                payment.charge_id = intent.latest_charge.id if intent.latest_charge else None
+
+                if intent.latest_charge and hasattr(intent.latest_charge, 'balance_transaction'):
+                    payment.stripe_processing_fee_cents = intent.latest_charge.balance_transaction.fee
+
+                order = payment.order
+                order.order_status = 'payment_completed'
+                order.payment_confirmed_at = datetime.utcnow()
+                order.sync_with_listing_status()
+
+                try:
+                    db.session.commit()
+                except Exception as db_error:
+                    db.session.rollback()
+                    return {'success': False, 'error': f'Database update failed: {str(db_error)}'}
+
+                return {
+                    'success': True,
+                    'payment_status': 'completed',
+                    'order_status': order.order_status,
+                    'liability_shifted': payment.liability_shift_status == 'shifted_to_seller',
+                    'payout_note': f'Funds in seller Stripe balance, will payout in {self.PAYOUT_HOLD_DAYS} days'
+                }
+
+            return {'success': False, 'error': f'Payment status is {intent.status}, not succeeded'}
+
         except stripe.error.StripeError as e:
             return {'success': False, 'error': f'Stripe error: {str(e)}'}
         except Exception as e:
@@ -447,53 +465,59 @@ class DirectChargesService:
     def process_refund(self, order_id: int, refund_reason: str = 'requested_by_customer') -> Dict:
         """FIXED: Process refund with proper listing status restoration"""
         try:
-            with db.session.begin():  # Use transaction
-                order = StubOrder.query.get(order_id)
-                if not order:
-                    return {'success': False, 'error': 'Order not found'}
-                
-                payment = order.payment
-                if not payment or payment.payment_status != 'completed':
-                    return {'success': False, 'error': 'Payment not eligible for refund'}
-                
-                # Create refund
-                refund_params = {
-                    'payment_intent': payment.payment_intent_id,
-                    'amount': payment.amount_total_cents,
-                    'reason': refund_reason,
-                    'metadata': {
-                        'order_id': order.id,
-                        'refund_reason': refund_reason
-                    }
+            # Ensure clean session
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
+
+            order = StubOrder.query.get(order_id)
+            if not order:
+                return {'success': False, 'error': 'Order not found'}
+
+            payment = order.payment
+            if not payment or payment.payment_status != 'completed':
+                return {'success': False, 'error': 'Payment not eligible for refund'}
+
+            # Create refund
+            refund_params = {
+                'payment_intent': payment.payment_intent_id,
+                'amount': payment.amount_total_cents,
+                'reason': refund_reason,
+                'metadata': {
+                    'order_id': order.id,
+                    'refund_reason': refund_reason
                 }
-                
-                # For Direct Charges with liability shift
-                if payment.liability_shift_status == 'shifted_to_seller':
-                    refund_params.update({
-                        'refund_application_fee': True,
-                        'reverse_transfer': True
-                    })
-                
-                refund = stripe.Refund.create(**refund_params)
-                
-                # Update payment record
-                payment.refund_id = refund.id
-                payment.payment_status = 'refunded'
-                payment.refunded_at = datetime.utcnow()
-                
-                # Update order
-                order.order_status = 'refunded'
-                
-                # FIXED: Sync listing status properly
-                order.sync_with_listing_status()
-                
-                return {
-                    'success': True,
-                    'refund_id': refund.id,
-                    'amount_refunded_cents': refund.amount,
-                    'refund_status': refund.status
-                }
-                
+            }
+
+            if payment.liability_shift_status == 'shifted_to_seller':
+                refund_params.update({
+                    'refund_application_fee': True,
+                    'reverse_transfer': True
+                })
+
+            refund = stripe.Refund.create(**refund_params)
+
+            # Update models
+            payment.refund_id = refund.id
+            payment.payment_status = 'refunded'
+            payment.refunded_at = datetime.utcnow()
+            order.order_status = 'refunded'
+            order.sync_with_listing_status()
+
+            try:
+                db.session.commit()
+            except Exception as db_error:
+                db.session.rollback()
+                return {'success': False, 'error': f'Failed to save refund: {str(db_error)}'}
+
+            return {
+                'success': True,
+                'refund_id': refund.id,
+                'amount_refunded_cents': refund.amount,
+                'refund_status': refund.status
+            }
+
         except stripe.error.StripeError as e:
             return {'success': False, 'error': f'Refund failed: {str(e)}'}
         except Exception as e:
