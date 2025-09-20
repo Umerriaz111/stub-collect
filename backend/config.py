@@ -3,6 +3,7 @@ import os
 class Config:
     # FIXED: Base URL configuration
     BASE_URL = os.environ.get('BACKEND_URL') or 'http://localhost:5000'
+    FRONTEND_URL = os.environ.get('FRONTEND_URL') or 'http://localhost:3000'
     
      
     # Secret key for session management

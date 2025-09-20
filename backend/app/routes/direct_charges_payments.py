@@ -1,5 +1,5 @@
 # backend/app/routes/direct_charges_payments.py - Phase 4 API Routes Implementation
-from flask import Blueprint, request, jsonify, url_for
+from flask import Blueprint, request, jsonify, url_for, redirect
 from flask_login import login_required, current_user
 import stripe
 import os
@@ -7,6 +7,7 @@ import json
 import time
 from datetime import datetime
 from app import db, limiter
+from config import Config
 from app.services.direct_charges_service import DirectChargesService
 from app.services.stripe_connect_service import StripeConnectService
 from app.models.stub_order import StubOrder
@@ -26,19 +27,56 @@ connect_service = StripeConnectService()
 @limiter.limit("3 per minute")  # PHASE 5: Stricter limit for account creation
 @login_required
 def create_stripe_connect_account():
-    """Create Stripe Connect Express account for seller"""
+    """Create Stripe Connect Express account for seller or resume incomplete onboarding"""
     try:
+        # If user already has an account, check if onboarding is complete
         if current_user.stripe_account_id:
-            direct_charges_service.log_security_event("duplicate_onboard_attempt", {
-                'user_id': current_user.id,
-                'existing_account_id': current_user.stripe_account_id
-            }, "WARNING")
-            return jsonify({
-                'status': 'error',
-                'message': 'User already has a Stripe account'
-            }), 400
+            # Check current account status
+            result = connect_service.check_account_status(current_user.id)
+            
+            if result['success'] and result.get('onboarding_completed'):
+                direct_charges_service.log_security_event("duplicate_onboard_attempt", {
+                    'user_id': current_user.id,
+                    'existing_account_id': current_user.stripe_account_id
+                }, "WARNING")
+                return jsonify({
+                    'status': 'error',
+                    'message': 'User already has a completed Stripe account',
+                    'account_status': result.get('status'),
+                    'can_accept_payments': result.get('can_accept_payments', False)
+                }), 400
+            else:
+                # Onboarding is incomplete, generate new onboarding link
+                direct_charges_service.log_security_event("resume_onboard_initiated", {
+                    'user_id': current_user.id,
+                    'existing_account_id': current_user.stripe_account_id,
+                    'current_status': result.get('status', 'unknown')
+                }, "INFO")
+                
+                return_url = url_for('direct_charges_payments.onboard_return', _external=True)
+                refresh_url = url_for('direct_charges_payments.onboard_refresh', _external=True)
+                
+                # Generate new account link for existing account
+                resume_result = connect_service.refresh_account_link(
+                    user_id=current_user.id,
+                    return_url=return_url,
+                    refresh_url=refresh_url
+                )
+                
+                if resume_result['success']:
+                    return jsonify({
+                        'status': 'success',
+                        'onboarding_url': resume_result['onboarding_url'],
+                        'account_id': current_user.stripe_account_id,
+                        'message': 'Resuming incomplete onboarding'
+                    })
+                else:
+                    return jsonify({
+                        'status': 'error',
+                        'message': f'Failed to resume onboarding: {resume_result["error"]}'
+                    }), 400
         
-        # Log onboarding attempt
+        # Original logic for new account creation
         direct_charges_service.log_security_event("stripe_onboard_initiated", {
             'user_id': current_user.id,
             'username': current_user.username
@@ -103,32 +141,29 @@ def onboard_return():
                 'user_id': current_user.id,
                 'account_status': result.get('status')
             }, "INFO")
-            return jsonify({
-                'status': 'success',
-                'message': 'Account onboarding completed successfully',
-                'account_status': result.get('status'),
-                'can_accept_payments': result.get('can_accept_payments', False)
-            })
+            
+            # Redirect to frontend callback with success status
+            callback_url = f"{Config.FRONTEND_URL}/connect-payments/callback?status=success&message=Account%20onboarding%20completed%20successfully"
+            return redirect(callback_url)
         else:
             direct_charges_service.log_security_event("onboard_incomplete", {
                 'user_id': current_user.id,
                 'account_status': result.get('status', 'unknown')
             }, "WARNING")
-            return jsonify({
-                'status': 'error',
-                'message': 'Onboarding not completed or failed',
-                'account_status': result.get('status', 'unknown')
-            }), 400
+            
+            # Redirect to frontend callback with error status
+            callback_url = f"{Config.FRONTEND_URL}/connect-payments/callback?status=error&message=Onboarding%20not%20completed%20or%20failed"
+            return redirect(callback_url)
             
     except Exception as e:
         direct_charges_service.log_security_event("onboard_return_error", {
             'user_id': current_user.id,
             'error': str(e)
         }, "ERROR")
-        return jsonify({
-            'status': 'error',
-            'message': f'Onboarding return failed: {str(e)}'
-        }), 500
+        
+        # Redirect to frontend callback with error status
+        callback_url = f"{Config.FRONTEND_URL}/connect-payments/callback?status=error&message=Onboarding%20return%20failed"
+        return redirect(callback_url)
 
 @bp.route('/payments/onboard/refresh', methods=['GET'])
 @limiter.limit("5 per minute")  # PHASE 5: Moderate limit for refresh
@@ -152,33 +187,69 @@ def onboard_refresh():
         )
         
         if result['success']:
-            return jsonify({
-                'status': 'success',
-                'onboarding_url': result['onboarding_url']
-            })
+            # Redirect to the new onboarding URL from Stripe
+            return redirect(result['onboarding_url'])
         else:
             direct_charges_service.log_security_event("onboard_refresh_failed", {
                 'user_id': current_user.id,
                 'error': result['error']
             }, "ERROR")
-            return jsonify({
-                'status': 'error',
-                'message': result['error']
-            }), 400
+            
+            # Redirect to frontend callback with error status
+            callback_url = f"{Config.FRONTEND_URL}/connect-payments/callback?status=error&message=Onboarding%20refresh%20failed"
+            return redirect(callback_url)
             
     except Exception as e:
         direct_charges_service.log_security_event("onboard_refresh_error", {
             'user_id': current_user.id,
             'error': str(e)
         }, "ERROR")
+        
+        # Redirect to frontend callback with error status
+        callback_url = f"{Config.FRONTEND_URL}/connect-payments/callback?status=error&message=Onboarding%20refresh%20failed"
+        return redirect(callback_url)
+
+@bp.route('/payments/connect/onboard-status', methods=['GET'])
+@limiter.limit("10 per minute")
+@login_required
+def get_onboarding_status():
+    """Check if user needs to complete onboarding"""
+    try:
+        if not current_user.stripe_account_id:
+            return jsonify({
+                'status': 'success',
+                'needs_onboarding': True,
+                'has_account': False,
+                'message': 'No Stripe account found'
+            })
+        
+        result = connect_service.check_account_status(current_user.id)
+        
+        if result['success']:
+            needs_onboarding = not result.get('onboarding_completed', False)
+            
+            return jsonify({
+                'status': 'success',
+                'needs_onboarding': needs_onboarding,
+                'has_account': True,
+                'account_status': result.get('status'),
+                'can_accept_payments': result.get('can_accept_payments', False),
+                'onboarding_completed': result.get('onboarding_completed', False),
+                'requirements_due': result.get('requirements_due', [])
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': result['error']
+            }), 400
+            
+    except Exception as e:
         return jsonify({
             'status': 'error',
-            'message': f'Onboarding refresh failed: {str(e)}'
+            'message': f'Status check failed: {str(e)}'
         }), 500
 
-### PAYMENT PROCESSING ROUTES ###
-
-@bp.route('/payments/create-payment-intent', methods=['POST'])
+### PAYMENT PROCESSING ROUTES ###@bp.route('/payments/create-payment-intent', methods=['POST'])
 @limiter.limit("5 per minute")  # PHASE 5: Stricter limit for payment creation
 @login_required
 def create_payment_intent():
@@ -477,15 +548,20 @@ def mark_order_completed(order_id):
                 'message': 'Only the buyer can mark order as completed'
             }), 403
         
-        # Use transaction for order completion
+        # Use explicit commit/rollback for order completion
         try:
-            with db.session.begin():
-                order.order_status = 'completed'
-                order.completed_at = datetime.utcnow()
-                
-                if order.payment:
-                    order.payment.completion_method = 'buyer_confirmed'
-            
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
+
+            order.order_status = 'completed'
+            order.completed_at = datetime.utcnow()
+            if order.payment:
+                order.payment.completion_method = 'buyer_confirmed'
+
+            db.session.commit()
+
             return jsonify({
                 'status': 'success',
                 'message': 'Order marked as completed',
@@ -493,6 +569,7 @@ def mark_order_completed(order_id):
                 'payout_note': f'Seller will receive payout in {direct_charges_service.PAYOUT_HOLD_DAYS} days'
             })
         except Exception as e:
+            db.session.rollback()
             return jsonify({
                 'status': 'error',
                 'message': f'Failed to complete order: {str(e)}'

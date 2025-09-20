@@ -21,6 +21,7 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
@@ -57,6 +58,7 @@ const StubCard = ({
   listingStatus,
   handleListingSubmit,
   onBuyNow, // New prop for buy now functionality
+  isPaymentLoading = false, // New prop for payment loading state
   isMyStubsPage = false, // New prop to determine if it's the My Stubs page
   onEdit, // Callback for edit action
   onDelete, // Callback for delete action
@@ -599,7 +601,14 @@ const StubCard = ({
               <Button
                 variant="contained"
                 onClick={handleBuyNow}
-                startIcon={<FlashOn />}
+                disabled={isPaymentLoading}
+                startIcon={
+                  isPaymentLoading ? (
+                    <CircularProgress size={16} sx={{ color: darkBlue }} />
+                  ) : (
+                    <FlashOn />
+                  )
+                }
                 sx={{
                   mt: 1,
                   mb: 1.5,
@@ -620,11 +629,17 @@ const StubCard = ({
                   "&:active": {
                     transform: "translateY(1px)",
                   },
+                  "&:disabled": {
+                    background: `${primaryColor}60`,
+                    color: `${darkBlue}80`,
+                    transform: "none",
+                    boxShadow: "none",
+                  },
                   transition: "all 0.3s ease",
                 }}
                 fullWidth
               >
-                Buy Now
+                {isPaymentLoading ? "Preparing Payment..." : "Buy Now"}
               </Button>
             )}
 

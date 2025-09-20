@@ -24,6 +24,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import logo from "../../../../assets/StubCollect_Logo/Transparent/StubCollect_Logo_Clean_100x100.png";
+import ProfileMenu from "../../../components/Headers/ProfileMenu";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -42,14 +43,6 @@ const Navbar = () => {
 
   const handleSellClick = () => {
     navigate("/dashboard?showUpload=true");
-  };
-
-  const handleLoginClick = () => {
-    navigate("/login");
-  };
-
-  const handleSignupClick = () => {
-    navigate("/signup");
   };
 
   const handleLogoClick = () => {
@@ -124,47 +117,7 @@ const Navbar = () => {
           Sell
         </Button>
 
-        {/* Auth Buttons */}
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={handleLoginClick}
-            sx={{
-              borderRadius: "25px",
-              px: 3,
-              py: 1,
-              borderColor: theme.palette.orange?.main || "#FB921D",
-              color: theme.palette.orange?.main || "#FB921D",
-              "&:hover": {
-                backgroundColor: theme.palette.orange?.main || "#FB921D",
-                color: "white",
-              },
-            }}
-          >
-            Login
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleSignupClick}
-            sx={{
-              borderRadius: "25px",
-              px: 3,
-              py: 1,
-              background:
-                theme.palette.gradients?.warmGradient ||
-                "linear-gradient(135deg, #FB921D 0%, #DC2626 100%)",
-              "&:hover": {
-                background:
-                  theme.palette.gradients?.orangeGradient ||
-                  "linear-gradient(135deg, #FB921D 0%, #F59E0B 50%, #EAB308 100%)",
-                transform: "translateY(-1px)",
-                boxShadow: "0 4px 12px rgba(251,146,29,0.3)",
-              },
-            }}
-          >
-            Sign Up
-          </Button>
-        </Box>
+        <ProfileMenu />
       </Box>
     </Toolbar>
   );
