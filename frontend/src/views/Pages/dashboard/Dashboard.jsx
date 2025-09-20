@@ -9,11 +9,13 @@ import config from "../../../core/services/configService";
 import StubUploadComponent from "../../components/StubUploadComponent/StubUploadComponent";
 import ProfileMenu from "../../components/Headers/ProfileMenu";
 import { createPaymentIntent } from "../../../core/api/paymentmethods";
+import PaymentModal from "../../components/PaymentModal/PaymentModal";
 import Filters from "./components/Filters";
 import Chatbot from "../../components/Chatbot/Chatbot.jsx";
 import Footer from "../../components/footer/Footer.jsx";
 import bgImage from "../../../assets/doodles-bg.png";
 import logo from "../../../assets/StubCollect_Logo/Transparent/StubCollect_Logo_Clean_100x100.png";
+import notyf from "../../components/NotificationMessage/notyfInstance";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -24,6 +26,12 @@ function Dashboard() {
   const [perPage] = useState(10);
   const [hasMoreListings, setHasMoreListings] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  // Payment-related states
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedStub, setSelectedStub] = useState(null);
+  const [paymentData, setPaymentData] = useState(null);
+  const [isCreatingPayment, setIsCreatingPayment] = useState(false);
 
   // Check for query param
   useEffect(() => {
@@ -85,13 +93,70 @@ function Dashboard() {
     fetchListings({}, nextPage, true);
   };
 
-  const buyTicket = async (listingId) => {
+  const buyTicket = async (stub) => {
+    if (isCreatingPayment) return; // Prevent double-clicking
+
+    setIsCreatingPayment(true);
+    setSelectedStub(stub);
+
     try {
-      const response = await createPaymentIntent(listingId);
-      console.log(response);
+      // Create payment intent
+      const response = await createPaymentIntent(stub.id);
+
+      if (response.success) {
+        // Store payment data and open modal
+        setPaymentData({
+          clientSecret: response.clientSecret,
+          paymentIntentId: response.paymentIntentId,
+          orderId: response.orderId,
+          liabilityShifted: response.liabilityShifted,
+          payoutScheduleDays: response.payoutScheduleDays,
+        });
+        setPaymentModalOpen(true);
+
+        notyf.success(
+          "Payment ready! Complete your purchase in the payment form."
+        );
+      } else {
+        // Handle payment creation errors
+        if (response.sellerRequirements) {
+          notyf.error(`Seller cannot accept payments: ${response.error}`);
+        } else {
+          notyf.error(`Payment failed: ${response.error}`);
+        }
+        console.error("Payment intent creation failed:", response.error);
+      }
     } catch (error) {
-      console.log(error);
+      notyf.error("Failed to initiate payment. Please try again.");
+      console.error("Error creating payment intent:", error);
+    } finally {
+      setIsCreatingPayment(false);
     }
+  };
+
+  const handlePaymentSuccess = (successData) => {
+    notyf.success(
+      `Payment successful! Your order #${successData.orderId} has been confirmed.`
+    );
+    setPaymentModalOpen(false);
+    setSelectedStub(null);
+    setPaymentData(null);
+
+    // Optionally refresh listings to update availability
+    fetchListings({}, 1, false);
+    setPage(1);
+    setHasMoreListings(true);
+  };
+
+  const handlePaymentError = (error) => {
+    notyf.error(`Payment failed: ${error.message || "Please try again."}`);
+    console.error("Payment error:", error);
+  };
+
+  const handlePaymentModalClose = () => {
+    setPaymentModalOpen(false);
+    setSelectedStub(null);
+    setPaymentData(null);
   };
 
   return (
@@ -303,7 +368,11 @@ function Dashboard() {
                     price={listing.asking_price}
                     currency={listing.currency}
                     date={listing.stub.date}
-                    onClick={() => buyTicket(listing.id)}
+                    onClick={() => navigate(`/listing/${listing.id}`)}
+                    onBuyNow={() => buyTicket(listing)}
+                    isPaymentLoading={
+                      isCreatingPayment && selectedStub?.id === listing.id
+                    }
                     showSeller={true}
                     stub={listing.stub}
                     sellerName={listing?.seller_name}
@@ -364,6 +433,23 @@ function Dashboard() {
 
           {/* <Footer /> */}
         </section>
+      )}
+
+      {/* Payment Modal */}
+      {selectedStub && paymentData && (
+        <PaymentModal
+          open={paymentModalOpen}
+          onClose={handlePaymentModalClose}
+          stub={{
+            ...selectedStub.stub,
+            asking_price: selectedStub.asking_price,
+            currency: selectedStub.currency,
+            id: selectedStub.id, // Add the listing ID for payment
+          }}
+          paymentData={paymentData}
+          onPaymentSuccess={handlePaymentSuccess}
+          onPaymentError={handlePaymentError}
+        />
       )}
     </Box>
   );

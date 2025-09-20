@@ -2,7 +2,6 @@ import { loadStripe } from "@stripe/stripe-js";
 import { getApi } from "./apiService";
 
 export const checkSellerStatus = async () => {
-
   try {
     const api = await getApi();
     const response = await api.get("/api/payments/connect/status");
@@ -56,7 +55,7 @@ export const startStripeOnboarding = async () => {
 };
 
 const stripePromise = loadStripe(
-  "pk_test_51QlCWbJIDHKRj8Hxh5O35ATbVGsbYKEMrHZVoECkpWdxwf12tPzy5LuOQnGfeAXlRnQM8Z4srSYrCt4U75AXwA2y00bCqJ7qoT"
+  "pk_test_51RawVnKc8GJcFDUJzbqQOAvUKhp3MFwvVdN6ZTVLxiyZfggzuzL3opcszJFpkpbGpxdcvVVr0Dj940jtEvREM0hl009j4AcrXf"
 );
 
 export const createPaymentIntent = async (listingId) => {
@@ -90,6 +89,64 @@ export const createPaymentIntent = async (listingId) => {
         error?.response?.data?.message ||
         error?.message ||
         "Payment creation failed",
+    };
+  }
+};
+
+export const getOrderStatus = async (orderId) => {
+  try {
+    const api = await getApi();
+    const response = await api.get(`/api/orders/${orderId}/status`);
+    const data = response.data;
+    if (data.status === "success") {
+      return {
+        success: true,
+        order: data.order,
+      };
+    } else {
+      return {
+        success: false,
+        error: data.message,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching order status:", error);
+    return {
+      success: false,
+      error:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to fetch order status",
+    };
+  }
+};
+
+export const completeOrder = async (orderId) => {
+  try {
+    const api = await getApi();
+    const response = await api.post(`/api/payments/orders/${orderId}/complete`);
+    const data = response.data;
+    if (data.status === "success") {
+      return {
+        success: true,
+        message: data.message,
+        orderStatus: data.order_status,
+        payoutNote: data.payout_note,
+      };
+    } else {
+      return {
+        success: false,
+        error: data.message,
+      };
+    }
+  } catch (error) {
+    console.error("Error completing order:", error);
+    return {
+      success: false,
+      error:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to complete order",
     };
   }
 };
