@@ -301,9 +301,12 @@ class DirectChargesService:
                 
                 # Add liability shift parameters if enabled
                 if self.ENABLE_LIABILITY_SHIFT and seller_eligible:
+                    # Use destination payments pattern for liability shift
                     intent_params.update({
-                        'on_behalf_of': seller.stripe_account_id,
                         'application_fee_amount': order.platform_fee_cents,
+                        'transfer_data': {
+                            'destination': seller.stripe_account_id,
+                        },
                         'transfer_group': f'order_{order.id}',
                     })
                 
@@ -329,7 +332,7 @@ class DirectChargesService:
                         db.session.commit()
                     except Exception as cleanup_error:
                         db.session.rollback()
-                        return {'success': False, 'error': f'Stripe payment creation failed and cleanup error: {stripe_error)}; {str(cleanup_error)}'}
+                        return {'success': False, 'error': f'Stripe payment creation failed and cleanup error: {stripe_error}; {str(cleanup_error)}'}
 
                     return {'success': False, 'error': f'Stripe payment creation failed: {str(stripe_error)}'}
                 
