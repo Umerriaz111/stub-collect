@@ -33,5 +33,5 @@ class Config:
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_DOMAIN = None  # Allow cross-origin cookies
+    SESSION_COOKIE_DOMAIN = ".onrender.com"
     PERMANENT_SESSION_LIFETIME = 86400  # 24 hours
