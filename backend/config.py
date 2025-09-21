@@ -30,8 +30,8 @@ class Config:
     GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
     SAVE_CHATBOT_IMAGES = os.environ.get('SAVE_CHATBOT_IMAGES', 'false').lower() == 'true' 
     
+    SESSION_COOKIE_DOMAIN = ".stubcollector.com"
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = "None"
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_DOMAIN = ".onrender.com"
-    PERMANENT_SESSION_LIFETIME = 86400  # 24 hours
+    PERMANENT_SESSION_LIFETIME = 86400
